@@ -4,6 +4,16 @@
 .bgColor{
   background-color: #0eb493;
 }
+.textColor{
+  color: #fff;
+}
+.iconBg{
+  color: #fff;
+    background-color: #0eb493;
+    padding: 5px 7px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
 .me-2 {
   margin-right: 0.5rem!important;
 }
@@ -202,6 +212,19 @@ border-radius: 5px;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+.btn {
+  --bs-btn-padding-x: 0.3rem!important;
+  --bs-btn-padding-y: 0.04rem!important;
+}
+.btn i{
+  font-size: 13.5px;
+}
+.tabletext{
+  font-size: 10pt;
+}
+.table>:not(caption)>*>* {
+  padding: .40rem .5rem!important;
 }
 
 .App-link {

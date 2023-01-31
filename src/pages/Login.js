@@ -10,12 +10,22 @@ export default function Login() {
     let tokenValue = window.localStorage.getItem("am_token");
     if (tokenValue && tokenValue !== "undefined") {
       console.log("Login Page:User already login!", tokenValue);
-      navigate("/dashboard");
+      navigate("/dashboard/userprofile");
     } else {
       const token = new URLSearchParams(search).get("token");
-      console.log("token value : ", search, token);
-      if (token) window.localStorage.setItem("am_token", token);
+      if (token) {
+        console.log("Login Page:User logedin !token value : ", search, token);
+        window.localStorage.setItem("am_token", token);
+        navigate("/dashboard/userprofile");
+      } else {
+        console.log("Login Page:User not logedin ! ", token);
+      }
     }
+
+    // if (tokenValue) {
+    //   console.log("Login Page:User Already login!", tokenValue);
+    //   navigate("/dashboard/userprofile");
+    // } else
   }, [search, navigate]);
   useEffect(() => {
     checkUser();

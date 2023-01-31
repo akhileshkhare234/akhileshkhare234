@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { APIUrl } from "../auth/constants";
 import DeleteItem from "./DeleteItem";
 import EditItem from "./EditItem";
 import ItemDetails from "./ItemDetails";
 import ItemEntry from "./ItemEntry";
+import ItemsHistory from "./itemsHistory";
 import ItemsList from "./ItemsList";
 
 export default function Items() {
   const navigate = useNavigate();
   const [editPopUp, setEditPopUp] = useState(true);
+  const [historiPopUp, setHistoriPopUp] = useState(true);
   const [deletePopUp, setDeletePopUp] = useState(true);
   const [detailsPopUp, setDetailsPopUp] = useState(true);
   const [entryPopUp, setEntryPopUp] = useState(true);
@@ -24,8 +27,12 @@ export default function Items() {
     setEditPopUp(status);
     setItemdata(data);
   };
+  const setHistoryData = (status, id) => {
+    setHistoriPopUp(status);
+    setItemId(id);
+  };
   const getUserData = useCallback(() => {
-    fetch("http://localhost:8080/api/user/me", {
+    fetch(APIUrl+"api/user/me", {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + token,
@@ -73,6 +80,13 @@ export default function Items() {
         deletePopUpClose={(status) => setDeletePopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
       ></DeleteItem>
+      <ItemsHistory
+        token={token}
+        itemid={itemId}
+        historyPopUpOpen={historiPopUp}
+        historyPopUpClose={(status) => setHistoriPopUp(status)}
+        changeStatus={(status) => setItemStatus(status)}
+      ></ItemsHistory>
       <ItemDetails
         itemData={itemData}
         detailsPopUp={detailsPopUp}
@@ -82,6 +96,7 @@ export default function Items() {
         token={token}
         entryPopUpOpen={(status) => setEntryPopUp(status)}
         editPopUpOpen={(status, data) => setEditData(status, data)}
+        historyPopUpOpen={(status, data) => setHistoryData(status, data)}
         deletePopUpOpen={(status, id) => {
           setDeletePopUp(status);
           setItemId(id);
