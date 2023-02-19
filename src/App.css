@@ -153,7 +153,7 @@ border-radius: 5px;
   text-shadow: 0px 0px 1px #ccc;
 }
 .pagesize{
-  height: calc(100vh - 80px);
+  height: 100%;
 }
 .pageMargin{
   margin-right: 0px;
@@ -167,8 +167,10 @@ border-radius: 5px;
   color: #fff;
 }
 .navbar-nav-side{
-  height: calc(100vh - 80px);
+  min-height: calc(100vh - 80px);
+  max-height: 100vh;
   position: relative;
+  background-color: #0eb493;
 }
 .navbar-nav-side .buttons button{
   position: absolute;
@@ -183,6 +185,30 @@ border-radius: 5px;
   box-shadow: 0px 0px 3px #000;
   font-size: 14pt;
 }
+.saveBtn{
+ float: right;
+  width: 170px;
+  margin-bottom: 15px;
+  margin-right: 15px;
+  background-color: #0eb493;
+  color: #fff;
+  font-weight: 500;
+  height: 38px;
+  border: 0;
+  box-shadow: 0px 0px 3px #000;
+  font-size: 14pt;
+}
+.verticalAlign{
+  vertical-align: middle;
+}
+.hrsinput{
+  width: 50px;
+    text-align: right;
+    border: 0;
+}
+.hrsinput:focus-visible{
+  outline-width: 0!important;
+}
 .navbar-nav-side li a{
   color: #fff;
   text-shadow: 0px 1px 1px rgb(202, 202, 202);
@@ -196,6 +222,57 @@ border-radius: 5px;
 .navbar-nav-side li a:hover{
   background-color: #fff;
   color: #0eb493;
+}
+.badge-pill{
+  background-color: #0eb493;
+    color: #fff;
+    border-radius: 25%;
+    margin-right: 10px;
+    padding: 0px 5px;
+}
+.badge-pill-right{
+  float: right;
+  background-color: #474747;
+  color: #fff;
+    width: 75px;
+    border-radius: 2px;
+    text-align: right;
+    margin-right: 10px;
+    padding: 0px 5px;
+}
+.item-right{
+  background-color: #0eb493;
+    color: #fff;
+    text-align: right;
+    padding: 2px 4px;
+    display: block;
+    margin-right: 10px;
+    font-weight: bold;
+}
+.list-total{
+  width: 90px;
+    display: block;
+    float: right;
+    padding-right: 15px;
+    padding-left: 5px;
+    font-weight: bold;
+}
+.list{
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.list-item{
+  margin-bottom: 1px;
+}
+.inputSize-1{
+  width: 50px;
+  font-size: 10pt;
+}
+.inputSize-2{
+  width: 260px;
+  height: 38px;
+  font-size: 10pt;
 }
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
@@ -220,16 +297,31 @@ border-radius: 5px;
 .btn i{
   font-size: 13.5px;
 }
-.tabletext{
+.tabletext {
   font-size: 10pt;
 }
 .table>:not(caption)>*>* {
-  padding: .40rem .5rem!important;
+  padding: .40rem .4rem!important;
 }
-
+/* .tabletimesheet .table tr td {
+  padding: .40rem .15rem!important;
+} */
 .App-link {
   color: #61dafb;
 }
+.timesheettable thead tr{
+  background-color: #4e4e4e;
+  color: #fff;
+}
+.timesheettable tbody tr td:nth-child(3),.timesheettable tbody tr td:nth-child(4){
+background-color: rgb(246, 251, 234);
+}
+.timesheettable tbody tr td:nth-child(5),.timesheettable tbody tr td:nth-child(6){
+  background-color: rgb(193, 253, 189);
+  }
+  .timesheettable tbody tr td:nth-child(7),.timesheettable tbody tr td:nth-child(8){
+    background-color: rgb(215, 224, 255);
+    }
 
 @keyframes App-logo-spin {
   from {

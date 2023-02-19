@@ -40,7 +40,7 @@ export default function DashboardLayout() {
   return (
     <div className="container-fulid">
       <div className="row pagesize pageMargin">
-        <div className="col-2 rowSpace">
+        <div className="col-2 rowSpace bgColor">
           <ul
             className="navbar-nav navbar-nav-side bgColor"
             id="accordionSidebar"
@@ -76,6 +76,12 @@ export default function DashboardLayout() {
                 <span>User profile</span>
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="timesheet">
+                <i className="bi bi-person-vcard"></i>
+                <span>Time Sheet</span>
+              </Link>
+            </li>
             {userInfo && userInfo.role === 2 ? (
               <>
                 <li className="nav-item">
@@ -94,7 +100,7 @@ export default function DashboardLayout() {
             </li>
           </ul>
         </div>
-        <div className="col-10 rowSpace">
+        <div className="col-10" style={{ backgroundColor: "#fff", padding: 0 }}>
           <Outlet />
         </div>
       </div>

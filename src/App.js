@@ -8,6 +8,7 @@ import UserProfiles from "./pages/UserProfiles";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "./auth/constants";
 import UploadCSV from "./pages/UploadCSV";
+import UserTimeSheet from "./pages/timesheet/UserTimeSheet";
 
 export const UserData = createContext(null);
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/dashboard" exact element={<DashboardLayout />}>
             <Route path="" exact element={<UserProfiles />} />
             <Route path="items" exact element={<Items />} />
+            <Route path="timesheet" exact element={<UserTimeSheet />} />
             <Route path="users" exact element={<UserList />} />
             <Route path="userprofile" exact element={<UserProfiles />} />
             <Route path="uploadcsv" exact element={<UploadCSV />} />
