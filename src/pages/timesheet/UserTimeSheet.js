@@ -1,31 +1,60 @@
-import React, {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { getMonthDates } from "../util";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
+import { APIUrl } from "../../auth/constants";
+import { getMonth, getMonthDates, getMonthName, getYears } from "../util";
 import TimeSheetDetails from "./TimeSheetDetails";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Header from "../inventory/Header";
 export default function UserTimeSheet() {
-  const [projects, setProjects] = useState([
-    { name: "Praemia", projectId: 1, totalHour: 0 },
-    { name: "HotSpots", projectId: 2, totalHour: 0 },
-    { name: "Asset Management", projectId: 3, totalHour: 0 },
-  ]);
+  const [projects, setProjects] = useState([]);
   const [totalHour, setTotalHour] = useState({});
-  const setDefaultHours = useCallback(() => {
-    let hours = {};
-    getMonthDates(2, 2023, projects).forEach((data) => {
-      hours["day_" + data.day] = 0;
-    });
+  const [totalHoursValue, setTotalHoursValue] = useState(0);
+  const [timeSheetData, setTimeSheetData] = useState({});
+  // const setDefaultHours = useCallback(() => {
+  //   let hours = {};
+  //   getMonthDates(getMonth(), getYears(), projects).forEach((data) => {
+  //     hours["day_" + data.day] = 0;
+  //   });
 
-    setTotalHour(hours);
+  //   setTotalHour(hours);
+  // }, []);
+  // useEffect(() => {
+  //   setDefaultHours();
+  // }, [setDefaultHours]);
+  const [userInfo, setUserInfo] = useState([]);
+  const getUsers = useCallback(() => {
+    let tokenValue = window.localStorage.getItem("am_token");
+    fetch(APIUrl + "api/user/me", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + tokenValue,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("res.project : ", res.projects);
+        let projectData = res.projects.map((row) => {
+          row["totalHour"] = 0;
+          return row;
+        });
+        let hours = {};
+        getMonthDates(getMonth(), getYears(), projectData).forEach((data) => {
+          hours["day_" + data.day] = 0;
+        });
+
+        setTotalHour(hours);
+        setProjects([...projectData]);
+        setUserInfo(res);
+        console.log("User Profile : ", res);
+      })
+      .catch((err) => {
+        console.log("User Not Get : ", err);
+      });
   }, []);
   useEffect(() => {
-    setDefaultHours();
-  }, [setDefaultHours]);
+    getUsers();
+  }, [getUsers]);
+
   const saveTimeSheet = (e) => {
     e.preventDefault();
     console.log("TimeSheet Data ", e.target);
@@ -36,54 +65,221 @@ export default function UserTimeSheet() {
         detail: [],
         comment: "",
         status: "InProgress",
-        totalHour: 0,
+        totalHour: totalHoursValue,
       };
-      let taskDetails = getMonthDates(2, 2023, projects).map((data) => {
-        console.log(
-          "task ID",
-          data.details.filter((row) => row.projectId === project.projectId)[0][
-            "hour"
-          ]
-        );
-        return {
-          day: data.day,
-          task: e.target[
-            data.details.filter(
-              (row) => row.projectId === project.projectId
-            )[0]["task"]
-          ].value,
-          hour: e.target[
+      let taskDetails = getMonthDates(getMonth(), getYears(), projects).map(
+        (data) => {
+          console.log(
+            "task ID",
             data.details.filter(
               (row) => row.projectId === project.projectId
             )[0]["hour"]
-          ].value,
-          comment: "",
-        };
-      });
+          );
+          return {
+            day: data.day,
+            task: e.target[
+              data.details.filter(
+                (row) => row.projectId === project.projectId
+              )[0]["task"]
+            ].value,
+            hour: e.target[
+              data.details.filter(
+                (row) => row.projectId === project.projectId
+              )[0]["hour"]
+            ].value,
+            comment: "",
+          };
+        }
+      );
       payload.detail = [...taskDetails];
       return payload;
     });
     console.log("payloadData : ", payloadData);
+    let timeSheetPayload = {
+      userName: userInfo.userName,
+      email: userInfo.email,
+      month: getMonthName(),
+      year: getYears(),
+      status: "InProgress",
+      projectIds: projects.map((row) => row.projectId).join("|"),
+      submitDate: new Date(),
+      totalHour: totalHoursValue,
+      comment: "",
+      data: [...payloadData],
+    };
+    console.log("payloadData : ", timeSheetPayload);
+    let tokenValue = window.localStorage.getItem("am_token");
+    fetch(APIUrl + "api/timesheet/", {
+      method: "POST",
+      body: JSON.stringify(timeSheetPayload),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + tokenValue,
+      },
+    })
+      .then((res) => {
+        console.log("Update TimeSheet : ", res);
+      })
+      .catch((err) => {
+        console.log("TimeSheet Not Update : ", err);
+      });
+    toast.success("Save TimeSheet Successfully.", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      theme: "colored",
+    });
   };
-  const setHoursValue = (e) => {
-    console.log(e.target.name);
+
+  const updateTimeSheet = (e) => {
+    e.preventDefault();
+    console.log("TimeSheet Data ", e.target);
+    let timeSheetValue = null;
+    projects.forEach((project) => {
+      timeSheetValue = timeSheetData.data.filter(
+        (row) => row.projectId === project.projectId
+      )[0];
+      //   let payload = {
+      //     projectId: timeSheetValue.projectId,
+      //     projectName: timeSheetValue.name,
+      //     detail: [],
+      //     id: timeSheetValue.id,
+      //     comment: timeSheetValue.comment,
+      //     status: timeSheetValue.status,
+      //     totalHour: project.totalHour,
+      //   };
+      //   let taskDetails = timeSheetValue.detail.map((data) => {
+      //     console.log("timeSheetValue ", timeSheetValue);
+      //     console.log("timeSheetValue data", data);
+      //     return {
+      //       id: data.id,
+      //       day: data.day,
+      //       task: e.target[`task_${data.day}_${timeSheetValue.projectId}`].value,
+      //       hour: e.target[`hour_${data.day}_${timeSheetValue.projectId}`].value,
+      //       comment: data.comment,
+      //     };
+      //   });
+      //   payload.detail = [...taskDetails];
+      //   return payload;
+    });
+    let payloadNewData = projects.map((project) => {
+      timeSheetValue = timeSheetData.data.filter(
+        (row) => row.projectId === project.projectId
+      )[0];
+      let payload = {
+        projectId: timeSheetValue.projectId,
+        projectName: timeSheetValue.name,
+        detail: [],
+        id: timeSheetValue.id,
+        comment: timeSheetValue.comment,
+        status: timeSheetValue.status,
+        totalHour: project.totalHour,
+      };
+      let taskDetails = getMonthDates(getMonth(), getYears(), projects).map(
+        (data) => {
+          console.log(
+            "task ID",
+            data.details.filter(
+              (row) => row.projectId === project.projectId
+            )[0]["hour"]
+          );
+          return data.id > 0
+            ? {
+                id: data.id,
+                day: data.day,
+                task: e.target[
+                  data.details.filter(
+                    (row) => row.projectId === project.projectId
+                  )[0]["task"]
+                ].value,
+                hour: e.target[
+                  data.details.filter(
+                    (row) => row.projectId === project.projectId
+                  )[0]["hour"]
+                ].value,
+                comment: "",
+              }
+            : {
+                day: data.day,
+                task: e.target[
+                  data.details.filter(
+                    (row) => row.projectId === project.projectId
+                  )[0]["task"]
+                ].value,
+                hour: e.target[
+                  data.details.filter(
+                    (row) => row.projectId === project.projectId
+                  )[0]["hour"]
+                ].value,
+                comment: "",
+              };
+        }
+      );
+      payload.detail = [...taskDetails];
+      return payload;
+    });
+    console.log("payloadNewData : ", payloadNewData);
+    let timeSheetPayload = {
+      userName: timeSheetData.userName,
+      email: timeSheetData.email,
+      month: timeSheetData.month,
+      year: timeSheetData.year,
+      status: "InProgress",
+      projectIds: timeSheetData.projectIds,
+      submitDate: new Date(),
+      totalHour: totalHoursValue,
+      comment: timeSheetData.comment,
+      id: timeSheetData.id,
+      data: [...payloadNewData],
+    };
+    console.log("Update payloadNewData : ", timeSheetPayload);
+    let tokenValue = window.localStorage.getItem("am_token");
+    fetch(APIUrl + "api/timesheet/" + timeSheetData.id, {
+      method: "PUT",
+      body: JSON.stringify(timeSheetPayload),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + tokenValue,
+      },
+    })
+      .then((res) => {
+        console.log("Update TimeSheet : ", res);
+      })
+      .catch((err) => {
+        console.log("TimeSheet Not Update : ", err);
+      });
+    toast.success("TimeSheet Update Successfully.", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      theme: "colored",
+    });
+  };
+  const setHoursValue = (fieldName) => {
+    console.log("onChange Call");
     let colIndex = -1;
     // eslint-disable-next-line array-callback-return
-    let hourRow = getMonthDates(2, 2023, projects).filter((data) => {
-      if (
-        data.details.filter((row, ind) => {
-          if (row.hour === e.target.name) {
-            colIndex = ind;
-            return row;
-          }
-        }).length > 0
-      )
-        return data;
-    });
+    let hourRow = getMonthDates(getMonth(), getYears(), projects).filter(
+      // eslint-disable-next-line array-callback-return
+      (data) => {
+        if (
+          // eslint-disable-next-line array-callback-return
+          data.details.filter((row, ind) => {
+            if (row.hour === fieldName) {
+              colIndex = ind;
+              return row;
+            }
+          }).length > 0
+        )
+          return data;
+      }
+    );
     let timesheet = document.forms["timesheet"];
     let hourCol = {};
     let totalHourValue = 0;
-    getMonthDates(2, 2023, projects).forEach((data) => {
+    getMonthDates(getMonth(), getYears(), projects).forEach((data) => {
       hourCol[data.details[colIndex].hour] =
         timesheet[data.details[colIndex].hour].value;
       if (timesheet[data.details[colIndex].hour].value > 0)
@@ -91,18 +287,19 @@ export default function UserTimeSheet() {
           timesheet[data.details[colIndex].hour].value
         );
     });
+    let hoursValue = 0;
     let tempProjects = projects.map((row) => {
-      if (row.projectId === parseInt(e.target.name.split("_")[2]))
+      if (row.projectId === parseInt(fieldName.split("_")[2])) {
         row.totalHour = totalHourValue;
-      console.log("Projetc ID : ", parseInt(e.target.name.split("_")[2]), row);
+        hoursValue += totalHourValue;
+      }
       return row;
     });
+    setTotalHoursValue(hoursValue);
     setProjects([...tempProjects]);
-    console.log("Col Index ", colIndex, hourCol);
     if (hourRow.length > 0) {
       let sum = 0;
       hourRow[0].details.forEach((row) => {
-        console.log(timesheet[row.hour].value);
         if (timesheet[row.hour].value > 0)
           sum += parseFloat(timesheet[row.hour].value);
         else sum += 0;
@@ -111,23 +308,77 @@ export default function UserTimeSheet() {
       timesheet["day_" + hourRow[0].day].value = sum + " hrs";
       setTotalHour(totalHour);
     }
-    console.log("totalHour : ", totalHour);
   };
   useEffect(() => {
     console.log("totalHour Change");
   }, [totalHour]);
-  return (
+  const getTimeSheet = useCallback(() => {
+    let tokenValue = window.localStorage.getItem("am_token");
+    fetch(APIUrl + `api/timesheet/${getYears()}/${getMonthName()}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + tokenValue,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        let timesheet = document.forms["timesheet"];
+        console.log("timesheet ", res);
+        let projectIds = projects.map((row) => row.projectId);
+        if (res.month !== null) {
+          res?.data?.forEach((row) => {
+            row.detail.forEach((data) => {
+              if (`hour_${data.day}_${row.projectId}` in timesheet) {
+                timesheet[`hour_${data.day}_${row.projectId}`].value =
+                  data.hour;
+                let sum = 0;
+                let myarrays = projectIds.map((rows) =>
+                  timesheet[`hour_${data.day}_${rows}`].value > 0
+                    ? parseFloat(timesheet[`hour_${data.day}_${rows}`].value)
+                    : 0
+                );
+                console.log("myarrays Value ", myarrays);
+                if (myarrays.length > 0) myarrays.reduce((p, n) => p + n);
+
+                totalHour["day_" + data.day] = sum;
+                timesheet["day_" + data.day].value = sum + " hrs";
+              }
+              if (timesheet[`task_${data.day}_${row.projectId}`])
+                timesheet[`task_${data.day}_${row.projectId}`].value =
+                  data.task;
+            });
+          });
+          let tempProjects = projects.map((row, index) => {
+            row.totalHour = res.data[index].totalHour;
+            return row;
+          });
+          setProjects([...tempProjects]);
+        }
+        setTimeSheetData(res);
+      })
+      .catch((err) => console.log("TimeSheet Data Not Get : ", err));
+  }, [totalHour]);
+  useEffect(() => {
+    getTimeSheet();
+  }, [getTimeSheet]);
+  return userInfo?.projects?.length > 0 ? (
     <>
       <TimeSheetDetails projects={projects} />
-      <form name="timesheet" onSubmit={saveTimeSheet}>
+      <ToastContainer />
+      <form
+        name="timesheet"
+        onSubmit={
+          timeSheetData.month === null ? saveTimeSheet : updateTimeSheet
+        }
+      >
         <button type="submit" className="btn saveBtn">
-          Save TimeSheet
+          {timeSheetData.month === null ? "Save TimeSheet" : "Update TimeSheet"}
         </button>
         <table className="table tabletext timesheettable">
           <thead>
             <tr>
-              <th scope="col" colSpan={2}>
-                Project name
+              <th scope="col" colSpan={1}>
+                Projects
               </th>
               {projects.map((project, index) => (
                 <th
@@ -149,51 +400,66 @@ export default function UserTimeSheet() {
             </tr>
           </thead>
           <tbody>
-            {getMonthDates(2, 2023, projects).map((data, index) => (
-              <tr key={index + data.day}>
-                <th
-                  style={{ width: "70px" }}
-                  className="text-center verticalAlign"
-                >
-                  {data.day}
-                </th>
-                <th className="text-start verticalAlign">{data.dayName}</th>
-                {data.details.map((row) => (
-                  <Fragment key={row.hour}>
-                    <td>
-                      <input
-                        type="text"
-                        name={row.hour}
-                        onChange={setHoursValue}
-                        className="form-control rounded-3 inputSize-1"
-                        placeholder="Hrs"
-                      />
-                    </td>
-                    <td>
-                      <textarea
-                        multiline="true"
-                        type="text"
-                        name={row.task}
-                        className="form-control rounded-3 inputSize-2"
-                        placeholder="Task Details"
-                      />
-                    </td>
-                  </Fragment>
-                ))}
-                <th className="text-center verticalAlign">
-                  <input
-                    readOnly={true}
-                    className="hrsinput"
-                    type="text"
-                    name={"day_" + data.day}
-                    value={totalHour["day_" + data.day] + " hrs"}
-                  />
-                </th>
-              </tr>
-            ))}
+            {getMonthDates(getMonth(), getYears(), projects).map(
+              (data, index) => (
+                <tr key={index + data.day}>
+                  <th
+                    style={{ width: "70px" }}
+                    className="text-center verticalAlign"
+                  >
+                    <div className="bgColor textColor dateStyle">
+                      <div>{data.day}</div>
+                      <div>{data.dayName}</div>
+                    </div>
+                  </th>
+                  {data.details.map((row) => (
+                    <Fragment key={row.hour}>
+                      <td className="inputSize inputSize-1">
+                        <input
+                          type="text"
+                          name={row.hour}
+                          onChange={(event) => setHoursValue(event.target.name)}
+                          className="form-control rounded-3 "
+                          placeholder="Hrs"
+                        />
+                      </td>
+                      <td className="inputSize textareaSize-1">
+                        <textarea
+                          multiline="true"
+                          type="text"
+                          name={row.task}
+                          className="form-control rounded-3"
+                          placeholder="Task Details"
+                        />
+                      </td>
+                    </Fragment>
+                  ))}
+                  <th className="text-center verticalAlign">
+                    <input
+                      readOnly={true}
+                      className="hrsinput"
+                      type="text"
+                      name={"day_" + data.day}
+                      value={totalHour["day_" + data.day] + " hrs"}
+                    />
+                  </th>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </form>
+    </>
+  ) : (
+    <>
+      <Header title="Time Sheet Details" />
+      <div className="container">
+        <div className="row">
+          <div className="col text-center">
+            <h5 className="mt-4">No projects have been assigned to you.</h5>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { UserData } from "../App";
-import { APIUrl } from "../auth/constants";
+import { UserData } from "../../App";
+import { APIUrl } from "../../auth/constants";
 import Header from "./Header";
-import { dateFormate } from "./util";
+import { dateFormate } from "../util.js";
 
 export default function ItemsList({
   entryPopUpOpen,
@@ -19,6 +19,7 @@ export default function ItemsList({
   const [pages, setPages] = useState([]);
   const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
+  const [pageSize, setPageSize] = useState(10);
   const setItemsData = useCallback(() => {
     setStart(0);
     fetch(APIUrl + "api/assets", {
@@ -30,11 +31,10 @@ export default function ItemsList({
       .then((res) => res.json())
       .then((res) => {
         if (res.assets?.length > 0) {
-          let inventory = res.assets.filter((row, index) => index < 10);
+          let inventory = res.assets.filter((row, index) => index < pageSize);
           console.log("inventory Info ", inventory);
           setItems([...inventory]);
           setInventories([...res.assets]);
-          let pageSize = 10;
           let pages = [];
           for (let I = 1; I <= Math.ceil(res.assets.length / pageSize); I++) {
             pages.push(I);
@@ -46,7 +46,7 @@ export default function ItemsList({
           setPages([]);
         }
       });
-  }, [token]);
+  }, [pageSize, token]);
   useEffect(() => {
     setItemsData();
   }, [setItemsData, itemStatus]);
@@ -61,15 +61,13 @@ export default function ItemsList({
       );
       console.log("serachText,inventory ", serachText, inventory);
       setItems([...inventory]);
-      let pageSize = 10;
       let pages = [];
       for (let I = 1; I <= Math.ceil(inventory.length / pageSize); I++) {
         pages.push(I);
       }
       setPages(pages);
     } else {
-      let inventory = inventories.filter((row, index) => index < 10);
-      let pageSize = 10;
+      let inventory = inventories.filter((row, index) => index < pageSize);
       let pages = [];
       for (let I = 1; I <= Math.ceil(inventories.length / pageSize); I++) {
         pages.push(I);
@@ -77,7 +75,7 @@ export default function ItemsList({
       setPages(pages);
       setItems([...inventory]);
     }
-  }, [inventories, serachText]);
+  }, [inventories, pageSize, serachText]);
   useEffect(() => {
     const getData = setTimeout(() => {
       searchInventory(serachText);
@@ -85,9 +83,9 @@ export default function ItemsList({
     return () => clearTimeout(getData);
   }, [searchInventory, serachText]);
   const showNextInventory = (pos) => {
-    let start = pos === 1 ? 0 : pos * 10 - 10;
+    let start = pos === 1 ? 0 : pos * pageSize - pageSize;
     let inventory = inventories.filter(
-      (row, index) => index >= start && index < pos * 10
+      (row, index) => index >= start && index < pos * pageSize
     );
     console.log("start, pos,inventory ", start, pos, inventory);
     setItems([...inventory]);
@@ -106,6 +104,7 @@ export default function ItemsList({
                     className="form-control  border"
                     type="search"
                     placeholder="search"
+                    defaultValue={serachText}
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
                     onKeyUp={(event) => setSerachText(event.target.value)}
@@ -136,11 +135,11 @@ export default function ItemsList({
                   <th scope="col">Location</th>
                   <th scope="col">Model</th>
                   <th scope="col">Brand</th>
-                  <th scope="col">Purchase Date</th>
+                  {/* <th scope="col">Purchase Date</th> */}
                   <th scope="col">Identity Type</th>
                   <th scope="col">Identity Value</th>
-                  <th scope="col">Validity From</th>
-                  <th scope="col">Validity To</th>
+                  {/* <th scope="col">Validity From</th>
+                  <th scope="col">Validity To</th> */}
                   <th scope="col" className="text-center">
                     Action
                   </th>
@@ -156,11 +155,11 @@ export default function ItemsList({
                     <td>{item.location}</td>
                     <td>{item.model}</td>
                     <td>{item.brand}</td>
-                    <td>{dateFormate(item.purchaseDate)}</td>
+                    {/* <td>{dateFormate(item.purchaseDate)}</td> */}
                     <td>{item.identityType}</td>
                     <td>{item.identity}</td>
-                    <td>{dateFormate(item.validityFrom)}</td>
-                    <td>{dateFormate(item.validityTo)}</td>
+                    {/* <td>{dateFormate(item.validityFrom)}</td>
+                    <td>{dateFormate(item.validityTo)}</td> */}
                     <td className="text-center">
                       {userInfo && userInfo.role === 2 ? (
                         <>
@@ -198,15 +197,31 @@ export default function ItemsList({
                   </tr>
                 ))}
               </tbody>
-              {inventories.length > 10 && pages.length > 0 ? (
+              {inventories.length > pageSize && pages.length > 0 ? (
                 <tfoot>
                   <tr>
-                    <td colSpan="14">
+                    <td colSpan="2">
+                      <select
+                        style={{
+                          width: "50px",
+                          paddingLeft: "8px",
+                          height: "35px",
+                        }}
+                        className="rounded-3"
+                        name="type"
+                        onChange={(e) => setPageSize(e.target.value)}
+                      >
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                      </select>
+                    </td>
+                    <td colSpan="12">
                       <nav aria-label="Page navigation example">
                         <ul className="pagination justify-content-end m-0">
-                          <li className="page-item disabled">
+                          {/* <li className="page-item disabled">
                             <span className="page-link">Previous</span>
-                          </li>
+                          </li> */}
                           {pages.map((page, index) => (
                             <li
                               className="page-item"
@@ -219,11 +234,11 @@ export default function ItemsList({
                             </li>
                           ))}
 
-                          <li className="page-item">
+                          {/* <li className="page-item">
                             <span className="page-link" href="#">
                               Next
                             </span>
-                          </li>
+                          </li> */}
                         </ul>
                       </nav>
                     </td>

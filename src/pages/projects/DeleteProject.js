@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { APIUrl } from "../auth/constants";
+import { APIUrl } from "../../auth/constants";
 
-export default function DeleteItem({
+export default function DeleteProject({
   deletePopUp,
   deletePopUpClose,
   token,
@@ -12,7 +12,7 @@ export default function DeleteItem({
     console.log("deletePopUp ", deletePopUp);
   }, [deletePopUp]);
   const removeItem = () => {
-    fetch(APIUrl+"api/assets/" + itemid, {
+    fetch(APIUrl + "api/project/" + itemid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +38,7 @@ export default function DeleteItem({
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Delete Item
+                Delete Project
               </h1>
               <button
                 onClick={() => deletePopUpClose(true)}
@@ -51,7 +51,7 @@ export default function DeleteItem({
             <div className="modal-body">
               <h1 className="modal-title fs-6">
                 <i className="bi bi-trash iconBg"></i> Are you sure you want to
-                delete this item <i className="bi bi-question-circle"></i>
+                delete this project <i className="bi bi-question-circle"></i>
               </h1>
             </div>
             <div className="modal-footer">

@@ -1,14 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Items from "./pages/Items";
+import Items from "./pages/inventory/Items";
 import "./App.css";
-import DashboardLayout from "./pages/DashboardLayout";
+import DashboardLayout from "./pages/inventory/DashboardLayout";
 import UserList from "./pages/users/Users";
-import UserProfiles from "./pages/UserProfiles";
+import UserProfiles from "./pages/inventory/UserProfiles";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "./auth/constants";
-import UploadCSV from "./pages/UploadCSV";
+import UploadCSV from "./pages/inventory/UploadCSV";
 import UserTimeSheet from "./pages/timesheet/UserTimeSheet";
+import Projects from "./pages/projects/Projects";
+import TimeSheets from "./pages/timesheet/TimeSheets";
+import Holidays from "./pages/holiday/Holidays";
+import Leaves from "./pages/leaves/Leaves";
 
 export const UserData = createContext(null);
 function App() {
@@ -43,8 +47,12 @@ function App() {
             <Route path="" exact element={<UserProfiles />} />
             <Route path="items" exact element={<Items />} />
             <Route path="timesheet" exact element={<UserTimeSheet />} />
+            <Route path="timesheets" exact element={<TimeSheets />} />
             <Route path="users" exact element={<UserList />} />
+            <Route path="holidays" exact element={<Holidays />} />
+            <Route path="leaves" exact element={<Leaves />} />
             <Route path="userprofile" exact element={<UserProfiles />} />
+            <Route path="project" exact element={<Projects />} />
             <Route path="uploadcsv" exact element={<UploadCSV />} />
           </Route>
         </Routes>

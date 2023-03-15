@@ -1,14 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { APIUrl } from "../auth/constants";
-import { assignDateFormate } from "./util";
+import { APIUrl } from "../../auth/constants";
+import {
+  inventorytypes,
+  inventoryTypesKeys,
+  inventoryIdentityType,
+} from "../../util/inventorytypes";
 
-export default function EditItem({
-  editPopUp,
-  editPopUpClose,
-  itemDetails,
+export default function ItemEntry({
+  entryPopUp,
+  entryPopUpClose,
   token,
   changeStatus,
 }) {
+  const [inventoryIdentity, setinventoryIdentity] = useState(
+    inventoryTypesKeys[0]
+  );
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -30,25 +36,27 @@ export default function EditItem({
       harddisk,
       harddiskType,
       operatingSystem,
+      assetPassword,
     } = event.target;
     let itemData = {
-      id: itemDetails.id,
       model: model.value,
       brand: brand.value,
       purchaseDate: purchaseDate.value,
       validityFrom: validityFrom.value,
       validityTo: validityTo.value,
-      assign: assign.value,
+      assign: getUserInfo(assign.value, 0),
       assignDate: assignDate.value,
       releaseDate: releaseDate.value,
       type: type.value,
       status: status.value,
       location: location.value,
       owner: owner.value,
-      identityType: itemDetails.identityType,
+      identityType: inventoryIdentityType[inventoryIdentity],
       identity: identity.value,
+      assetPassword: assetPassword.value,
+      userEmail: getUserInfo(assign.value, 1),
       config:
-        ["Laptop", "CPU"].indexOf(type.value) >= 0
+        ["Laptop", "CPU"].indexOf(inventoryIdentity) >= 0
           ? {
               ram: ram.value,
               processor: processor.value,
@@ -58,9 +66,8 @@ export default function EditItem({
             }
           : null,
     };
-
     fetch(APIUrl + "api/assets", {
-      method: "PUT",
+      method: "POST",
       body: JSON.stringify(itemData),
       headers: {
         "Content-Type": "application/json",
@@ -68,42 +75,19 @@ export default function EditItem({
       },
     })
       .then((res) => {
-        console.log("Edit Item : ", res);
-        editPopUpClose(true);
+        console.log("Save Item : ", res);
+        entryPopUpClose(true);
         changeStatus(true);
       })
       .catch((err) => {
-        console.log("Item Not Edit : ", err);
-        editPopUpClose(true);
+        console.log("Item Not Save : ", err);
+        entryPopUpClose(true);
         changeStatus(false);
       });
     console.log("itemData : ", itemData);
   };
-  const setFormdata = (itemDetails) => {
-    console.log("itemDetails : ", itemDetails);
-    let itemForm = document.forms["itemForm"];
-    itemForm.model.value = itemDetails.model;
-    itemForm.brand.value = itemDetails.brand;
-    itemForm.type.value = itemDetails.type;
-    itemForm.status.value = itemDetails.status;
-    itemForm.location.value = itemDetails.location;
-    itemForm.owner.value = itemDetails.owner;
-    itemForm.purchaseDate.value = assignDateFormate(itemDetails.purchaseDate);
-    itemForm.validityFrom.value = assignDateFormate(itemDetails.validityFrom);
-    itemForm.validityTo.value = assignDateFormate(itemDetails.validityTo);
-    itemForm.assign.value = itemDetails.assign;
-    itemForm.assignDate.value = assignDateFormate(itemDetails.assignDate);
-    itemForm.releaseDate.value = assignDateFormate(itemDetails.releaseDate);
-    itemForm.identity.value = itemDetails.identity;
-    if (["Laptop", "CPU"].indexOf(itemDetails.type) >= 0) {
-      itemForm.ram.value = itemDetails.config.ram;
-      itemForm.processor.value = itemDetails.config.processor;
-      itemForm.harddisk.value = itemDetails.config.harddisk;
-      itemForm.harddiskType.value = itemDetails.config.harddiskType;
-      itemForm.operatingSystem.value = itemDetails.config.operatingSystem;
-    }
-  };
   const [userArray, setuserArray] = useState([]);
+  const [userEmail, setuserEmail] = useState(null);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/users", {
@@ -114,7 +98,9 @@ export default function EditItem({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map((user) => user.displayName);
+        let users = res.users.map(
+          (user) => user.displayName + "/" + user.email
+        );
         setuserArray([...users]);
         console.log("Users List : ", users);
       })
@@ -124,13 +110,45 @@ export default function EditItem({
   }, []);
   useEffect(() => {
     getUsers();
-    setFormdata(itemDetails);
-  }, [getUsers, itemDetails]);
+    console.log("entryPopUp", entryPopUp);
+  }, [entryPopUp, getUsers]);
+  const getUserInfo = (userinfo, index) => {
+    return userinfo.split("/")[index];
+  };
+  const setMaxMinDate = (years, months = null, days = null) => {
+    let today = new Date();
+    let month = months ? months : today.getMonth() + 1;
+    let day = days ? days : today.getDate();
+    let year = today.getFullYear() + years;
+
+    let newDate =
+      year +
+      "-" +
+      (month < 10 ? "0" + month : month) +
+      "-" +
+      (day < 10 ? "0" + day : day);
+    return newDate;
+  };
+  const customDateLimiter = (input) => {
+    let conditionDates = {
+      min: new Date(input.target.min),
+      max: new Date(input.target.max),
+    };
+    const currentDate = new Date(input.target.value);
+    if (currentDate < conditionDates.min || currentDate > conditionDates.max) {
+      input.preventDefault();
+      input.target.value = setMaxMinDate(
+        0,
+        currentDate.getMonth() + 1,
+        currentDate.getDate()
+      );
+    } else return currentDate;
+  };
   return (
     <div
       className={
         "modal modal-signin position-static d-block bg-secondary py-1 " +
-        (editPopUp ? "closePopUp" : "displayPopUp")
+        (entryPopUp ? "closePopUp" : "displayPopUp")
       }
       tabIndex="-1"
       role="dialog"
@@ -139,9 +157,9 @@ export default function EditItem({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit Inventory</h1>
+            <h1 className="fw-bold mb-0 fs-2">Inventory Entry Form</h1>
             <button
-              onClick={() => editPopUpClose(true)}
+              onClick={() => entryPopUpClose(true)}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -150,45 +168,7 @@ export default function EditItem({
           </div>
 
           <div className="modal-body p-4">
-            <form name="itemForm" className="row g-3" onSubmit={saveItem}>
-              <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
-                  Assign To
-                </label>
-                <select className="form-control rounded-3" name="assign">
-                  <option value="unassigned">Unassigned</option>
-                  {userArray.map((user, index) => (
-                    <option value={user} key={index}>
-                      {user}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
-                  Assign Date
-                </label>
-                <input
-                  type="date"
-                  name="assignDate"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Enter Assign Date"
-                />
-              </div>
-              <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
-                  Release Date
-                </label>
-                <input
-                  type="date"
-                  name="releaseDate"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Enter Release Date"
-                />
-              </div>
-
+            <form className="row g-3" onSubmit={saveItem}>
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
                   Model
@@ -199,7 +179,6 @@ export default function EditItem({
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Model"
-                  readOnly
                 />
               </div>
               <div className="col-md-4">
@@ -212,23 +191,29 @@ export default function EditItem({
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Brand"
-                  readOnly
                 />
               </div>
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
                   Inventory type
                 </label>
-                <input
-                  type="text"
-                  name="type"
+                <select
                   className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Enter type"
-                  readOnly
-                />
+                  name="type"
+                  onChange={(e) =>
+                    setinventoryIdentity(
+                      inventoryTypesKeys[e.target.selectedIndex]
+                    )
+                  }
+                >
+                  {inventoryTypesKeys.map((inventory) => (
+                    <option value={inventory} key={inventory}>
+                      {inventorytypes[inventory]}
+                    </option>
+                  ))}
+                </select>
               </div>
-              {["Laptop", "CPU"].indexOf(itemDetails.type) >= 0 ? (
+              {["Laptop", "CPU"].indexOf(inventoryIdentity) >= 0 ? (
                 <div className="col-md-12">
                   <div
                     className="row mt-0 py-2"
@@ -240,7 +225,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="ram"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -253,7 +237,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="processor"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -266,7 +249,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="harddisk"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -279,7 +261,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="harddiskType"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -292,7 +273,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="operatingSystem"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -305,15 +285,16 @@ export default function EditItem({
 
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
-                  Inventory {itemDetails.identityType}
+                  Inventory {inventoryIdentityType[inventoryIdentity]}
                 </label>
                 <input
                   type="text"
-                  readOnly
                   name="identity"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder={"Enter " + itemDetails.identityType}
+                  placeholder={
+                    "Enter " + inventoryIdentityType[inventoryIdentity]
+                  }
                 />
               </div>
               <div className="col-md-4">
@@ -332,7 +313,6 @@ export default function EditItem({
                 </label>
                 <input
                   type="text"
-                  readOnly
                   name="status"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -346,23 +326,84 @@ export default function EditItem({
                 </label>
                 <select className="form-control rounded-3" name="owner">
                   {userArray.map((user, index) => (
-                    <option value={user} key={index}>
-                      {user}
+                    <option value={getUserInfo(user, 0)} key={index}>
+                      {getUserInfo(user, 0)}
                     </option>
                   ))}
                 </select>
               </div>
-
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
-                  Purchase Date
+                  Assign To
+                </label>
+                <select
+                  className="form-control rounded-3"
+                  onChange={(e) => setuserEmail(getUserInfo(e.target.value, 1))}
+                  name="assign"
+                >
+                  <option value="unassigned">Unassigned</option>
+                  {userArray.map((user, index) => (
+                    <option value={user} key={index}>
+                      {getUserInfo(user, 0)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  Assign Date
                 </label>
                 <input
                   type="date"
-                  name="purchaseDate"
+                  min={setMaxMinDate(-10)}
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
+                  name="assignDate"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder="Enter Purchase Date"
+                  placeholder="Enter Assign Date"
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  {inventoryIdentity} Password
+                </label>
+                <input
+                  type="text"
+                  name="assetPassword"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder={"Enter " + inventoryIdentity + " Password"}
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  User Email
+                </label>
+                <input
+                  type="text"
+                  name="userEmail"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  value={userEmail}
+                  placeholder="Enter user email"
+                />
+              </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  Release Date
+                </label>
+                <input
+                  type="date"
+                  min={setMaxMinDate(-10)}
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
+                  name="releaseDate"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder="Enter Release Date"
                 />
               </div>
               <div className="col-md-4">
@@ -371,6 +412,10 @@ export default function EditItem({
                 </label>
                 <input
                   type="date"
+                  min={setMaxMinDate(-10)}
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
                   name="validityFrom"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -383,18 +428,39 @@ export default function EditItem({
                 </label>
                 <input
                   type="date"
+                  min={setMaxMinDate(-10)}
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
                   name="validityTo"
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Validity To"
                 />
               </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  Purchase Date
+                </label>
+                <input
+                  type="date"
+                  min={setMaxMinDate(-10)}
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
+                  name="purchaseDate"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder="Enter Purchase Date"
+                />
+              </div>
+
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center"
                   type="submit"
                 >
-                  Update
+                  Save Inventory
                 </button>
               </div>
             </form>

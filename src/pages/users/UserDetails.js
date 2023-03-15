@@ -140,6 +140,40 @@ export default function UserDetails({
               <dt className="col-sm-3">UAN</dt>
               <dd className="col-sm-3">{itemData.uan ? itemData.uan : "-"}</dd>
             </dl>
+            <dl className="row mb-1">
+              <dt className="col-sm-3">Assigned Projects </dt>
+              {itemData.projects?.length === 0 ? (
+                <dd className="col-sm">
+                  <span
+                    style={{
+                      backgroundColor: "#f1eed2",
+                      color: "#333",
+                      padding: "5px 10px",
+                    }}
+                  >
+                    No projects assigned yet.
+                  </span>
+                </dd>
+              ) : (
+                itemData.projects?.map((row) => (
+                  <dd className="col-sm" key={row.projectId}>
+                    <span
+                      style={{
+                        backgroundColor: "#f1eed2",
+                        color: "#333",
+                        padding: "5px 10px",
+                      }}
+                    >
+                      <i
+                        className="bi bi-person-vcard "
+                        style={{ color: "#333", marginRight: "10px" }}
+                      ></i>{" "}
+                      {row.name}
+                    </span>
+                  </dd>
+                ))
+              )}
+            </dl>
             <hr className="mb-3" />
           </div>
         </div>

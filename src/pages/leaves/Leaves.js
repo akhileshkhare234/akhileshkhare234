@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { APIUrl } from "../auth/constants";
-import DeleteItem from "./DeleteItem";
-import EditItem from "./EditItem";
-import ItemDetails from "./ItemDetails";
-import ItemEntry from "./ItemEntry";
-import ItemsHistory from "./itemsHistory";
-import ItemsList from "./ItemsList";
+import { APIUrl } from "../../auth/constants";
+import DeleteLeave from "./DeleteLeave";
+import EditLeave from "./EditLeave";
+import LeaveDetails from "./LeaveDetails";
+import AddLeave from "./AddLeave";
+import LeaveList from "./LeaveList";
+import ApproveLeave from "./ApproveLeave";
 
-export default function Items() {
+export default function Leaves() {
   const navigate = useNavigate();
   const [editPopUp, setEditPopUp] = useState(true);
-  const [historiPopUp, setHistoriPopUp] = useState(true);
   const [deletePopUp, setDeletePopUp] = useState(true);
   const [detailsPopUp, setDetailsPopUp] = useState(true);
   const [entryPopUp, setEntryPopUp] = useState(true);
+  const [approvePopUp, setapprovePopUp] = useState(true);
   const [itemData, setItemdata] = useState({});
   const [token, setToken] = useState(null);
   const [itemId, setItemId] = useState(null);
@@ -27,12 +27,9 @@ export default function Items() {
     setEditPopUp(status);
     setItemdata(data);
   };
-  const setHistoryData = (status, id) => {
-    setHistoriPopUp(status);
-    setItemId(id);
-  };
+
   const getUserData = useCallback(() => {
-    fetch(APIUrl+"api/user/me", {
+    fetch(APIUrl + "api/user/me", {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + token,
@@ -60,50 +57,54 @@ export default function Items() {
   }, [checkUser, getUserData, itemStatus]);
   return (
     <>
-      <ItemEntry
+      <AddLeave
         token={token}
         entryPopUp={entryPopUp}
         entryPopUpClose={(status) => setEntryPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></ItemEntry>
-      <EditItem
+      ></AddLeave>
+      <EditLeave
         token={token}
         itemDetails={itemData}
         editPopUp={editPopUp}
         editPopUpClose={(status) => setEditPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></EditItem>
-      <DeleteItem
+      ></EditLeave>
+      <DeleteLeave
         token={token}
         itemid={itemId}
         deletePopUp={deletePopUp}
         deletePopUpClose={(status) => setDeletePopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></DeleteItem>
-      <ItemsHistory
-        token={token}
-        itemid={itemId}
-        historyPopUpOpen={historiPopUp}
-        historyPopUpClose={(status) => setHistoriPopUp(status)}
-        changeStatus={(status) => setItemStatus(status)}
-      ></ItemsHistory>
-      <ItemDetails
+      ></DeleteLeave>
+
+      <LeaveDetails
         itemData={itemData}
         detailsPopUp={detailsPopUp}
         detailsPopUpClose={(status) => setDetailsPopUp(status)}
-      ></ItemDetails>
-      <ItemsList
+      ></LeaveDetails>
+      <LeaveList
         token={token}
         entryPopUpOpen={(status) => setEntryPopUp(status)}
         editPopUpOpen={(status, data) => setEditData(status, data)}
-        historyPopUpOpen={(status, data) => setHistoryData(status, data)}
         deletePopUpOpen={(status, id) => {
           setDeletePopUp(status);
           setItemId(id);
         }}
+        setApproveData={(status, data) => {
+          setapprovePopUp(status);
+          setItemdata(data);
+        }}
         detailsPopUpOpen={(status, data) => showDetails(status, data)}
         itemStatus={itemStatus}
-      ></ItemsList>
+      ></LeaveList>
+      <ApproveLeave
+        approvePopUp={approvePopUp}
+        itemData={itemData}
+        token={token}
+        changeStatus={(status) => setItemStatus(status)}
+        approvePopUpClose={(status) => setapprovePopUp(status)}
+      />
     </>
   );
 }

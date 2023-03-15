@@ -1,5 +1,5 @@
 import React from "react";
-import { APIUrl } from "../auth/constants";
+import { APIUrl } from "../../auth/constants";
 import Header from "./Header";
 
 export default function UploadCSV() {

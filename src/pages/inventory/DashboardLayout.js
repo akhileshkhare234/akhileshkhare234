@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { UserData } from "../App";
-import { LocalUrl } from "../auth/constants";
+import { UserData } from "../../App";
+import { LocalUrl } from "../../auth/constants";
 import Footer from "./Footer";
 
 export default function DashboardLayout() {
@@ -10,17 +10,6 @@ export default function DashboardLayout() {
   const [logoutPopUp, setLogoutPopUp] = useState(true);
   const userLogout = () => {
     window.localStorage.removeItem("am_token");
-    // fetch(
-    //   "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout",
-    //   {
-    //     mode: "no-cors",
-    //     crossorigin: true,
-    //     headers: {
-    //       "Access-Control-Allow-Origin": "*",
-    //       "Access-Control-Allow-Methods": "*",
-    //     },
-    //   }
-    // ).then((res) => console.log("Logout Response : ", res));
     window.location.replace(
       "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=" +
         LocalUrl
@@ -69,6 +58,16 @@ export default function DashboardLayout() {
                 </li>
               </>
             ) : null}
+            {userInfo && userInfo.role === 2 ? (
+              <>
+                <li className="nav-item">
+                  <Link to="project">
+                    <i className="bi bi-person-lines-fill"></i>
+                    <span>Project</span>
+                  </Link>
+                </li>
+              </>
+            ) : null}
 
             <li className="nav-item">
               <Link to="userprofile">
@@ -77,13 +76,31 @@ export default function DashboardLayout() {
               </Link>
             </li>
             <li className="nav-item">
+              <Link to="holidays">
+                <i className="bi bi-person-vcard"></i>
+                <span>Holidays</span>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="leaves">
+                <i className="bi bi-person-vcard"></i>
+                <span>Leaves</span>
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link to="timesheet">
                 <i className="bi bi-person-vcard"></i>
-                <span>Time Sheet</span>
+                <span>Fill TimeSheet</span>
               </Link>
             </li>
             {userInfo && userInfo.role === 2 ? (
               <>
+                <li className="nav-item">
+                  <Link to="timesheets">
+                    <i className="bi bi-person-vcard"></i>
+                    <span>View TimeSheets</span>
+                  </Link>
+                </li>
                 <li className="nav-item">
                   <Link to="uploadcsv">
                     <i className="bi bi-person-lines-fill"></i>

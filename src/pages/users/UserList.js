@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
-import Header from "../Header";
+import Header from "../inventory/Header";
 import { dateFormate } from "../util";
 
 export default function UserList({

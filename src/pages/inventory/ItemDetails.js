@@ -1,5 +1,5 @@
 import React from "react";
-import { dateFormate } from "./util";
+import { dateFormate } from "../util.js";
 
 export default function ItemDetails({
   detailsPopUp,
