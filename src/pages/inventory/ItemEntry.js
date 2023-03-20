@@ -98,7 +98,7 @@ export default function ItemEntry({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map(
+        let users = res.map(
           (user) => user.displayName + "/" + user.email
         );
         setuserArray([...users]);

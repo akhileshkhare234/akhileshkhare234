@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
-import { userFields } from "./fileds";
+import { profileFileds } from "./profilefileds";
 
-export default function EditUser({
+export default function EditProfile({
   editPopUp,
   editPopUpClose,
   itemDetails,
@@ -13,7 +13,6 @@ export default function EditUser({
   const saveItem = (event) => {
     event.preventDefault();
     let {
-      email,
       displayName,
       designation,
       employeeId,
@@ -23,22 +22,15 @@ export default function EditUser({
       city,
       state,
       pinCode,
-      remainingLeave,
-      managerName,
       mobileNumber,
       emergencyMobileNumber,
       gender,
-      type,
-      department,
       pan,
       dob,
       doj,
-      uan,
-      role,
     } = event.target;
     let itemData = {
       id: parseInt(itemDetails.id),
-      email: email.value,
       displayName: displayName.value,
       designation: designation.value,
       employeeId: employeeId.value,
@@ -48,18 +40,12 @@ export default function EditUser({
       city: city.value,
       state: state.value,
       pinCode: pinCode.value,
-
-      managerName: managerName.value,
       mobileNumber: mobileNumber.value,
       emergencyMobileNumber: emergencyMobileNumber.value,
       gender: gender.value,
-      type: type.value,
-      department: department.value,
       pan: pan.value,
       dob: dob.value,
       doj: doj.value,
-      uan: uan.value,
-      role: role.value,
     };
     fetch(APIUrl + "api/user", {
       method: "PUT",
@@ -83,7 +69,6 @@ export default function EditUser({
   };
   const setFormdata = (itemDetails) => {
     let itemForm = document.forms["itemForm"];
-    itemForm.email.value = itemDetails.email;
     itemForm.displayName.value = itemDetails.displayName;
     itemForm.designation.value = itemDetails.designation;
     itemForm.employeeId.value = itemDetails.employeeId;
@@ -93,17 +78,12 @@ export default function EditUser({
     itemForm.city.value = itemDetails.city;
     itemForm.state.value = itemDetails.state;
     itemForm.pinCode.value = itemDetails.pinCode;
-    itemForm.managerName.value = itemDetails.managerName;
     itemForm.mobileNumber.value = itemDetails.mobileNumber;
     itemForm.emergencyMobileNumber.value = itemDetails.emergencyMobileNumber;
     itemForm.gender.value = itemDetails.gender;
-    itemForm.type.value = itemDetails.type;
-    itemForm.department.value = itemDetails.department;
     itemForm.pan.value = itemDetails.pan;
     itemForm.dob.value = assignDateFormate(itemDetails.dob);
     itemForm.doj.value = assignDateFormate(itemDetails.doj);
-    itemForm.uan.value = itemDetails.uan;
-    itemForm.role.value = itemDetails.role;
   };
   useEffect(() => {
     setFormdata(itemDetails);
@@ -121,7 +101,7 @@ export default function EditUser({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit User Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Edit Profile</h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"
@@ -133,7 +113,7 @@ export default function EditUser({
 
           <div className="modal-body p-4">
             <form name="itemForm" className="row g-3" onSubmit={saveItem}>
-              {userFields.map((field, index) => (
+              {profileFileds.map((field, index) => (
                 <div key={index} className="col-md-3">
                   <label htmlFor="floatingInput" className="mb-1">
                     {field.title}
@@ -165,7 +145,7 @@ export default function EditUser({
                   className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center"
                   type="submit"
                 >
-                  Edit User
+                  Edit Profile
                 </button>
               </div>
             </form>

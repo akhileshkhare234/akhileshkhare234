@@ -45,7 +45,7 @@ export default function DashboardLayout() {
             <li className="nav-item">
               <Link to="items">
                 <i className="bi bi-list-ul"></i>
-                <span>Items List</span>
+                <span>Inventory</span>
               </Link>
             </li>
             {userInfo && userInfo.role === 2 ? (

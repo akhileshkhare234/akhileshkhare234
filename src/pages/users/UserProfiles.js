@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
-import Header from "./Header";
+import Header from "../inventory/Header";
 import { dateFormate, dateTimeFormate } from "../util";
+import EditProfile from "./EditProfile";
 
 export default function UserProfiles() {
   const [userInfo, setUserInfo] = useState(null);
+  const [itemData, setItemdata] = useState({});
+  const [editPopUp, setEditPopUp] = useState(true);
+  const [itemStatus, setItemStatus] = useState(false);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -16,22 +20,42 @@ export default function UserProfiles() {
       .then((res) => res.json())
       .then((res) => {
         setUserInfo(res);
-        console.log("User Profile : ", res);
+        console.log("User Profile : ", res, itemStatus);
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
       });
-  }, []);
+  }, [itemStatus]);
   useEffect(() => {
     getUsers();
+    setItemStatus(false);
   }, [getUsers]);
-
+  const setEditProfile = () => {
+    setEditPopUp(false);
+    setItemdata(userInfo);
+  };
   return (
     <>
       <Header title="User Profile" />
       <div className="container">
         <div className="row mx-5">
           <div className="col mt-4">
+            <div className="profiles">
+              <i
+                className="bi bi-person profileimage"
+                style={{ color: "#333" }}
+              ></i>
+              <i
+                className="bi bi-pen profileedit"
+                style={{ color: "#333" }}
+              ></i>
+              <button
+                className="btn btn-success profilebtn"
+                onClick={setEditProfile}
+              >
+                Edit Profile
+              </button>
+            </div>
             <hr className="mb-3" />
             <dl className="row mb-1">
               <dt className="col-sm-2">User Name</dt>
@@ -84,9 +108,9 @@ export default function UserProfiles() {
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-2">Remaining Leave</dt>
+              <dt className="col-sm-2">Office Location</dt>
               <dd className="col-sm-4">
-                {userInfo?.remainingLeave ? userInfo?.remainingLeave : "-"}
+                {userInfo?.ofcLocation ? userInfo?.ofcLocation : "-"}
               </dd>
               <dt className="col-sm-2">Manager Name</dt>
               <dd className="col-sm-4">
@@ -167,6 +191,13 @@ export default function UserProfiles() {
             </dl>
             <hr className="mb-3" />
           </div>
+          <EditProfile
+            token={window.localStorage.getItem("am_token")}
+            itemDetails={itemData}
+            editPopUp={editPopUp}
+            editPopUpClose={(status) => setEditPopUp(status)}
+            changeStatus={(status) => setItemStatus(status)}
+          />
         </div>
       </div>
     </>

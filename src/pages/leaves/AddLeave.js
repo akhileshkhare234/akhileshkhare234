@@ -176,8 +176,20 @@ export default function AddLeave({
                   Leave Type
                 </label>
                 <select name="leaveType" className="form-control rounded-3">
-                  <option value="annual">Annual</option>
-                  <option value="casual">Casual</option>
+                  <option value="Sick leave">Sick leave</option>
+                  <option value="Urgent leave">Urgent leave</option>
+                  <option value="Maternity and paternity leave">
+                    Maternity and paternity leave
+                  </option>
+                  <option value="Public and religious holidays">
+                    Public and religious holidays
+                  </option>
+                  <option value="Bereavement leave">Bereavement leave</option>
+                  <option value="Time off in lieu (TOIL)">
+                    Time off in lieu (TOIL)
+                  </option>
+                  <option value="Sabbatical leave">Sabbatical leave</option>
+                  <option value="Unpaid leave">Unpaid leave</option>
                 </select>
               </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">

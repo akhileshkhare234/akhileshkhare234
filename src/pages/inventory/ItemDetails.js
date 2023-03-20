@@ -16,10 +16,10 @@ export default function ItemDetails({
       role="dialog"
       id="modalSignin"
     >
-      <div className="modal-dialog modal-lg" role="document">
+      <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Item Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Inventory Detail</h1>
             <button
               onClick={() => detailsPopUpClose(true)}
               type="button"

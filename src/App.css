@@ -247,9 +247,36 @@ border-radius: 5px;
     cursor: pointer;
  
 }
+.profiles{
+  position: relative;
+}
+.profileedit{
+  position: absolute;
+  left: 109px;
+  top: 35px;
+  font-size: 14pt;
+  cursor: pointer;
+}
+.profilebtn{
+  position: absolute;
+  top: 50px;
+  left: 140px;
+}
+.profileimage{
+  font-size: 60pt;
+    text-align: center;
+    margin: auto;
+    border: 1px solid;
+    border-radius: 50%;
+    padding: 2px 20px;
+}
 .navbar-nav-side li a:hover{
   background-color: #fff;
   color: #0eb493;
+}
+.loadingbg{
+  background-color: #0eb493;
+  color: #fff;
 }
 .badge-pill{
   background-color: #0eb493;

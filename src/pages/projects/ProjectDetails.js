@@ -18,7 +18,7 @@ export default function ProjectDetails({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map((user) => {
+        let users = res.map((user) => {
           return { name: user.displayName, email: user.email, id: user.id };
         });
         let defaultUser = users

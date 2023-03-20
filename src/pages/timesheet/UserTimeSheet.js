@@ -140,28 +140,6 @@ export default function UserTimeSheet() {
       timeSheetValue = timeSheetData.data.filter(
         (row) => row.projectId === project.projectId
       )[0];
-      //   let payload = {
-      //     projectId: timeSheetValue.projectId,
-      //     projectName: timeSheetValue.name,
-      //     detail: [],
-      //     id: timeSheetValue.id,
-      //     comment: timeSheetValue.comment,
-      //     status: timeSheetValue.status,
-      //     totalHour: project.totalHour,
-      //   };
-      //   let taskDetails = timeSheetValue.detail.map((data) => {
-      //     console.log("timeSheetValue ", timeSheetValue);
-      //     console.log("timeSheetValue data", data);
-      //     return {
-      //       id: data.id,
-      //       day: data.day,
-      //       task: e.target[`task_${data.day}_${timeSheetValue.projectId}`].value,
-      //       hour: e.target[`hour_${data.day}_${timeSheetValue.projectId}`].value,
-      //       comment: data.comment,
-      //     };
-      //   });
-      //   payload.detail = [...taskDetails];
-      //   return payload;
     });
     let payloadNewData = projects.map((project) => {
       timeSheetValue = timeSheetData.data.filter(
@@ -305,7 +283,7 @@ export default function UserTimeSheet() {
         else sum += 0;
       });
       totalHour["day_" + hourRow[0].day] = sum;
-      timesheet["day_" + hourRow[0].day].value = sum + " hrs";
+      // timesheet["day_" + hourRow[0].day].value = sum + " hrs";
       setTotalHour(totalHour);
     }
   };
@@ -341,7 +319,7 @@ export default function UserTimeSheet() {
                 if (myarrays.length > 0) myarrays.reduce((p, n) => p + n);
 
                 totalHour["day_" + data.day] = sum;
-                timesheet["day_" + data.day].value = sum + " hrs";
+                // timesheet["day_" + data.day].value = sum + " hrs";
               }
               if (timesheet[`task_${data.day}_${row.projectId}`])
                 timesheet[`task_${data.day}_${row.projectId}`].value =
@@ -390,13 +368,13 @@ export default function UserTimeSheet() {
                   {project.name}
                 </th>
               ))}
-              <th
+              {/* <th
                 className="text-center"
                 scope="col"
                 style={{ width: "100px" }}
               >
                 Total Hrs
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -434,7 +412,7 @@ export default function UserTimeSheet() {
                       </td>
                     </Fragment>
                   ))}
-                  <th className="text-center verticalAlign">
+                  {/* <th className="text-center verticalAlign">
                     <input
                       readOnly={true}
                       className="hrsinput"
@@ -442,7 +420,7 @@ export default function UserTimeSheet() {
                       name={"day_" + data.day}
                       value={totalHour["day_" + data.day] + " hrs"}
                     />
-                  </th>
+                  </th> */}
                 </tr>
               )
             )}

@@ -1,5 +1,4 @@
-export const userFields = [
-  { name: "email", title: "Email", type: "text" },
+export const profileFileds = [
   { name: "displayName", title: "Name", type: "text" },
   {
     name: "designation",
@@ -24,14 +23,20 @@ export const userFields = [
     ],
   },
   { name: "employeeId", title: "Employee Id", type: "text" },
-  { name: "ofcLocation", title: "Office Location", type: "text" },
+  {
+    name: "ofcLocation",
+    title: "Office Location",
+    type: "select",
+    values: [
+      { value: "Indore", name: "Indore" },
+      { value: "Bangalore", name: "Bangalore" },
+    ],
+  },
   { name: "tempAddress", title: "Temp Address", type: "text" },
   { name: "permanentAddress", title: "Permanent Address", type: "text" },
   { name: "city", title: "City", type: "text" },
   { name: "state", title: "State", type: "text" },
   { name: "pinCode", title: "PinCode", type: "text" },
-  // { name: "remainingLeave", title: "Remaining Leave", type: "text" },
-  { name: "managerName", title: "Manager Name", type: "text" },
   { name: "mobileNumber", title: "Mobile Number", type: "text" },
   {
     name: "emergencyMobileNumber",
@@ -47,37 +52,7 @@ export const userFields = [
       { value: "Female", name: "Female" },
     ],
   },
-  {
-    name: "type",
-    title: "Type",
-    type: "select",
-    values: [
-      { value: "Contractor", name: "Contractor" },
-      { value: "Permanent", name: "Permanent" },
-    ],
-  },
-  {
-    name: "department",
-    title: "Department",
-    type: "select",
-    values: [
-      { value: "Development", name: "Development" },
-      { value: "Finance", name: "Finance" },
-      { value: "Management", name: "Management" },
-      { value: "Testing", name: "Testing" },
-    ],
-  },
   { name: "pan", title: "PAN", type: "text" },
   { name: "dob", title: "Date of Birth", type: "date" },
   { name: "doj", title: "Date of Joining", type: "date" },
-  { name: "uan", title: "UAN", type: "text" },
-  {
-    name: "role",
-    title: "User Role",
-    type: "select",
-    values: [
-      { value: 1, name: "User" },
-      { value: 2, name: "Admin" },
-    ],
-  },
 ];

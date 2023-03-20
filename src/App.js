@@ -4,7 +4,7 @@ import Items from "./pages/inventory/Items";
 import "./App.css";
 import DashboardLayout from "./pages/inventory/DashboardLayout";
 import UserList from "./pages/users/Users";
-import UserProfiles from "./pages/inventory/UserProfiles";
+import UserProfiles from "./pages/users/UserProfiles";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "./auth/constants";
 import UploadCSV from "./pages/inventory/UploadCSV";

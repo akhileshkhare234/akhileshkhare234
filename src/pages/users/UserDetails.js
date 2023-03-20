@@ -83,9 +83,9 @@ export default function UserDetails({
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Remaining Leave</dt>
+              <dt className="col-sm-3">Office Location</dt>
               <dd className="col-sm-3">
-                {itemData.remainingLeave ? itemData.remainingLeave : "-"}
+                {itemData.ofcLocation ? itemData.ofcLocation : "-"}
               </dd>
               <dt className="col-sm-3">Manager Name</dt>
               <dd className="col-sm-3">

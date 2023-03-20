@@ -114,7 +114,7 @@ export default function EditItem({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map((user) => user.displayName);
+        let users = res.map((user) => user.displayName);
         setuserArray([...users]);
         console.log("Users List : ", users);
       })

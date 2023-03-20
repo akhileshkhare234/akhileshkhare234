@@ -10,6 +10,10 @@ export default function UserList({
   token,
 }) {
   const [userArray, setuserArray] = useState([]);
+  const [userPageArray, setUserPageArray] = useState([]);
+  const [pages, setPages] = useState([]);
+  const [start, setStart] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/users", {
@@ -20,14 +24,21 @@ export default function UserList({
     })
       .then((res) => res.json())
       .then((res) => {
-        setuserArray([...res.users]);
+        let users = res.filter((row, index) => index < pageSize);
+        setUserPageArray([...users]);
+        setuserArray([...res]);
+        let pages = [];
+        for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+          pages.push(I);
+        }
+        setPages(pages);
         console.log("Users : ", res);
       })
       .catch((err) => {
         setuserArray([]);
         console.log("User Not Get : ", err);
       });
-  }, []);
+  }, [pageSize]);
   const updateUserRole = (user) => {
     let itemData = {
       id: parseInt(user.id),
@@ -48,13 +59,22 @@ export default function UserList({
   useEffect(() => {
     getUsers();
   }, [getUsers, itemStatus]);
+  const showNextInventory = (pos) => {
+    let start = pos === 1 ? 0 : pos * pageSize - pageSize;
+    let inventory = userArray.filter(
+      (row, index) => index >= start && index < pos * pageSize
+    );
+    console.log("start, pos,inventory ", start, pos, inventory);
+    setUserPageArray([...inventory]);
+    setStart(start);
+  };
   return (
     <>
       <Header title="Users List" />
       <div className="container">
         <div className="row">
           <div className="col mt-3">
-            {userArray && userArray.length > 0 ? (
+            {userPageArray && userPageArray.length > 0 ? (
               <table className="table tabletext">
                 <thead>
                   <tr>
@@ -80,9 +100,9 @@ export default function UserList({
                   </tr>
                 </thead>
                 <tbody>
-                  {userArray.map((user, index) => (
+                  {userPageArray.map((user, index) => (
                     <tr key={index}>
-                      <th scope="row">{index + 1}</th>
+                      <th scope="row">{start + index + 1}</th>
                       <td>{user.displayName}</td>
                       <td>{user.email}</td>
                       <td>{user.designation}</td>
@@ -102,8 +122,12 @@ export default function UserList({
                         </span>
                       </td>
                       <td>{user.city}</td>
-                      <td className="text-center">{dateFormate(user.dob)}</td>
-                      <td className="text-center">{dateFormate(user.doj)}</td>
+                      <td className="text-center">
+                        {user.dob ? dateFormate(user.dob) : "-"}
+                      </td>
+                      <td className="text-center">
+                        {user.doj ? dateFormate(user.doj) : "-"}
+                      </td>
                       <td>{user.gender}</td>
                       <td className="text-center">
                         <button
@@ -127,32 +151,39 @@ export default function UserList({
                 {userArray.length > 10 ? (
                   <tfoot>
                     <tr>
-                      <td colSpan="14">
+                      <td colSpan="2">
+                        <select
+                          style={{
+                            width: "50px",
+                            paddingLeft: "8px",
+                            height: "35px",
+                          }}
+                          className="rounded-3"
+                          name="type"
+                          onChange={(e) => {
+                            setStart(0);
+                            setPageSize(e.target.value);
+                          }}
+                        >
+                          <option value="10">10</option>
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                        </select>
+                      </td>
+                      <td colSpan="9">
                         <nav aria-label="Page navigation example">
                           <ul className="pagination justify-content-end m-0">
-                            <li className="page-item disabled">
-                              <span className="page-link">Previous</span>
-                            </li>
-                            <li className="page-item">
-                              <span className="page-link" href="#">
-                                1
-                              </span>
-                            </li>
-                            <li className="page-item">
-                              <span className="page-link" href="#">
-                                2
-                              </span>
-                            </li>
-                            <li className="page-item">
-                              <span className="page-link" href="#">
-                                3
-                              </span>
-                            </li>
-                            <li className="page-item">
-                              <span className="page-link" href="#">
-                                Next
-                              </span>
-                            </li>
+                            {pages.map((page, index) => (
+                              <li
+                                className="page-item"
+                                key={index}
+                                onClick={() => showNextInventory(page)}
+                              >
+                                <span className="page-link" href="#">
+                                  {page}
+                                </span>
+                              </li>
+                            ))}
                           </ul>
                         </nav>
                       </td>
@@ -164,10 +195,10 @@ export default function UserList({
               </table>
             ) : (
               <h5
-                className="text-center mt-4 bg-warning text-danger p-3"
+                className="text-center mt-4 loadingbg  p-3"
                 style={{ width: "max-content", margin: "auto" }}
               >
-                User data not found or not allowed to be displayed!
+                User data loading...
               </h5>
             )}
           </div>

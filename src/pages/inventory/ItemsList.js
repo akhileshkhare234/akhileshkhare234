@@ -97,157 +97,168 @@ export default function ItemsList({
       <div className="container">
         <div className="row">
           <div className="col">
-            <div className="row px-4 py-2">
-              <div className="col justify-content-center">
-                <div className="input-group" style={{ width: "300px" }}>
-                  <input
-                    className="form-control  border"
-                    type="search"
-                    placeholder="search"
-                    defaultValue={serachText}
-                    onChange={(event) => setSerachText(event.target.value)}
-                    id="example-search-input"
-                    onKeyUp={(event) => setSerachText(event.target.value)}
-                  />
-                </div>
-              </div>
-              {userInfo && userInfo.role === 2 ? (
-                <div className="col justify-content-end text-end">
-                  <button
-                    onClick={() => entryPopUpOpen(false)}
-                    type="button"
-                    className="btn btn-outline-primary"
-                  >
-                    <i className="bi bi-plus-circle me-2"></i>
-                    <span className="ml-2">Add</span>
-                  </button>
-                </div>
-              ) : null}
-            </div>
-
-            <table className="table tabletext">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Inventory</th>
-                  <th scope="col">Assign To</th>
-                  <th scope="col">Assign Date</th>
-                  <th scope="col">Location</th>
-                  <th scope="col">Model</th>
-                  <th scope="col">Brand</th>
-                  {/* <th scope="col">Purchase Date</th> */}
-                  <th scope="col">Identity Type</th>
-                  <th scope="col">Identity Value</th>
-                  {/* <th scope="col">Validity From</th>
-                  <th scope="col">Validity To</th> */}
-                  <th scope="col" className="text-center">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index}>
-                    <th scope="row">{start + index + 1}</th>
-                    <td>{item.type}</td>
-                    <td>{item.assign}</td>
-                    <td>{dateFormate(item.assignDate)}</td>
-                    <td>{item.location}</td>
-                    <td>{item.model}</td>
-                    <td>{item.brand}</td>
-                    {/* <td>{dateFormate(item.purchaseDate)}</td> */}
-                    <td>{item.identityType}</td>
-                    <td>{item.identity}</td>
-                    {/* <td>{dateFormate(item.validityFrom)}</td>
-                    <td>{dateFormate(item.validityTo)}</td> */}
-                    <td className="text-center">
-                      {userInfo && userInfo.role === 2 ? (
-                        <>
-                          <button
-                            onClick={() => deletePopUpOpen(false, item.id)}
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-trash3"></i>
-                          </button>
-                          <button
-                            onClick={() => editPopUpOpen(false, item)}
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                        </>
-                      ) : null}
+            {items && items.length > 0 ? (
+              <>
+                <div className="row px-4 py-2">
+                  <div className="col justify-content-center">
+                    <div className="input-group" style={{ width: "300px" }}>
+                      <input
+                        className="form-control  border"
+                        type="search"
+                        placeholder="search"
+                        defaultValue={serachText}
+                        onChange={(event) => setSerachText(event.target.value)}
+                        id="example-search-input"
+                        onKeyUp={(event) => setSerachText(event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {userInfo && userInfo.role === 2 ? (
+                    <div className="col justify-content-end text-end">
                       <button
-                        onClick={() => detailsPopUpOpen(false, item)}
-                        type="button"
-                        className="btn btn-outline-primary me-1"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                      <button
-                        onClick={() => historyPopUpOpen(false, item.id)}
+                        onClick={() => entryPopUpOpen(false)}
                         type="button"
                         className="btn btn-outline-primary"
                       >
-                        <i className="bi bi-clock-history"></i>
+                        <i className="bi bi-plus-circle me-2"></i>
+                        <span className="ml-2">Add</span>
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              {inventories.length > pageSize && pages.length > 0 ? (
-                <tfoot>
-                  <tr>
-                    <td colSpan="2">
-                      <select
-                        style={{
-                          width: "50px",
-                          paddingLeft: "8px",
-                          height: "35px",
-                        }}
-                        className="rounded-3"
-                        name="type"
-                        onChange={(e) => setPageSize(e.target.value)}
-                      >
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                      </select>
-                    </td>
-                    <td colSpan="12">
-                      <nav aria-label="Page navigation example">
-                        <ul className="pagination justify-content-end m-0">
-                          {/* <li className="page-item disabled">
+                    </div>
+                  ) : null}
+                </div>
+
+                <table className="table tabletext">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Inventory</th>
+                      <th scope="col">Assign To</th>
+                      <th scope="col">Assign Date</th>
+                      <th scope="col">Location</th>
+                      <th scope="col">Model</th>
+                      <th scope="col">Brand</th>
+                      {/* <th scope="col">Purchase Date</th> */}
+                      <th scope="col">Identity Type</th>
+                      <th scope="col">Identity Value</th>
+                      {/* <th scope="col">Validity From</th>
+                  <th scope="col">Validity To</th> */}
+                      <th scope="col" className="text-center">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item, index) => (
+                      <tr key={index}>
+                        <th scope="row">{start + index + 1}</th>
+                        <td>{item.type}</td>
+                        <td>{item.assign}</td>
+                        <td>{dateFormate(item.assignDate)}</td>
+                        <td>{item.location}</td>
+                        <td>{item.model}</td>
+                        <td>{item.brand}</td>
+                        {/* <td>{dateFormate(item.purchaseDate)}</td> */}
+                        <td>{item.identityType}</td>
+                        <td>{item.identity}</td>
+                        {/* <td>{dateFormate(item.validityFrom)}</td>
+                    <td>{dateFormate(item.validityTo)}</td> */}
+                        <td className="text-center">
+                          {userInfo && userInfo.role === 2 ? (
+                            <>
+                              <button
+                                onClick={() => deletePopUpOpen(false, item.id)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-trash3"></i>
+                              </button>
+                              <button
+                                onClick={() => editPopUpOpen(false, item)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                            </>
+                          ) : null}
+                          <button
+                            onClick={() => detailsPopUpOpen(false, item)}
+                            type="button"
+                            className="btn btn-outline-primary me-1"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                          <button
+                            onClick={() => historyPopUpOpen(false, item.id)}
+                            type="button"
+                            className="btn btn-outline-primary"
+                          >
+                            <i className="bi bi-clock-history"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {inventories.length > pageSize && pages.length > 0 ? (
+                    <tfoot>
+                      <tr>
+                        <td colSpan="2">
+                          <select
+                            style={{
+                              width: "50px",
+                              paddingLeft: "8px",
+                              height: "35px",
+                            }}
+                            className="rounded-3"
+                            name="type"
+                            onChange={(e) => setPageSize(e.target.value)}
+                          >
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                          </select>
+                        </td>
+                        <td colSpan="12">
+                          <nav aria-label="Page navigation example">
+                            <ul className="pagination justify-content-end m-0">
+                              {/* <li className="page-item disabled">
                             <span className="page-link">Previous</span>
                           </li> */}
-                          {pages.map((page, index) => (
-                            <li
-                              className="page-item"
-                              key={index}
-                              onClick={() => showNextInventory(page)}
-                            >
-                              <span className="page-link" href="#">
-                                {page}
-                              </span>
-                            </li>
-                          ))}
+                              {pages.map((page, index) => (
+                                <li
+                                  className="page-item"
+                                  key={index}
+                                  onClick={() => showNextInventory(page)}
+                                >
+                                  <span className="page-link" href="#">
+                                    {page}
+                                  </span>
+                                </li>
+                              ))}
 
-                          {/* <li className="page-item">
+                              {/* <li className="page-item">
                             <span className="page-link" href="#">
                               Next
                             </span>
                           </li> */}
-                        </ul>
-                      </nav>
-                    </td>
-                  </tr>
-                </tfoot>
-              ) : (
-                ""
-              )}
-            </table>
+                            </ul>
+                          </nav>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  ) : (
+                    ""
+                  )}
+                </table>
+              </>
+            ) : (
+              <h5
+                className="text-center mt-4 loadingbg  p-3"
+                style={{ width: "max-content", margin: "auto" }}
+              >
+                Inventory data loading...
+              </h5>
+            )}
           </div>
         </div>
       </div>

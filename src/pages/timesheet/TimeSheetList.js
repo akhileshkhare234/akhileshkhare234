@@ -25,7 +25,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map(
+        let users = res.map(
           (user) => user.displayName + "/" + user.email
         );
         setuserArray([...users]);
@@ -127,6 +127,14 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
       });
   };
   const exportFile = () => {
+    let timesheetform = document.forms["timesheetform"];
+    let payload = {
+      users: timesheetform.users.value,
+      projects: timesheetform.projects.value,
+      years: timesheetform.years.value,
+      months: timesheetform.months.value,
+    };
+    setPayload(payload);
     console.log("TimeSheet data : ", payload);
     if (payload.projects !== "All") {
       let data = projects.filter(
@@ -164,7 +172,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         <div className="row">
           <div className="col">
             {userInfo && userInfo.role === 2 ? (
-              <form onSubmit={getTimeSheet}>
+              <form name="timesheetform" onSubmit={getTimeSheet}>
                 <div className="row px-4 py-2">
                   <div className="col-md-3">
                     <label htmlFor="floatingInput" className="mb-1">

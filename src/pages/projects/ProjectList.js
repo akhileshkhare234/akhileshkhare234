@@ -108,125 +108,136 @@ export default function ProjectList({
       <div className="container">
         <div className="row">
           <div className="col">
-            <div className="row px-4 py-2">
-              <div className="col justify-content-center">
-                <div className="input-group" style={{ width: "300px" }}>
-                  <input
-                    className="form-control  border"
-                    type="search"
-                    placeholder="search"
-                    onChange={(event) => setSerachText(event.target.value)}
-                    id="example-search-input"
-                    onKeyUp={(event) => setSerachText(event.target.value)}
-                  />
-                </div>
-              </div>
-              {userInfo && userInfo.role === 2 ? (
-                <div className="col justify-content-end text-end">
-                  <button
-                    onClick={() => entryPopUpOpen(false)}
-                    type="button"
-                    className="btn btn-outline-primary"
-                  >
-                    <i className="bi bi-plus-circle me-2"></i>
-                    <span className="ml-2">Add</span>
-                  </button>
-                </div>
-              ) : null}
-            </div>
-
-            <table className="table tabletext">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  {Object.values(tableData).map((field, index) => (
-                    <th scope="col" key={field}>
-                      {field}
-                    </th>
-                  ))}
-                  <th scope="col" className="text-center">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.map((item, index) => (
-                  <tr key={index}>
-                    <th scope="row">{start + index + 1}</th>
-                    {Object.keys(tableData).map((field, index) => (
-                      <td key={field}>
-                        {field.includes("Date")
-                          ? dateFormate(item[field])
-                          : item[field]}
-                      </td>
-                    ))}
-                    <td className="text-center">
-                      {userInfo && userInfo.role === 2 ? (
-                        <>
-                          <button
-                            onClick={() =>
-                              deletePopUpOpen(false, item.projectId)
-                            }
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-trash3"></i>
-                          </button>
-                          <button
-                            onClick={() => editPopUpOpen(false, item)}
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                        </>
-                      ) : null}
+            {projects && projects.length > 0 ? (
+              <>
+                <div className="row px-4 py-2">
+                  <div className="col justify-content-center">
+                    <div className="input-group" style={{ width: "300px" }}>
+                      <input
+                        className="form-control  border"
+                        type="search"
+                        placeholder="search"
+                        onChange={(event) => setSerachText(event.target.value)}
+                        id="example-search-input"
+                        onKeyUp={(event) => setSerachText(event.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {userInfo && userInfo.role === 2 ? (
+                    <div className="col justify-content-end text-end">
                       <button
-                        onClick={() => detailsPopUpOpen(false, item)}
+                        onClick={() => entryPopUpOpen(false)}
                         type="button"
-                        className="btn btn-outline-primary me-1"
+                        className="btn btn-outline-primary"
                       >
-                        <i className="bi bi-eye"></i>
+                        <i className="bi bi-plus-circle me-2"></i>
+                        <span className="ml-2">Add</span>
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              {projectData.length > 10 && pages.length > 0 ? (
-                <tfoot>
-                  <tr>
-                    <td colSpan="14">
-                      <nav aria-label="Page navigation example">
-                        <ul className="pagination justify-content-end m-0">
-                          <li className="page-item disabled">
-                            <span className="page-link">Previous</span>
-                          </li>
-                          {pages.map((page, index) => (
-                            <li
-                              className="page-item"
-                              key={index}
-                              onClick={() => showNextInventory(page)}
-                            >
-                              <span className="page-link" href="#">
-                                {page}
-                              </span>
-                            </li>
-                          ))}
+                    </div>
+                  ) : null}
+                </div>
 
-                          <li className="page-item">
-                            <span className="page-link" href="#">
-                              Next
-                            </span>
-                          </li>
-                        </ul>
-                      </nav>
-                    </td>
-                  </tr>
-                </tfoot>
-              ) : (
-                ""
-              )}
-            </table>
+                <table className="table tabletext">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      {Object.values(tableData).map((field, index) => (
+                        <th scope="col" key={field}>
+                          {field}
+                        </th>
+                      ))}
+                      <th scope="col" className="text-center">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {projects.map((item, index) => (
+                      <tr key={index}>
+                        <th scope="row">{start + index + 1}</th>
+                        {Object.keys(tableData).map((field, index) => (
+                          <td key={field}>
+                            {field.includes("Date")
+                              ? dateFormate(item[field])
+                              : item[field]}
+                          </td>
+                        ))}
+                        <td className="text-center">
+                          {userInfo && userInfo.role === 2 ? (
+                            <>
+                              <button
+                                onClick={() =>
+                                  deletePopUpOpen(false, item.projectId)
+                                }
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-trash3"></i>
+                              </button>
+                              <button
+                                onClick={() => editPopUpOpen(false, item)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                            </>
+                          ) : null}
+                          <button
+                            onClick={() => detailsPopUpOpen(false, item)}
+                            type="button"
+                            className="btn btn-outline-primary me-1"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  {projectData.length > 10 && pages.length > 0 ? (
+                    <tfoot>
+                      <tr>
+                        <td colSpan="14">
+                          <nav aria-label="Page navigation example">
+                            <ul className="pagination justify-content-end m-0">
+                              <li className="page-item disabled">
+                                <span className="page-link">Previous</span>
+                              </li>
+                              {pages.map((page, index) => (
+                                <li
+                                  className="page-item"
+                                  key={index}
+                                  onClick={() => showNextInventory(page)}
+                                >
+                                  <span className="page-link" href="#">
+                                    {page}
+                                  </span>
+                                </li>
+                              ))}
+
+                              <li className="page-item">
+                                <span className="page-link" href="#">
+                                  Next
+                                </span>
+                              </li>
+                            </ul>
+                          </nav>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  ) : (
+                    ""
+                  )}
+                </table>
+              </>
+            ) : (
+              <h5
+                className="text-center mt-4 loadingbg  p-3"
+                style={{ width: "max-content", margin: "auto" }}
+              >
+                Project data loading...
+              </h5>
+            )}
           </div>
         </div>
       </div>

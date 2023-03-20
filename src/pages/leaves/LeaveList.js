@@ -39,9 +39,7 @@ export default function LeaveList({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.users.map(
-          (user) => user.displayName + "/" + user.email
-        );
+        let users = res.map((user) => user.displayName + "/" + user.email);
         setuserArray([...users]);
         console.log("Users List : ", users);
       })
