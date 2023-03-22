@@ -4,7 +4,7 @@ import { APIUrl } from "../../auth/constants";
 import Header from "../inventory/Header";
 import {
   dateFormate,
-  getMonthName,
+  getMonthFullName,
   getMonthsFullName,
   getYears,
 } from "../util.js";
@@ -72,23 +72,29 @@ export default function LeaveList({
   useEffect(() => {
     getLeaves();
   }, [getLeaves]);
+  const getURL = (payload) => {
+    let url = `api/leave/data/${payload.years}`;
+    let params = [];
+    if (payload.months !== "All") params.push(`month=${payload.months}`);
+    if (payload.users !== "All") params.push(`email=${payload.users}`);
+    if (payload.status !== "All") params.push(`status=${payload.status}`);
+    if (params.length > 0) url += "?" + params.join("&");
+    console.log(url);
+    return url;
+  };
   const getLeaveFilterData = (e) => {
     e.preventDefault();
-    let { users, years, months } = e.target;
+    let { users, years, months, status } = e.target;
     let payload = {
       users: users.value,
       years: years.value,
       months: months.value,
+      status: status.value,
     };
     console.log(payload);
     setPayload(payload);
     // http://localhost:8080/api/timesheet?year=2023&email=shailendra.bardiya@lirisoft.com,abc.xyz@lirisoft.com&month=JAN&projectId=2&status=ReSubmitted
-    let urldata =
-      payload.users === "All"
-        ? payload.months === "All"
-          ? `api/leave/data/${payload.years}`
-          : `api/leave/data/${payload.years}?month=${payload.months}`
-        : `api/leave/data/${payload.years}?month=${payload.months}&email=${payload.users}`;
+    let urldata = getURL(payload);
     fetch(APIUrl + urldata, {
       headers: {
         "Content-Type": "application/json",
@@ -166,8 +172,9 @@ export default function LeaveList({
                       <select
                         className="form-control rounded-3"
                         name="months"
-                        defaultValue={getMonthName()}
+                        defaultValue={getMonthFullName()}
                       >
+                        <option value="All">All</option>
                         {getMonthsFullName().map((month, index) => (
                           <option value={month} key={index + month}>
                             {month}
@@ -180,7 +187,7 @@ export default function LeaveList({
                         Status
                       </label>
                       <select className="form-control rounded-3" name="status">
-                        {["Submit", "Approve", "Reject"].map(
+                        {["All", "Submit", "Approve", "Reject"].map(
                           (status, index) => (
                             <option value={status} key={index + status}>
                               {status}
@@ -229,7 +236,9 @@ export default function LeaveList({
                         ) : field.includes("status") ? (
                           userInfo &&
                           userInfo.role === 2 &&
-                          !["Approved", "Reject"].includes(item[field]) ? (
+                          !["Approve", "Approved", "Reject"].includes(
+                            item[field]
+                          ) ? (
                             <span
                               className={
                                 item[field] === "Reject"
@@ -265,12 +274,11 @@ export default function LeaveList({
                       </td>
                     ))}
                     <td className="text-center">
-                      {item.status === "submitted" ? (
+                      {item.status === "submitted" ||
+                      item.status === "Submit" ? (
                         <>
                           <button
-                            onClick={() =>
-                              deletePopUpOpen(false, item.projectId)
-                            }
+                            onClick={() => deletePopUpOpen(false, item.id)}
                             type="button"
                             className="btn btn-outline-primary me-1"
                           >

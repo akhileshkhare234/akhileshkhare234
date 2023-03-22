@@ -251,7 +251,7 @@ export default function EditProject({
 
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
-                  className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center py-2"
+                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
                 >
                   Edit Project

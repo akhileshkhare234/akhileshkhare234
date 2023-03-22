@@ -259,8 +259,29 @@ border-radius: 5px;
 }
 .profilebtn{
   position: absolute;
-  top: 50px;
-  left: 140px;
+    top: 50px;
+    right: 0;
+    padding: 5px 8px;
+    border-radius: 2px;
+    justify-content: space-around;
+    align-items: center;
+    display: flex;
+}
+.profilebtn2{
+    padding: 5px 8px;
+    border-radius: 4px!important;
+    justify-content: space-around;
+    align-items: center;
+    display: flex;
+    min-width: 160px;
+}
+.errormsg{
+  font-size: 12pt;
+  text-align: left;
+  color: #f44336;
+}
+.profilebtn2:hover{
+  background-color: #079c7e;
 }
 .profileimage{
   font-size: 60pt;

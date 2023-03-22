@@ -53,7 +53,15 @@ export default function UserProfiles() {
                 className="btn btn-success profilebtn"
                 onClick={setEditProfile}
               >
-                Edit Profile
+                <i
+                  className="bi bi-person-plus"
+                  style={{
+                    color: "#fff",
+                    marginRight: "8px",
+                    fontSize: "20px",
+                  }}
+                ></i>{" "}
+                Update Profile
               </button>
             </div>
             <hr className="mb-3" />

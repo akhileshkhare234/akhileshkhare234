@@ -1,29 +1,6 @@
 export const profileFileds = [
   { name: "displayName", title: "Name", type: "text" },
   {
-    name: "designation",
-    title: "Designation",
-    type: "select",
-    values: [
-      { value: "Web Developer", name: "Web Developer" },
-      { value: "Java Developer", name: "Java Developer" },
-      { value: "Developer", name: "Developer" },
-      { value: "Programmer", name: "Programmer" },
-      { value: "Systems Analyst", name: "Systems Analyst" },
-      { value: "Software engineer", name: "Software engineer" },
-      { value: "Fullstack Developer", name: "Fullstack Developer" },
-      { value: "HR manager", name: "HR manager" },
-      { value: "Android Developer", name: "Android Developer" },
-      { value: "IOS Developer", name: "IOS Developer" },
-      { value: "QA Engineer", name: "QA Engineer" },
-      { value: "Test Manager", name: "Test Manager" },
-      { value: "Test Engineer", name: "Test Engineer" },
-      { value: "Test Analyst", name: "Test Analyst" },
-      { value: "Test Automation Engineer", name: "Test Automation Engineer" },
-    ],
-  },
-  { name: "employeeId", title: "Employee Id", type: "text" },
-  {
     name: "ofcLocation",
     title: "Office Location",
     type: "select",
@@ -52,7 +29,5 @@ export const profileFileds = [
       { value: "Female", name: "Female" },
     ],
   },
-  { name: "pan", title: "PAN", type: "text" },
   { name: "dob", title: "Date of Birth", type: "date" },
-  { name: "doj", title: "Date of Joining", type: "date" },
 ];

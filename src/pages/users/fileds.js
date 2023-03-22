@@ -9,6 +9,7 @@ export const userFields = [
       { value: "Web Developer", name: "Web Developer" },
       { value: "Java Developer", name: "Java Developer" },
       { value: "Developer", name: "Developer" },
+      { value: " Windows developer", name: " Windows developer" },
       { value: "Programmer", name: "Programmer" },
       { value: "Systems Analyst", name: "Systems Analyst" },
       { value: "Software engineer", name: "Software engineer" },

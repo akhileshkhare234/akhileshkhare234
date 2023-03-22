@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
 import { userFields } from "./fileds";
@@ -10,6 +12,40 @@ export default function EditUser({
   token,
   changeStatus,
 }) {
+  const [msgStatus, setMsgStatus] = useState(false);
+  const [msg, setMsg] = useState("");
+  const checkFields = (itemData) => {
+    let msg = "Please enter ";
+    let fields = {};
+    if (itemData.displayName.length === 0)
+      fields["displayName"] = "Display name";
+    if (itemData.employeeId.length === 0) fields["employeeId"] = "Employee Id";
+    if (itemData.city.length === 0) fields["city"] = "City";
+    if (itemData.permanentAddress.length === 0)
+      fields["permanentAddress"] = "Permanent address";
+    if (itemData.mobileNumber.length === 0)
+      fields["mobileNumber"] = "Mobile number";
+    if (
+      new Date(itemData.dob).toDateString() ===
+      new Date("1/1/1970").toDateString()
+    )
+      fields["dob"] = "Date of birth";
+    if (
+      new Date(itemData.doj).toDateString() ===
+      new Date("1/1/1970").toDateString()
+    )
+      fields["doj"] = "Date of joining";
+    console.log("fields ", Object.keys(fields).length);
+    if (Object.keys(fields).length === 0) {
+      setMsgStatus(true);
+      setMsg("");
+      return [];
+    } else {
+      setMsgStatus(false);
+      setMsg(msg + Object.values(fields).join());
+      return Object.keys(fields);
+    }
+  };
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -23,7 +59,6 @@ export default function EditUser({
       city,
       state,
       pinCode,
-      remainingLeave,
       managerName,
       mobileNumber,
       emergencyMobileNumber,
@@ -48,7 +83,6 @@ export default function EditUser({
       city: city.value,
       state: state.value,
       pinCode: pinCode.value,
-
       managerName: managerName.value,
       mobileNumber: mobileNumber.value,
       emergencyMobileNumber: emergencyMobileNumber.value,
@@ -61,24 +95,46 @@ export default function EditUser({
       uan: uan.value,
       role: role.value,
     };
-    fetch(APIUrl + "api/user", {
-      method: "PUT",
-      body: JSON.stringify(itemData),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        console.log("Edit user : ", res);
-        editPopUpClose(true);
-        changeStatus(true);
+    let blankFields = checkFields(itemData);
+    displayName.style.border = "1px solid #ccc";
+    designation.style.border = "1px solid #ccc";
+    employeeId.style.border = "1px solid #ccc";
+    ofcLocation.style.border = "1px solid #ccc";
+    tempAddress.style.border = "1px solid #ccc";
+    permanentAddress.style.border = "1px solid #ccc";
+    city.style.border = "1px solid #ccc";
+    state.style.border = "1px solid #ccc";
+    pinCode.style.border = "1px solid #ccc";
+    mobileNumber.style.border = "1px solid #ccc";
+    emergencyMobileNumber.style.border = "1px solid #ccc";
+    gender.style.border = "1px solid #ccc";
+    pan.style.border = "1px solid #ccc";
+    dob.style.border = "1px solid #ccc";
+    doj.style.border = "1px solid #ccc";
+    if (msgStatus || blankFields.length === 0) {
+      fetch(APIUrl + "api/user", {
+        method: "PUT",
+        body: JSON.stringify(itemData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Edit : ", err);
-        editPopUpClose(true);
-        changeStatus(false);
+        .then((res) => {
+          console.log("Edit user : ", res);
+          editPopUpClose(true);
+          changeStatus(true);
+        })
+        .catch((err) => {
+          console.log("User Not Edit : ", err);
+          editPopUpClose(true);
+          changeStatus(false);
+        });
+    } else {
+      blankFields.forEach((field) => {
+        event.target[field].style.border = "1px solid red";
       });
+    }
     console.log("itemData : ", itemData);
   };
   const setFormdata = (itemDetails) => {
@@ -118,6 +174,7 @@ export default function EditUser({
       role="dialog"
       id="modalSignin"
     >
+      <ToastContainer />
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -159,10 +216,14 @@ export default function EditUser({
                   )}
                 </div>
               ))}
-
+              {msgStatus ? (
+                <div className="d-grid gap-2 d-md-flex justify-content-md-center">
+                  <h5>{msg}</h5>
+                </div>
+              ) : null}
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
-                  className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center"
+                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
                   type="submit"
                 >
                   Edit User

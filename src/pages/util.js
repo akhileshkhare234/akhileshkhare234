@@ -93,6 +93,11 @@ export const getMonthName = () => {
   let dates = new Date().getMonth();
   return monthNames[dates];
 };
+export const getMonthFullName = () => {
+  let dates = new Date().getMonth();
+  return monthFullName[dates];
+};
+
 export const getMonths = () => {
   return monthNames;
 };

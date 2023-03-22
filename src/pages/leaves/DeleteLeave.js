@@ -12,7 +12,7 @@ export default function DeleteLeave({
     console.log("deletePopUp ", deletePopUp);
   }, [deletePopUp]);
   const removeItem = () => {
-    fetch(APIUrl + "api/project/" + itemid, {
+    fetch(APIUrl + "api/leave/" + itemid, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

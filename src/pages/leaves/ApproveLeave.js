@@ -57,7 +57,7 @@ function ApproveLeave({
       reason: itemData.reason,
       leaveType: itemData.leaveType,
       id: itemData.id,
-      status: "Approved",
+      status: "Approve",
       department: itemData.department,
       comment: itemData.comment,
       year: itemData.year,
@@ -66,7 +66,7 @@ function ApproveLeave({
     };
 
     fetch(APIUrl + "api/leave/" + itemData.id, {
-      method: "POST",
+      method: "PUT",
       body: JSON.stringify(leaveDetails),
       headers: {
         "Content-Type": "application/json",

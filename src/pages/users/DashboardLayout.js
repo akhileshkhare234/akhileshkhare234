@@ -253,7 +253,7 @@ export default function EditItem({
               </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
-                  className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center"
+                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
                   type="submit"
                 >
                   Edit Item

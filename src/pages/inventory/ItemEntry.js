@@ -98,9 +98,7 @@ export default function ItemEntry({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.map(
-          (user) => user.displayName + "/" + user.email
-        );
+        let users = res.map((user) => user.displayName + "/" + user.email);
         setuserArray([...users]);
         console.log("Users List : ", users);
       })
@@ -457,7 +455,7 @@ export default function ItemEntry({
 
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
-                  className="w-25 mb-2 btn btn-lg rounded-3 btn-primary center"
+                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
                   type="submit"
                 >
                   Save Inventory
