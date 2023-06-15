@@ -1,7 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
+import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util";
+import ImagePreview from "./ImagePreview";
 
 export default function UserList({
   userDetails,
@@ -14,6 +16,14 @@ export default function UserList({
   const [pages, setPages] = useState([]);
   const [start, setStart] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [itemData, setItemdata] = useState(null);
+  const [imagePreviewPopUp, setImagePreviewPopUp] = useState(true);
+  const [serachText, setSerachText] = useState("");
+  const [searchStatus, setSerachStatus] = useState(false);
+  const showImage = (status, data) => {
+    setImagePreviewPopUp(status);
+    setItemdata(data);
+  };
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/users", {
@@ -59,23 +69,72 @@ export default function UserList({
   useEffect(() => {
     getUsers();
   }, [getUsers, itemStatus]);
-  const showNextInventory = (pos) => {
+  const showNextUsers = (pos) => {
     let start = pos === 1 ? 0 : pos * pageSize - pageSize;
-    let inventory = userArray.filter(
+    let users = userArray.filter(
       (row, index) => index >= start && index < pos * pageSize
     );
-    console.log("start, pos,inventory ", start, pos, inventory);
-    setUserPageArray([...inventory]);
+    console.log("start, pos,users ", start, pos, users);
+    setUserPageArray([...users]);
     setStart(start);
   };
+  const searchInventory = useCallback(() => {
+    setSerachStatus(false);
+    if (serachText) {
+      let inventory = userArray.filter(
+        (row, index) =>
+          Object.keys(row).filter((field) => {
+            let text = row[field] + "";
+            return text.toUpperCase().includes(serachText.toUpperCase());
+          }).length > 0
+      );
+      console.log("serachText,inventory ", serachText, inventory);
+      setUserPageArray([...inventory]);
+      setSerachStatus(true);
+      let pages = [];
+      for (let I = 1; I <= Math.ceil(inventory.length / pageSize); I++) {
+        pages.push(I);
+      }
+      setPages(pages);
+    } else {
+      let inventory = userArray.filter((row, index) => index < pageSize);
+      let pages = [];
+      for (let I = 1; I <= Math.ceil(userArray.length / pageSize); I++) {
+        pages.push(I);
+      }
+      setPages(pages);
+      setUserPageArray([...inventory]);
+    }
+  }, [userArray, pageSize, serachText]);
+  useEffect(() => {
+    const getData = setTimeout(() => {
+      searchInventory(serachText);
+    }, 1000);
+    return () => clearTimeout(getData);
+  }, [searchInventory, serachText]);
   return (
     <>
       <Header title="Users List" />
       <div className="container">
+        <div className="row px-4 py-2">
+          <div className="col justify-content-center">
+            <div className="input-group" style={{ width: "300px" }}>
+              <input
+                className="form-control  border"
+                type="search"
+                placeholder="Search user here..."
+                defaultValue={serachText}
+                onChange={(event) => setSerachText(event.target.value)}
+                id="example-search-input"
+                onKeyUp={(event) => setSerachText(event.target.value)}
+              />
+            </div>
+          </div>
+        </div>
         <div className="row">
           <div className="col mt-3">
             {userPageArray && userPageArray.length > 0 ? (
-              <table className="table tabletext">
+              <table className="table tabletext userimage">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -93,7 +152,7 @@ export default function UserList({
                     <th scope="col" className="text-center">
                       DOJ
                     </th>
-                    <th scope="col">Gender</th>
+                    <th scope="col">Photo</th>
                     <th scope="col" className="text-center">
                       Action
                     </th>
@@ -128,7 +187,20 @@ export default function UserList({
                       <td className="text-center">
                         {user.doj ? dateFormate(user.doj) : "-"}
                       </td>
-                      <td>{user.gender}</td>
+                      <td>
+                        <img
+                          onClick={() => showImage(false, user)}
+                          className="profileimage3"
+                          src={
+                            user.data
+                              ? "data:image/png;base64," + user.data
+                              : user.gender === "Female"
+                              ? process.env.PUBLIC_URL + "/images/female.png"
+                              : process.env.PUBLIC_URL + "/images/male.png"
+                          }
+                          alt=""
+                        />
+                      </td>
                       <td className="text-center">
                         <button
                           onClick={() => editPopUpOpen(false, user)}
@@ -177,7 +249,7 @@ export default function UserList({
                               <li
                                 className="page-item"
                                 key={index}
-                                onClick={() => showNextInventory(page)}
+                                onClick={() => showNextUsers(page)}
                               >
                                 <span className="page-link" href="#">
                                   {page}
@@ -193,17 +265,26 @@ export default function UserList({
                   ""
                 )}
               </table>
+            ) : searchStatus && serachText?.length > 0 ? (
+              <div className="row datanotfound">
+                <div className="col-12 text-center">
+                  <h4 className="datanotfound">
+                    <i className="bi bi-search datanotfoundIcon"></i> Data not
+                    found
+                  </h4>
+                </div>
+              </div>
             ) : (
-              <h5
-                className="text-center mt-4 loadingbg  p-3"
-                style={{ width: "max-content", margin: "auto" }}
-              >
-                User data loading...
-              </h5>
+              <Loader msg="User data loading" />
             )}
           </div>
         </div>
       </div>
+      <ImagePreview
+        imageData={itemData}
+        imagePreviewPopUp={imagePreviewPopUp}
+        imagePreviewPopUpClose={(status) => setImagePreviewPopUp(status)}
+      ></ImagePreview>
     </>
   );
 }

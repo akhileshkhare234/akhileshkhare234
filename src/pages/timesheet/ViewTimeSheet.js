@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect } from "react";
 import { getDayName, getMonthValue } from "../util";
-
 export default function ViewTimeSheet({
   timeSheetData,
   historyPopUpOpen,

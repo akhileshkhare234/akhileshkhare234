@@ -1,4 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import Header from "../inventory/Header";
@@ -25,9 +27,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.map(
-          (user) => user.displayName + "/" + user.email
-        );
+        let users = res.map((user) => user.displayName + "/" + user.email);
         setuserArray([...users]);
         console.log("Users List : ", users);
       })
@@ -163,10 +163,19 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         : // .then((res) => res.arrayBuffer())
           // .then((res) => console.log(res))
           console.log("We can export only one project data.");
+    } else {
+      toast.warning("Please select a project to export timesheet.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "colored",
+      });
     }
   };
   return (
     <>
+      <ToastContainer />
       <Header title="TimeSheets List" />
       <div className="container">
         <div className="row">

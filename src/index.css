@@ -18,7 +18,7 @@ code {
 }
 .displayPopUp{
   display: block !important;
-  position: absolute !important;
+  position: fixed !important;
   background-color: rgba(0, 0, 0, 0.3) !important;
 }
 .closePopUp{

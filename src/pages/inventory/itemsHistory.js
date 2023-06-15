@@ -7,28 +7,30 @@ export default function ItemsHistory({
   historyPopUpOpen,
   historyPopUpClose,
 }) {
-  const [userArray, setuserArray] = useState([]);
-  const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/assets/history/" + itemid, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setuserArray([...res]);
-        console.log("Items History : ", res);
+  const [itemArray, setitemArray] = useState([]);
+  const getItems = useCallback(() => {
+    if (itemid) {
+      let tokenValue = window.localStorage.getItem("am_token");
+      fetch(APIUrl + "api/assets/history/" + itemid, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
+        .then((res) => res.json())
+        .then((res) => {
+          setitemArray([...res]);
+          console.log("Items History : ", res);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err);
+        });
+    } else setitemArray([]);
   }, [itemid]);
   useEffect(() => {
     console.log("itemid : ", itemid);
-    getUsers();
-  }, [getUsers, itemid]);
+    getItems();
+  }, [getItems, itemid]);
   return (
     <>
       <div
@@ -79,7 +81,7 @@ export default function ItemsHistory({
                         </tr>
                       </thead>
                       <tbody>
-                        {userArray.map((user, index) => (
+                        {itemArray.map((user, index) => (
                           <tr key={index}>
                             <th scope="row">{index + 1}</th>
                             <td>{user.model}</td>
@@ -96,7 +98,7 @@ export default function ItemsHistory({
                           </tr>
                         ))}
                       </tbody>
-                      {userArray.length > 10 ? (
+                      {itemArray.length > 10 ? (
                         <tfoot>
                           <tr>
                             <td colSpan="14">

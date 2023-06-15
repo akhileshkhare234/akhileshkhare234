@@ -1,5 +1,4 @@
 export const userFields = [
-  { name: "email", title: "Email", type: "text" },
   { name: "displayName", title: "Name", type: "text" },
   {
     name: "designation",

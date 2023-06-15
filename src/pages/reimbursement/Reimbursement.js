@@ -1,17 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { APIUrl } from "../../auth/constants";
-import DeleteItem from "./DeleteItem";
-import EditItem from "./EditItem";
-import ItemDetails from "./ItemDetails";
-import ItemEntry from "./ItemEntry";
-import ItemsHistory from "./itemsHistory";
-import ItemsList from "./ItemsList";
+import DeleteReimbursement from "./DeleteReimbursement";
+import EditReimbursement from "./EditReimbursement";
+import ReimbursementDetails from "./ReimbursementDetails";
+import AddReimbursement from "./AddReimbursement";
+import ReimbursementList from "./ReimbursementList";
 
-export default function Items() {
+export default function Reimbursement() {
   const navigate = useNavigate();
   const [editPopUp, setEditPopUp] = useState(true);
-  const [historiPopUp, setHistoriPopUp] = useState(true);
   const [deletePopUp, setDeletePopUp] = useState(true);
   const [detailsPopUp, setDetailsPopUp] = useState(true);
   const [entryPopUp, setEntryPopUp] = useState(true);
@@ -27,20 +25,16 @@ export default function Items() {
     setEditPopUp(status);
     setItemdata(data);
   };
-  const setHistoryData = (status, id) => {
-    setHistoriPopUp(status);
-    setItemId(id);
-  };
+
   const getUserData = useCallback(() => {
-    token &&
-      fetch(APIUrl + "api/user/me", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => console.log("User Info ", res));
+    fetch(APIUrl + "api/user/me", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => console.log("User Info ", res));
   }, [token]);
   const checkUser = useCallback(() => {
     console.log("user checking...");
@@ -61,50 +55,43 @@ export default function Items() {
   }, [checkUser, getUserData, itemStatus]);
   return (
     <>
-      <ItemEntry
+      <AddReimbursement
         token={token}
         entryPopUp={entryPopUp}
         entryPopUpClose={(status) => setEntryPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></ItemEntry>
-      <EditItem
+      ></AddReimbursement>
+      <EditReimbursement
         token={token}
         itemDetails={itemData}
         editPopUp={editPopUp}
         editPopUpClose={(status) => setEditPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></EditItem>
-      <DeleteItem
+      ></EditReimbursement>
+      <DeleteReimbursement
         token={token}
         itemid={itemId}
         deletePopUp={deletePopUp}
         deletePopUpClose={(status) => setDeletePopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></DeleteItem>
-      <ItemsHistory
-        token={token}
-        itemid={itemId}
-        historyPopUpOpen={historiPopUp}
-        historyPopUpClose={(status) => setHistoriPopUp(status)}
-        changeStatus={(status) => setItemStatus(status)}
-      ></ItemsHistory>
-      <ItemDetails
+      ></DeleteReimbursement>
+
+      <ReimbursementDetails
         itemData={itemData}
         detailsPopUp={detailsPopUp}
         detailsPopUpClose={(status) => setDetailsPopUp(status)}
-      ></ItemDetails>
-      <ItemsList
+      ></ReimbursementDetails>
+      <ReimbursementList
         token={token}
         entryPopUpOpen={(status) => setEntryPopUp(status)}
         editPopUpOpen={(status, data) => setEditData(status, data)}
-        historyPopUpOpen={(status, data) => setHistoryData(status, data)}
         deletePopUpOpen={(status, id) => {
           setDeletePopUp(status);
           setItemId(id);
         }}
         detailsPopUpOpen={(status, data) => showDetails(status, data)}
         itemStatus={itemStatus}
-      ></ItemsList>
+      ></ReimbursementList>
     </>
   );
 }

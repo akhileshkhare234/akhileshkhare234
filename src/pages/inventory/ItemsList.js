@@ -3,6 +3,7 @@ import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import Header from "./Header";
 import { dateFormate } from "../util.js";
+import Loader from "../../util/Loader";
 
 export default function ItemsList({
   entryPopUpOpen,
@@ -20,37 +21,40 @@ export default function ItemsList({
   const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
   const [pageSize, setPageSize] = useState(10);
+  const [searchStatus, setSerachStatus] = useState(false);
   const setItemsData = useCallback(() => {
     setStart(0);
-    fetch(APIUrl + "api/assets", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.assets?.length > 0) {
-          let inventory = res.assets.filter((row, index) => index < pageSize);
-          console.log("inventory Info ", inventory);
-          setItems([...inventory]);
-          setInventories([...res.assets]);
-          let pages = [];
-          for (let I = 1; I <= Math.ceil(res.assets.length / pageSize); I++) {
-            pages.push(I);
+    token &&
+      fetch(APIUrl + "api/assets", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.assets?.length > 0) {
+            let inventory = res.assets.filter((row, index) => index < pageSize);
+            console.log("inventory Info ", inventory);
+            setItems([...inventory]);
+            setInventories([...res.assets]);
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.assets.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+          } else {
+            setItems([]);
+            setInventories([]);
+            setPages([]);
           }
-          setPages(pages);
-        } else {
-          setItems([]);
-          setInventories([]);
-          setPages([]);
-        }
-      });
+        });
   }, [pageSize, token]);
   useEffect(() => {
     setItemsData();
   }, [setItemsData, itemStatus]);
   const searchInventory = useCallback(() => {
+    setSerachStatus(false);
     if (serachText) {
       let inventory = inventories.filter(
         (row, index) =>
@@ -61,6 +65,7 @@ export default function ItemsList({
       );
       console.log("serachText,inventory ", serachText, inventory);
       setItems([...inventory]);
+      setSerachStatus(true);
       let pages = [];
       for (let I = 1; I <= Math.ceil(inventory.length / pageSize); I++) {
         pages.push(I);
@@ -97,36 +102,35 @@ export default function ItemsList({
       <div className="container">
         <div className="row">
           <div className="col">
+            <div className="row px-4 py-2">
+              <div className="col justify-content-center">
+                <div className="input-group" style={{ width: "300px" }}>
+                  <input
+                    className="form-control  border"
+                    type="search"
+                    placeholder="Search inventory here..."
+                    defaultValue={serachText}
+                    onChange={(event) => setSerachText(event.target.value)}
+                    id="example-search-input"
+                    onKeyUp={(event) => setSerachText(event.target.value)}
+                  />
+                </div>
+              </div>
+              {userInfo && userInfo.role === 2 ? (
+                <div className="col justify-content-end text-end">
+                  <button
+                    onClick={() => entryPopUpOpen(false)}
+                    type="button"
+                    className="btn btn-outline-primary"
+                  >
+                    <i className="bi bi-plus-circle me-2"></i>
+                    <span className="ml-2">Add</span>
+                  </button>
+                </div>
+              ) : null}
+            </div>
             {items && items.length > 0 ? (
               <>
-                <div className="row px-4 py-2">
-                  <div className="col justify-content-center">
-                    <div className="input-group" style={{ width: "300px" }}>
-                      <input
-                        className="form-control  border"
-                        type="search"
-                        placeholder="search"
-                        defaultValue={serachText}
-                        onChange={(event) => setSerachText(event.target.value)}
-                        id="example-search-input"
-                        onKeyUp={(event) => setSerachText(event.target.value)}
-                      />
-                    </div>
-                  </div>
-                  {userInfo && userInfo.role === 2 ? (
-                    <div className="col justify-content-end text-end">
-                      <button
-                        onClick={() => entryPopUpOpen(false)}
-                        type="button"
-                        className="btn btn-outline-primary"
-                      >
-                        <i className="bi bi-plus-circle me-2"></i>
-                        <span className="ml-2">Add</span>
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
                 <table className="table tabletext">
                   <thead>
                     <tr>
@@ -139,7 +143,9 @@ export default function ItemsList({
                       <th scope="col">Brand</th>
                       {/* <th scope="col">Purchase Date</th> */}
                       <th scope="col">Identity Type</th>
-                      <th scope="col">Identity Value</th>
+                      <th scope="col" style={{ width: "220px" }}>
+                        Identity Value
+                      </th>
                       {/* <th scope="col">Validity From</th>
                   <th scope="col">Validity To</th> */}
                       <th scope="col" className="text-center">
@@ -251,13 +257,17 @@ export default function ItemsList({
                   )}
                 </table>
               </>
+            ) : searchStatus && serachText?.length > 0 ? (
+              <div className="row datanotfound">
+                <div className="col-12 text-center">
+                  <h4 className="datanotfound">
+                    <i className="bi bi-search datanotfoundIcon"></i> Data not
+                    found
+                  </h4>
+                </div>
+              </div>
             ) : (
-              <h5
-                className="text-center mt-4 loadingbg  p-3"
-                style={{ width: "max-content", margin: "auto" }}
-              >
-                Inventory data loading...
-              </h5>
+              <Loader msg="Inventory loading" />
             )}
           </div>
         </div>

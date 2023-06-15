@@ -56,6 +56,7 @@ export default function EditProfile({
     } = event.target;
     let itemData = {
       id: parseInt(itemDetails.id),
+      email: itemDetails.email,
       displayName: displayName.value,
       ofcLocation: ofcLocation.value,
       tempAddress: tempAddress.value,
@@ -151,7 +152,7 @@ export default function EditProfile({
           <div className="modal-body p-4">
             <form name="itemForm" className="row g-3" onSubmit={saveItem}>
               {profileFileds.map((field, index) => (
-                <div key={index} className="col-md-3">
+                <div key={index} className="col-md-4">
                   <label htmlFor="floatingInput" className="mb-1">
                     {field.title}
                   </label>

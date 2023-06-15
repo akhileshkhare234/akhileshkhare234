@@ -29,14 +29,15 @@ export default function Leaves() {
   };
 
   const getUserData = useCallback(() => {
-    fetch(APIUrl + "api/user/me", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => console.log("User Info ", res));
+    token &&
+      fetch(APIUrl + "api/user/me", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => console.log("User Info ", res));
   }, [token]);
   const checkUser = useCallback(() => {
     console.log("user checking...");

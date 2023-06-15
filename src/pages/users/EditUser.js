@@ -49,7 +49,6 @@ export default function EditUser({
   const saveItem = (event) => {
     event.preventDefault();
     let {
-      email,
       displayName,
       designation,
       employeeId,
@@ -73,7 +72,7 @@ export default function EditUser({
     } = event.target;
     let itemData = {
       id: parseInt(itemDetails.id),
-      email: email.value,
+      email: itemDetails.email,
       displayName: displayName.value,
       designation: designation.value,
       employeeId: employeeId.value,
@@ -139,7 +138,6 @@ export default function EditUser({
   };
   const setFormdata = (itemDetails) => {
     let itemForm = document.forms["itemForm"];
-    itemForm.email.value = itemDetails.email;
     itemForm.displayName.value = itemDetails.displayName;
     itemForm.designation.value = itemDetails.designation;
     itemForm.employeeId.value = itemDetails.employeeId;

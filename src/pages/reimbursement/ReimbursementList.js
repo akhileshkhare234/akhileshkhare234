@@ -5,16 +5,16 @@ import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
 const tableData = {
-  name: "Project Name",
-  manager: "Manager",
-  teamSize: "Team Size",
-  startDate: "Start Date",
-  completionDate: "Completion Date",
-  clientContactName: "Client Name",
-  clientContactNumber: "Client Contact",
-  projectDetail: "Project Detail",
+  type: "Reimbursement type",
+
+  submitAmonut: "Amount",
+  username: "Submit By",
+  spentDate: "Spent Date",
+  submitDate: "Submit Date",
+  status: "Status",
+  description: "Description",
 };
-export default function ProjectList({
+export default function ReimbursementList({
   entryPopUpOpen,
   editPopUpOpen,
   deletePopUpOpen,
@@ -23,15 +23,15 @@ export default function ProjectList({
   itemStatus,
 }) {
   const userInfo = useContext(UserData);
-  const [projects, setProject] = useState([]);
-  const [projectData, setIProjects] = useState([]);
+  const [Reimbursements, setReimbursement] = useState([]);
+  const [ReimbursementData, setIReimbursements] = useState([]);
   const [pages, setPages] = useState([]);
   const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
-  const setProjectData = useCallback(() => {
+  const setReimbursementData = useCallback(() => {
     setStart(0);
-    fetch(APIUrl + "api/project", {
+    fetch(APIUrl + "api/reimbursement", {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + token,
@@ -40,10 +40,10 @@ export default function ProjectList({
       .then((res) => res.json())
       .then((res) => {
         if (res?.length > 0) {
-          let project = res.filter((row, index) => index < 10);
-          console.log("projects List ", project);
-          setProject([...project]);
-          setIProjects([...res]);
+          let Reimbursement = res.filter((row, index) => index < 10);
+          console.log("Reimbursements List ", Reimbursement);
+          setReimbursement([...Reimbursement]);
+          setIReimbursements([...res]);
           let pageSize = 10;
           let pages = [];
           for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
@@ -51,64 +51,68 @@ export default function ProjectList({
           }
           setPages(pages);
         } else {
-          setProject([]);
-          setIProjects([]);
+          setReimbursement([]);
+          setIReimbursements([]);
           setPages([]);
         }
       });
   }, [token]);
   useEffect(() => {
-    setProjectData();
-  }, [setProjectData, itemStatus]);
-  const searchProject = useCallback(() => {
+    setReimbursementData();
+  }, [setReimbursementData, itemStatus]);
+  const searchReimbursement = useCallback(() => {
     setSerachStatus(false);
     if (serachText) {
-      let project = projectData.filter(
+      let Reimbursement = ReimbursementData.filter(
         (row, index) =>
           Object.keys(row).filter((field) => {
             let text = row[field] + "";
             return text.toUpperCase().includes(serachText.toUpperCase());
           }).length > 0
       );
-      console.log("serachText,project ", serachText, project);
-      setProject([...project]);
+      console.log("serachText,Reimbursement ", serachText, Reimbursement);
+      setReimbursement([...Reimbursement]);
       setSerachStatus(true);
       let pageSize = 10;
       let pages = [];
-      for (let I = 1; I <= Math.ceil(project.length / pageSize); I++) {
+      for (let I = 1; I <= Math.ceil(Reimbursement.length / pageSize); I++) {
         pages.push(I);
       }
       setPages(pages);
     } else {
-      let project = projectData.filter((row, index) => index < 10);
+      let Reimbursement = ReimbursementData.filter((row, index) => index < 10);
       let pageSize = 10;
       let pages = [];
-      for (let I = 1; I <= Math.ceil(projectData.length / pageSize); I++) {
+      for (
+        let I = 1;
+        I <= Math.ceil(ReimbursementData.length / pageSize);
+        I++
+      ) {
         pages.push(I);
       }
       setPages(pages);
-      setProject([...project]);
+      setReimbursement([...Reimbursement]);
       setSerachStatus(true);
     }
-  }, [projectData, serachText]);
+  }, [ReimbursementData, serachText]);
   useEffect(() => {
     const getData = setTimeout(() => {
-      searchProject(serachText);
+      searchReimbursement(serachText);
     }, 1000);
     return () => clearTimeout(getData);
-  }, [searchProject, serachText]);
+  }, [searchReimbursement, serachText]);
   const showNextInventory = (pos) => {
     let start = pos === 1 ? 0 : pos * 10 - 10;
-    let inventory = projectData.filter(
+    let inventory = ReimbursementData.filter(
       (row, index) => index >= start && index < pos * 10
     );
     console.log("start, pos,inventory ", start, pos, inventory);
-    setProject([...inventory]);
+    setReimbursement([...inventory]);
     setStart(start);
   };
   return (
     <>
-      <Header title="Projects List" />
+      <Header title="Reimbursements List" />
       <div className="container">
         <div className="row">
           <div className="col">
@@ -118,7 +122,7 @@ export default function ProjectList({
                   <input
                     className="form-control  border"
                     type="search"
-                    placeholder="Search project here..."
+                    placeholder="Search Reimbursement here..."
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
                     onKeyUp={(event) => setSerachText(event.target.value)}
@@ -138,7 +142,7 @@ export default function ProjectList({
                 </div>
               ) : null}
             </div>
-            {projects && projects.length > 0 ? (
+            {Reimbursements && Reimbursements.length > 0 ? (
               <>
                 <table className="table tabletext">
                   <thead>
@@ -155,23 +159,33 @@ export default function ProjectList({
                     </tr>
                   </thead>
                   <tbody>
-                    {projects.map((item, index) => (
+                    {Reimbursements.map((item, index) => (
                       <tr key={index}>
                         <th scope="row">{start + index + 1}</th>
                         {Object.keys(tableData).map((field, index) => (
                           <td key={field}>
-                            {field.includes("Date")
-                              ? dateFormate(item[field])
-                              : item[field]}
+                            <span
+                              className={
+                                field === "status"
+                                  ? item.status === "INITIATED"
+                                    ? "px-2 btn  py-1 rounded-1 textColor textFont bg-primary"
+                                    : "px-2 btn  py-1 rounded-1 textColor textFont bg-danger"
+                                  : ""
+                              }
+                            >
+                              {field.includes("Date")
+                                ? dateFormate(item[field])
+                                : field.includes("Amonut")
+                                ? item[field] + " " + item["unit"]
+                                : item[field]}
+                            </span>
                           </td>
                         ))}
                         <td className="text-center">
                           {userInfo && userInfo.role === 2 ? (
                             <>
                               <button
-                                onClick={() =>
-                                  deletePopUpOpen(false, item.projectId)
-                                }
+                                onClick={() => deletePopUpOpen(false, item.id)}
                                 type="button"
                                 className="btn btn-outline-primary me-1"
                               >
@@ -186,18 +200,18 @@ export default function ProjectList({
                               </button>
                             </>
                           ) : null}
-                          <button
+                          {/* <button
                             onClick={() => detailsPopUpOpen(false, item)}
                             type="button"
                             className="btn btn-outline-primary me-1"
                           >
                             <i className="bi bi-eye"></i>
-                          </button>
+                          </button> */}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                  {projectData.length > 10 && pages.length > 0 ? (
+                  {ReimbursementData.length > 10 && pages.length > 0 ? (
                     <tfoot>
                       <tr>
                         <td colSpan="14">
@@ -243,7 +257,7 @@ export default function ProjectList({
                 </div>
               </div>
             ) : (
-              <Loader msg="Project data loading" />
+              <Loader msg="Reimbursement data loading" />
             )}
           </div>
         </div>

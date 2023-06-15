@@ -62,6 +62,13 @@ export const assignDateFormate = (dateval) => {
   var y = date.getFullYear();
   return "" + y + "-" + (m <= 9 ? "0" + m : m) + "-" + (d <= 9 ? "0" + d : d);
 };
+export const localDateFormate = (dateval) => {
+  let date = new Date(dateval);
+  var d = date.getDate();
+  var m = date.getMonth();
+  var y = date.getFullYear();
+  return (d <= 9 ? "0" + d : d) + "-" + monthNames[m] + "-" + y;
+};
 const getDays = (year, month) => {
   return new Date(year, month, 0).getDate();
 };
@@ -150,5 +157,6 @@ export const getMonthDates = (
       });
     }
   }
+  console.log("Time Sheet Data : ", dates, projects);
   return dates;
 };

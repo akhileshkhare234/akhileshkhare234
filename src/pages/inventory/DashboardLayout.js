@@ -72,13 +72,19 @@ export default function DashboardLayout() {
             <li className="nav-item">
               <Link to="userprofile">
                 <i className="bi bi-person-vcard"></i>
-                <span>User profile</span>
+                <span>User Profile</span>
               </Link>
             </li>
             <li className="nav-item">
               <Link to="holidays">
                 <i className="bi bi-person-vcard"></i>
                 <span>Holidays</span>
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="reimbursement">
+                <i className="bi bi-person-vcard"></i>
+                <span>Reimbursement</span>
               </Link>
             </li>
             <li className="nav-item">

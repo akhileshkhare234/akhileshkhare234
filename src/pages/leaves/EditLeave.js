@@ -166,7 +166,7 @@ export default function EditLeave({
                   type="text"
                   name="unit"
                   className="form-control rounded-3"
-                  value={days >= 2 ? days + " days" : days + " day"}
+                  defaultValue={days >= 2 ? days + " days" : days + " day"}
                   placeholder="Enter Days"
                 />
               </div>
@@ -196,7 +196,7 @@ export default function EditLeave({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
                 >
-                  Update Leave
+                  Update
                 </button>
               </div>
             </form>

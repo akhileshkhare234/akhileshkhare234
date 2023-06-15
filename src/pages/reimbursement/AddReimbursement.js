@@ -1,83 +1,60 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
-import { Multiselect } from "multiselect-react-dropdown";
 
-export default function AddProject({
+export default function AddReimbursement({
   entryPopUp,
   entryPopUpClose,
   token,
   changeStatus,
 }) {
-  const [selectedValue, setSelectedValue] = useState([]);
+  //   {    "dataType":"pdf",
+  //     "description":"description",
+  //     "spentDate":"2022-12-27T00:00:00.000+00:00",
+  //     "submitAmonut":"1000",
+  //     "unit":"INR",
+  //     "submitDate":"2023-05-27T00:00:00.000+00:00",
+  //     "type":"Party"
+  // }
   const saveItem = (event) => {
     event.preventDefault();
-    let {
-      name,
-      manager,
-      projectDetail,
-      startDate,
-      completionDate,
-      clientContactName,
-      clientContactNumber,
-    } = event.target;
+    let { type, data, description, spentDate, submitDate, unit, submitAmonut } =
+      event.target;
     let itemData = {
-      name: name.value,
-      manager: manager.value,
-      projectDetail: projectDetail.value,
-      clientContactName: clientContactName.value,
-      clientContactNumber: clientContactNumber.value,
-      startDate: startDate.value,
-      completionDate: completionDate.value,
+      type: type.value,
+      dataType: data.files[0].type,
+      description: description.value,
+      unit: unit.value,
+      submitAmonut: submitAmonut.value,
+      spentDate: spentDate.value,
+      submitDate: submitDate.value,
     };
-    console.log("Assigned Users : ", selectedValue);
-    itemData["emails"] = selectedValue.map((row) => row.email).join();
-    fetch(APIUrl + "api/project", {
+    const dto_object = new Blob([JSON.stringify(itemData)], {
+      type: "application/json",
+    });
+    itemData = JSON.stringify(itemData);
+    let formdata = new FormData();
+    formdata.append("data", data.files[0]);
+    formdata.append("reimbursement", dto_object);
+
+    console.log("Assigned Users : ", data.files[0]);
+    fetch(APIUrl + "api/reimbursement", {
       method: "POST",
-      body: JSON.stringify(itemData),
+      body: formdata,
       headers: {
-        "Content-Type": "application/json",
         Authorization: "Bearer " + token,
       },
     })
       .then((res) => {
-        console.log("Save Project : ", res);
+        console.log("Save Reimbursement : ", res);
         entryPopUpClose(true);
         changeStatus(true);
       })
       .catch((err) => {
-        console.log("Project Not Save : ", err);
+        console.log("Reimbursement Not Save : ", err);
         entryPopUpClose(true);
         changeStatus(false);
       });
-    console.log("ProjectData : ", itemData);
-  };
-  const [userArray, setuserArray] = useState([]);
-  const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        setuserArray([...users]);
-        console.log("Users List : ", users);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
-  useEffect(() => {
-    getUsers();
-    console.log("entryPopUp", entryPopUp);
-  }, [entryPopUp, getUsers]);
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
+    console.log("Reimbursement Data : ", itemData);
   };
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
@@ -108,15 +85,6 @@ export default function AddProject({
       );
     } else return currentDate;
   };
-  const onSelect = (selectedList, selectedItem) => {
-    console.log("selectedList ", selectedList);
-    setSelectedValue([...selectedList]);
-  };
-
-  const onRemove = (selectedList, removedItem) => {
-    console.log("selectedList ", selectedList);
-    setSelectedValue([...selectedList]);
-  };
   return (
     <div
       className={
@@ -130,7 +98,7 @@ export default function AddProject({
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Project Entry Form</h1>
+            <h1 className="fw-bold mb-0 fs-2">Reimbursement Entry Form</h1>
             <button
               onClick={() => entryPopUpClose(true)}
               type="button"
@@ -143,52 +111,59 @@ export default function AddProject({
           <div className="modal-body p-4">
             <form className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label className="mb-1">Project Name</label>
-                <input
-                  type="text"
-                  name="name"
+                <label className="mb-1">Reimbursement type</label>
+                <select
+                  name="type"
                   className="form-control rounded-3"
-                  placeholder="Enter Project Name"
-                />
+                  defaultValue="Reimbursement type"
+                >
+                  <option value="Reimbursement type" disabled>
+                    Select reimbursement type
+                  </option>
+                  <option value="Travel">Travel</option>
+                  <option value="Office">Office</option>
+                  <option value="Hardware">Hardware</option>
+                  <option value="Software">Software</option>
+                  <option value="Party">Party</option>
+                </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Project Manager</label>
+                <label className="mb-1">Reimbursement file</label>
                 <input
-                  type="text"
-                  name="manager"
+                  type="file"
+                  name="data"
                   className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Project Manager Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactName"
-                  className="form-control rounded-3"
-                  placeholder="Client Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactNumber"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Client Contact Number"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Start Date</label>
+                <label className="mb-1">Amount</label>
+                <input
+                  type="text"
+                  name="submitAmonut"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder="Amount"
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="mb-1">Amount unit</label>
+                <input
+                  type="text"
+                  name="unit"
+                  defaultValue={"INR"}
+                  className="form-control rounded-3"
+                  placeholder="Amount unit"
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="mb-1">Spent Date</label>
                 <input
                   type="date"
                   max={setMaxMinDate(10)}
                   defaultValue={setMaxMinDate(0)}
                   onKeyDown={(e) => customDateLimiter(e)}
-                  name="startDate"
+                  name="spentDate"
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Assign Date"
@@ -196,39 +171,26 @@ export default function AddProject({
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Completion Date</label>
+                <label className="mb-1">Submit Date</label>
                 <input
                   type="date"
-                  min={setMaxMinDate(1)}
                   defaultValue={setMaxMinDate(0)}
-                  disabled
-                  name="completionDate"
+                  name="submitDate"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder="Enter Completion Date"
+                  placeholder="Enter submit Date"
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Project Detail</label>
+                <label className="mb-1">Reimbursement description</label>
                 <textarea
-                  multiline={true}
-                  name="projectDetail"
+                  multiline="true"
+                  name="description"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder="Enter Project Detail"
+                  placeholder="Enter Reimbursement description"
                 />
               </div>
-              <div className="col-md-12">
-                <label className="mb-1">Assign Project</label>
-                <Multiselect
-                  options={userArray} // Options to display in the dropdown
-                  selectedValues={selectedValue} // Preselected value to persist in dropdown
-                  onSelect={onSelect} // Function will trigger on select event
-                  onRemove={onRemove} // Function will trigger on remove event
-                  displayValue="name" // Property name to display in the dropdown options
-                />
-              </div>
-
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"

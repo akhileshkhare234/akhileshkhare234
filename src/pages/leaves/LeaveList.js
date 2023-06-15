@@ -1,7 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
+import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   dateFormate,
   getMonthFullName,
@@ -29,24 +32,29 @@ export default function LeaveList({
   const [leaves, setLeaves] = useState([]);
   const [userArray, setuserArray] = useState([]);
   const [payload, setPayload] = useState({});
+  const [leaveStatus, setleaveStatus] = useState(false);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => user.displayName + "/" + user.email);
-        setuserArray([...users]);
-        console.log("Users List : ", users);
+    if (userInfo && userInfo.role === 2) {
+      fetch(APIUrl + "api/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+        .then((res) => res.json())
+        .then((res) => {
+          let users = res.map((user) => user.displayName + "/" + user.email);
+          setuserArray([...users]);
+          console.log("Users List : ", users);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err, userInfo);
+        });
+    } else {
+      setuserArray([]);
+    }
+  }, [userInfo]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -55,19 +63,26 @@ export default function LeaveList({
   };
   const getLeaves = useCallback(() => {
     console.log("itemStatus ", itemStatus);
-    fetch(APIUrl + `api/leave/data/${getYears()}?email=${userInfo.email}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res?.length > 0) {
-          console.log("Leaves data : ", res);
-          setLeaves([...res]);
-        }
-      });
+    setleaveStatus(false);
+    if (userInfo.email && token)
+      fetch(APIUrl + `api/leave/data/${getYears()}?email=${userInfo.email}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res?.length > 0) {
+            console.log("Leaves data : ", res);
+            setLeaves([...res]);
+            setleaveStatus(true);
+          }
+        });
+    else {
+      setLeaves([]);
+      setleaveStatus(true);
+    }
   }, [token, userInfo.email, itemStatus]);
   useEffect(() => {
     getLeaves();
@@ -110,6 +125,21 @@ export default function LeaveList({
           setLeaves([]);
         }
       });
+  };
+  const checkDate = (fromdate) => {
+    let curDate = new Date();
+    let frmDate = new Date(fromdate);
+    console.log(
+      curDate.getTime() <= frmDate.getTime(),
+      curDate.toLocaleDateString(),
+      frmDate.toLocaleDateString(),
+      new Date(curDate.toLocaleDateString() + " 00:00").getTime(),
+      new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
+    );
+    return (
+      new Date(curDate.toLocaleDateString() + " 00:00").getTime() <=
+      new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
+    );
   };
   return (
     <>
@@ -209,102 +239,126 @@ export default function LeaveList({
               </>
             ) : null}
             <hr className="mb-3" />
-
-            <table className="table tabletext">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  {Object.values(tableData).map((field, index) => (
-                    <th scope="col" key={field}>
-                      {field}
-                    </th>
-                  ))}
-                  <th scope="col" className="text-center">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaves.map((item, index) => (
-                  <tr key={index}>
-                    <th scope="row">{index + 1}</th>
-                    {Object.keys(tableData).map((field, index) => (
-                      <td key={field}>
-                        {field.includes("leaveFrom") ||
-                        field.includes("leaveTo") ? (
-                          dateFormate(item[field])
-                        ) : field.includes("status") ? (
-                          userInfo &&
-                          userInfo.role === 2 &&
-                          !["Approve", "Approved", "Reject"].includes(
-                            item[field]
-                          ) ? (
-                            <span
-                              className={
-                                item[field] === "Reject"
-                                  ? "status_btn_reject"
-                                  : "status_btn"
-                              }
-                              onClick={() => setApproveData(false, item)}
-                            >
-                              {item[field]}
-                            </span>
-                          ) : (
-                            <span
-                              className={
-                                item[field] === "Reject"
-                                  ? "status_btn_reject"
-                                  : "status_btn"
-                              }
-                            >
-                              {item[field]}
-                            </span>
-                          )
-                        ) : field.includes("email") && item.email ? (
-                          getUserInfo(
-                            userArray.filter(
-                              (user, index) =>
-                                getUserInfo(user, 1) === item.email
-                            )[0],
-                            0
-                          )
-                        ) : (
-                          item[field]
-                        )}
-                      </td>
+            {leaves && leaves.length > 0 ? (
+              <table className="table tabletext">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    {Object.values(tableData).map((field, index) => (
+                      <th scope="col" key={field}>
+                        {field}
+                      </th>
                     ))}
-                    <td className="text-center">
-                      {item.status === "submitted" ||
-                      item.status === "Submit" ? (
-                        <>
-                          <button
-                            onClick={() => deletePopUpOpen(false, item.id)}
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-trash3"></i>
-                          </button>
-                          <button
-                            onClick={() => editPopUpOpen(false, item)}
-                            type="button"
-                            className="btn btn-outline-primary me-1"
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                        </>
-                      ) : null}
-                      <button
-                        onClick={() => detailsPopUpOpen(false, item)}
-                        type="button"
-                        className="btn btn-outline-primary me-1"
-                      >
-                        <i className="bi bi-eye"></i>
-                      </button>
-                    </td>
+                    <th scope="col" className="text-center">
+                      Action
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {leaves.map((item, index) => (
+                    <tr key={index + item["leaveFrom"]}>
+                      <th scope="row">{index + 1}</th>
+                      {Object.keys(tableData).map((field, index) => (
+                        <td key={field}>
+                          {field.includes("leaveFrom") ||
+                          field.includes("leaveTo") ? (
+                            dateFormate(item[field])
+                          ) : field.includes("status") ? (
+                            userInfo &&
+                            userInfo.role === 2 &&
+                            checkDate(item["leaveFrom"]) ? (
+                              <span
+                                className={
+                                  item[field] === "Reject"
+                                    ? "status_btn_reject"
+                                    : "status_btn"
+                                }
+                                onClick={() => setApproveData(false, item)}
+                              >
+                                {item[field]}
+                              </span>
+                            ) : (
+                              <>
+                                <span
+                                  className={
+                                    item[field] === "Reject"
+                                      ? "status_reject"
+                                      : "status_normal"
+                                  }
+                                >
+                                  {item[field]}
+                                </span>
+                                <ToastContainer />
+                              </>
+                            )
+                          ) : field.includes("email") && item.email ? (
+                            userInfo.role === 2 ? (
+                              getUserInfo(
+                                userArray.filter(
+                                  (user, index) =>
+                                    getUserInfo(user, 1) === item.email
+                                )[0],
+                                0
+                              )
+                            ) : (
+                              userInfo.displayName
+                            )
+                          ) : (
+                            item[field]
+                          )}
+                        </td>
+                      ))}
+                      <td className="text-center">
+                        {item.status === "Submit" &&
+                        item.email === userInfo.email &&
+                        checkDate(item["leaveFrom"]) ? (
+                          <>
+                            <button
+                              onClick={() => deletePopUpOpen(false, item.id)}
+                              type="button"
+                              className="btn btn-outline-primary me-1"
+                            >
+                              <i className="bi bi-trash3"></i>
+                            </button>
+                            <button
+                              onClick={() => editPopUpOpen(false, item)}
+                              type="button"
+                              className="btn btn-outline-primary me-1"
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                          </>
+                        ) : null}
+                        <button
+                          onClick={() => detailsPopUpOpen(false, item)}
+                          type="button"
+                          className="btn btn-outline-primary me-1"
+                        >
+                          <i className="bi bi-eye"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : leaveStatus ? (
+              <div
+                className="row datanotfound"
+                style={{ height: "calc(100vh - 360px)" }}
+              >
+                <div className="col-12 text-center">
+                  <h4
+                    className="datanotfound"
+                    style={{ height: "calc(100vh - 360px)" }}
+                  >
+                    <i className="bi bi-search datanotfoundIcon"></i> Data not
+                    found
+                  </h4>
+                </div>
+              </div>
+            ) : (
+              <Loader msg="Leave data loading" />
+            )}
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util.js";
 
@@ -9,6 +10,7 @@ export default function EditItem({
   token,
   changeStatus,
 }) {
+  const userInfo = useContext(UserData);
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -55,6 +57,7 @@ export default function EditItem({
               harddisk: harddisk.value,
               harddiskType: harddiskType.value,
               operatingSystem: operatingSystem.value,
+              id: itemDetails.config?.id,
             }
           : null,
     };
@@ -105,23 +108,25 @@ export default function EditItem({
   };
   const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => user.displayName);
-        setuserArray([...users]);
-        console.log("Users List : ", users);
+    if (userInfo.role === 2) {
+      let tokenValue = window.localStorage.getItem("am_token");
+      fetch(APIUrl + "api/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+        .then((res) => res.json())
+        .then((res) => {
+          let users = res.map((user) => user.displayName);
+          setuserArray([...users]);
+          console.log("Users List : ", users);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err);
+        });
+    } else setuserArray([]);
+  }, [userInfo.role]);
   useEffect(() => {
     getUsers();
     setFormdata(itemDetails);
@@ -199,7 +204,6 @@ export default function EditItem({
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Model"
-                  readOnly
                 />
               </div>
               <div className="col-md-4">
@@ -212,7 +216,6 @@ export default function EditItem({
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Brand"
-                  readOnly
                 />
               </div>
               <div className="col-md-4">
@@ -225,7 +228,6 @@ export default function EditItem({
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter type"
-                  readOnly
                 />
               </div>
               {["Laptop", "CPU"].indexOf(itemDetails.type) >= 0 ? (
@@ -240,7 +242,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="ram"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -253,7 +254,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="processor"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -266,7 +266,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="harddisk"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -279,7 +278,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="harddiskType"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -292,7 +290,6 @@ export default function EditItem({
                       </label>
                       <input
                         type="text"
-                        readOnly
                         name="operatingSystem"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -309,7 +306,6 @@ export default function EditItem({
                 </label>
                 <input
                   type="text"
-                  readOnly
                   name="identity"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -332,7 +328,6 @@ export default function EditItem({
                 </label>
                 <input
                   type="text"
-                  readOnly
                   name="status"
                   className="form-control rounded-3"
                   id="floatingInput"

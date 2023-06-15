@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import Header from "../inventory/Header";
 import { getMonthName, getYears } from "../util.js";
 import ProjetcList from "./ProjetcList";
 
-export default function TimeSheetDetails({ projects }) {
+function TimeSheetDetails({ projects }) {
   const [userInfo, setUserInfo] = useState([]);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
@@ -57,3 +57,4 @@ export default function TimeSheetDetails({ projects }) {
     </>
   );
 }
+export default memo(TimeSheetDetails);

@@ -1,13 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { getMonthByDate, getYears } from "../util";
-
-export default function AddLeave({
-  entryPopUp,
-  entryPopUpClose,
-  token,
-  changeStatus,
-}) {
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
   const [days, setdays] = useState(1);
   const [userInfo, setUserInfo] = useState([]);
   const getUsers = useCallback(() => {
@@ -33,39 +29,51 @@ export default function AddLeave({
   const saveItem = (event) => {
     event.preventDefault();
     let { leaveTo, leaveFrom, reason, leaveType } = event.target;
-    let itemData = {
-      leaveTo: leaveTo.value,
-      leaveFrom: leaveFrom.value,
-      unit: days,
-      reason: reason.value,
-      leaveType: leaveType.value,
-    };
-    itemData["status"] = "Submit";
-    itemData["department"] = "development";
-    itemData["comment"] = "";
-    itemData["year"] = getYears();
-    itemData["month"] = getMonthByDate(leaveTo.value);
-    itemData["email"] = userInfo.email;
-    fetch(APIUrl + "api/leave", {
-      method: "POST",
-      body: JSON.stringify(itemData),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        console.log("Save Leave : ", res);
-        entryPopUpClose(true);
-        changeStatus(true);
+    if (reason.value) {
+      let itemData = {
+        leaveTo: leaveTo.value,
+        leaveFrom: leaveFrom.value,
+        unit: days,
+        reason: reason.value,
+        leaveType: leaveType.value,
+      };
+      itemData["status"] = "Submit";
+      itemData["department"] = "development";
+      itemData["comment"] = "";
+      itemData["year"] = getYears();
+      itemData["month"] = getMonthByDate(leaveTo.value);
+      itemData["email"] = userInfo.email;
+      fetch(APIUrl + "api/leave", {
+        method: "POST",
+        body: JSON.stringify(itemData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
-      .catch((err) => {
-        console.log("Leave Not Save : ", err);
-        entryPopUpClose(true);
-        changeStatus(false);
+        .then((res) => {
+          console.log("Save Leave : ", res);
+          entryPopUpClose(true);
+          changeStatus(true);
+        })
+        .catch((err) => {
+          console.log("Leave Not Save : ", err);
+          entryPopUpClose(true);
+          changeStatus(false);
+        });
+      event.target.reset();
+      console.log("Leave Data : ", itemData);
+    } else {
+      reason.focus();
+      console.log("reason.value ", reason.value);
+      toast.warning("Please Enter Reason of Leave.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "colored",
       });
-    event.target.reset();
-    console.log("Leave Data : ", itemData);
+    }
   };
 
   useEffect(() => {
@@ -112,6 +120,7 @@ export default function AddLeave({
       role="dialog"
       id="modalSignin"
     >
+      <ToastContainer />
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -197,7 +206,7 @@ export default function AddLeave({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
                 >
-                  Submit Leave
+                  Submit
                 </button>
               </div>
             </form>
@@ -207,3 +216,4 @@ export default function AddLeave({
     </div>
   );
 }
+export default memo(AddLeave);

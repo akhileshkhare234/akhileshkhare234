@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import {
   inventorytypes,
@@ -15,6 +16,7 @@ export default function ItemEntry({
   const [inventoryIdentity, setinventoryIdentity] = useState(
     inventoryTypesKeys[0]
   );
+  const userInfo = useContext(UserData);
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -89,23 +91,25 @@ export default function ItemEntry({
   const [userArray, setuserArray] = useState([]);
   const [userEmail, setuserEmail] = useState(null);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => user.displayName + "/" + user.email);
-        setuserArray([...users]);
-        console.log("Users List : ", users);
+    if (userInfo.role === 2) {
+      let tokenValue = window.localStorage.getItem("am_token");
+      fetch(APIUrl + "api/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+        .then((res) => res.json())
+        .then((res) => {
+          let users = res.map((user) => user.displayName + "/" + user.email);
+          setuserArray([...users]);
+          console.log("Users List : ", users);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err);
+        });
+    } else setuserArray([]);
+  }, [userInfo.role]);
   useEffect(() => {
     getUsers();
     console.log("entryPopUp", entryPopUp);
@@ -384,7 +388,7 @@ export default function ItemEntry({
                   name="userEmail"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  value={userEmail}
+                  defaultValue={userEmail}
                   placeholder="Enter user email"
                 />
               </div>
@@ -458,7 +462,7 @@ export default function ItemEntry({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
                   type="submit"
                 >
-                  Save Inventory
+                  Save
                 </button>
               </div>
             </form>

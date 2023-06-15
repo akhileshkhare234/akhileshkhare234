@@ -1,27 +1,19 @@
-import React, { Fragment, useCallback, useEffect, useState } from "react";
+import React, { Fragment, memo, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { getMonth, getMonthDates, getMonthName, getYears } from "../util";
 import TimeSheetDetails from "./TimeSheetDetails";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../inventory/Header";
-export default function UserTimeSheet() {
+import Loader from "../../util/Loader";
+function UserTimeSheet() {
   const [projects, setProjects] = useState([]);
+  const [projectstatus, setProjectstatus] = useState(false);
   const [totalHour, setTotalHour] = useState({});
   const [totalHoursValue, setTotalHoursValue] = useState(0);
   const [timeSheetData, setTimeSheetData] = useState({});
-  // const setDefaultHours = useCallback(() => {
-  //   let hours = {};
-  //   getMonthDates(getMonth(), getYears(), projects).forEach((data) => {
-  //     hours["day_" + data.day] = 0;
-  //   });
-
-  //   setTotalHour(hours);
-  // }, []);
-  // useEffect(() => {
-  //   setDefaultHours();
-  // }, [setDefaultHours]);
   const [userInfo, setUserInfo] = useState([]);
+  const [timesheetForm, setTimeSheetForm] = useState(null);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -33,18 +25,19 @@ export default function UserTimeSheet() {
       .then((res) => res.json())
       .then((res) => {
         console.log("res.project : ", res.projects);
-        let projectData = res.projects.map((row) => {
-          row["totalHour"] = 0;
-          return row;
-        });
-        let hours = {};
-        getMonthDates(getMonth(), getYears(), projectData).forEach((data) => {
-          hours["day_" + data.day] = 0;
-        });
-
-        setTotalHour(hours);
-        setProjects([...projectData]);
+        // let projectData = res.projects.map((row) => {
+        //   row["totalHour"] = 0;
+        //   return row;
+        // });
+        // let hours = {};
+        // getMonthDates(getMonth(), getYears(), projectData).forEach((data) => {
+        //   hours["day_" + data.day] = 0;
+        // });
+        // setTotalHour(hours);
+        // setProjects([...projectData]);
         setUserInfo(res);
+        if (res.projects && res.projects.length > 0) setProjectstatus(false);
+        else setProjectstatus(true);
         console.log("User Profile : ", res);
       })
       .catch((err) => {
@@ -134,7 +127,7 @@ export default function UserTimeSheet() {
 
   const updateTimeSheet = (e) => {
     e.preventDefault();
-    console.log("TimeSheet Data ", e.target);
+    console.log("TimeSheet Data ", e.target, projects);
     let timeSheetValue = null;
     projects.forEach((project) => {
       timeSheetValue = timeSheetData.data.filter(
@@ -236,7 +229,7 @@ export default function UserTimeSheet() {
     });
   };
   const setHoursValue = (fieldName) => {
-    console.log("onChange Call");
+    console.log("onChange Call ", projects);
     let colIndex = -1;
     // eslint-disable-next-line array-callback-return
     let hourRow = getMonthDates(getMonth(), getYears(), projects).filter(
@@ -288,57 +281,95 @@ export default function UserTimeSheet() {
     }
   };
   useEffect(() => {
-    console.log("totalHour Change");
+    console.log("totalHour Change ", totalHour);
   }, [totalHour]);
   const getTimeSheet = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + `api/timesheet/${getYears()}/${getMonthName()}`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let timesheet = document.forms["timesheet"];
-        console.log("timesheet ", res);
-        let projectIds = projects.map((row) => row.projectId);
-        if (res.month !== null) {
-          res?.data?.forEach((row) => {
-            row.detail.forEach((data) => {
-              if (`hour_${data.day}_${row.projectId}` in timesheet) {
-                timesheet[`hour_${data.day}_${row.projectId}`].value =
-                  data.hour;
-                let sum = 0;
-                let myarrays = projectIds.map((rows) =>
-                  timesheet[`hour_${data.day}_${rows}`].value > 0
-                    ? parseFloat(timesheet[`hour_${data.day}_${rows}`].value)
-                    : 0
-                );
-                console.log("myarrays Value ", myarrays);
-                if (myarrays.length > 0) myarrays.reduce((p, n) => p + n);
-
-                totalHour["day_" + data.day] = sum;
-                // timesheet["day_" + data.day].value = sum + " hrs";
-              }
-              if (timesheet[`task_${data.day}_${row.projectId}`])
-                timesheet[`task_${data.day}_${row.projectId}`].value =
-                  data.task;
-            });
-          });
-          let tempProjects = projects.map((row, index) => {
-            row.totalHour = res.data[index].totalHour;
-            return row;
-          });
-          setProjects([...tempProjects]);
-        }
-        setTimeSheetData(res);
+    userInfo &&
+      tokenValue &&
+      fetch(APIUrl + `api/timesheet/${getYears()}/${getMonthName()}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => console.log("TimeSheet Data Not Get : ", err));
-  }, [totalHour]);
+        .then((res) => res.json())
+        .then((res) => {
+          let timesheet = document.forms["timesheet"];
+          setTimeSheetForm(timesheet);
+          console.log(
+            "timesheet Projects",
+            res,
+            userInfo.projects,
+            timesheetForm
+          );
+          if (userInfo.projects && userInfo.projects.length > 0) {
+            let projectData = userInfo.projects.map((row) => {
+              row["totalHour"] = 0;
+              return row;
+            });
+            let hours = {};
+            getMonthDates(getMonth(), getYears(), projectData).forEach(
+              (data) => {
+                hours["day_" + data.day] = 0;
+              }
+            );
+            setTotalHour(hours);
+            setProjects([...projectData]);
+
+            let projectIds = projectData.map((row) => row.projectId);
+            console.log(
+              "projectIds and projectData : ",
+              projectIds,
+              projectData,
+              timesheet
+            );
+            if (res.month !== null) {
+              res?.data?.forEach((row) => {
+                console.log("row.projectId Value ", row.projectId);
+                row.detail.forEach((data) => {
+                  console.log("Project Details : ", data, row.projectId);
+                  if (`hour_${data.day}_${row.projectId}` in timesheet) {
+                    timesheet[`hour_${data.day}_${row.projectId}`].value =
+                      data.hour;
+                    let hourfiled =
+                      timesheet[`hour_${data.day}_${row.projectId}`];
+                    console.log(
+                      "Hour Details :",
+                      hourfiled,
+                      timesheet[`hour_${data.day}_${row.projectId}`].value
+                    );
+                    let sum = 0;
+                    let myarrays = projectIds.map((ids) =>
+                      timesheet[`hour_${data.day}_${ids}`].value > 0
+                        ? parseFloat(timesheet[`hour_${data.day}_${ids}`].value)
+                        : 0
+                    );
+                    if (myarrays.length > 0) myarrays.reduce((p, n) => p + n);
+
+                    hours["day_" + data.day] = sum;
+                    // timesheet["day_" + data.day].value = sum + " hrs";
+                  }
+                  if (timesheet[`task_${data.day}_${row.projectId}`])
+                    timesheet[`task_${data.day}_${row.projectId}`].value =
+                      data.task;
+                });
+              });
+              let tempProjects = projectData.map((row, index) => {
+                row.totalHour = res.data[index].totalHour;
+                return row;
+              });
+              console.log("tempProjects ", tempProjects);
+              setProjects([...tempProjects]);
+            }
+          }
+          setTimeSheetData(res);
+        })
+        .catch((err) => console.log("TimeSheet Data Not Get : ", err));
+  }, [timesheetForm, userInfo]);
   useEffect(() => {
     getTimeSheet();
-  }, [getTimeSheet]);
+  }, [getTimeSheet, userInfo]);
   return userInfo?.projects?.length > 0 ? (
     <>
       <TimeSheetDetails projects={projects} />
@@ -350,7 +381,7 @@ export default function UserTimeSheet() {
         }
       >
         <button type="submit" className="btn saveBtn">
-          {timeSheetData.month === null ? "Save TimeSheet" : "Update TimeSheet"}
+          {timeSheetData.month === null ? "Save" : "Update"}
         </button>
         <table className="table tabletext timesheettable">
           <thead>
@@ -428,7 +459,7 @@ export default function UserTimeSheet() {
         </table>
       </form>
     </>
-  ) : (
+  ) : projectstatus ? (
     <>
       <Header title="Time Sheet Details" />
       <div className="container">
@@ -439,5 +470,8 @@ export default function UserTimeSheet() {
         </div>
       </div>
     </>
+  ) : (
+    <Loader msg="TimeSheet loading" />
   );
 }
+export default memo(UserTimeSheet);

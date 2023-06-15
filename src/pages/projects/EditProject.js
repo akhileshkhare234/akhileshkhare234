@@ -254,7 +254,7 @@ export default function EditProject({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
                 >
-                  Edit Project
+                  Update
                 </button>
               </div>
             </form>

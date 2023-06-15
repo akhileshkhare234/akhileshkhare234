@@ -13,6 +13,7 @@ import Projects from "./pages/projects/Projects";
 import TimeSheets from "./pages/timesheet/TimeSheets";
 import Holidays from "./pages/holiday/Holidays";
 import Leaves from "./pages/leaves/Leaves";
+import Reimbursement from "./pages/reimbursement/Reimbursement";
 
 export const UserData = createContext(null);
 function App() {
@@ -53,6 +54,7 @@ function App() {
             <Route path="leaves" exact element={<Leaves />} />
             <Route path="userprofile" exact element={<UserProfiles />} />
             <Route path="project" exact element={<Projects />} />
+            <Route path="reimbursement" exact element={<Reimbursement />} />
             <Route path="uploadcsv" exact element={<UploadCSV />} />
           </Route>
         </Routes>

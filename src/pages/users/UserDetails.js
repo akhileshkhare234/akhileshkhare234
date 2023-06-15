@@ -31,117 +31,135 @@ export default function UserDetails({
 
           <div className="modal-body px-5 pt-0">
             <hr className="mb-3" />
-            <dl className="row mb-1">
-              <dt className="col-sm-3">User Name</dt>
-              <dd className="col-sm-3">
-                {itemData.displayName ? itemData.displayName : "-"}
-              </dd>
-              <dt className="col-sm-3">Email-id</dt>
-              <dd className="col-sm-3">
-                {itemData.email ? itemData.email : "-"}
-              </dd>
-            </dl>
-            <dl className="row mb-1">
-              <dt className="col-sm-3">Role</dt>
-              <dd className="col-sm-3">
-                {itemData.role === 1 ? "User" : "Admin"}
-              </dd>
+            <div className="row">
+              <div className="col-2 text-center">
+                <img
+                  className="profileimage3 userimage2"
+                  src={
+                    itemData.data
+                      ? "data:image/png;base64," + itemData.data
+                      : itemData.gender === "Female"
+                      ? process.env.PUBLIC_URL + "/images/female.png"
+                      : process.env.PUBLIC_URL + "/images/male.png"
+                  }
+                  alt=""
+                />
+              </div>
+              <div className="col-10">
+                {" "}
+                <dl className="row mb-1">
+                  <dt className="col-sm-2">Employee Id</dt>
+                  <dd className="col-sm-3">
+                    {itemData.employeeId ? itemData.employeeId : "-"}
+                  </dd>
+                  <dt className="col-sm-2">User Name</dt>
+                  <dd className="col-sm-3">
+                    {itemData.displayName ? itemData.displayName : "-"}
+                  </dd>
+                </dl>
+                <dl className="row mb-1">
+                  <dt className="col-sm-2">Role</dt>
+                  <dd className="col-sm-3">
+                    {itemData.role === 1 ? "User" : "Admin"}
+                  </dd>
+                  <dt className="col-sm-2">Email-id</dt>
+                  <dd className="col-sm-5">
+                    {itemData.email ? itemData.email : "-"}
+                  </dd>
+                </dl>
+                <dl className="row mb-1">
+                  <dt className="col-sm-2">Designation</dt>
+                  <dd className="col-sm-3">
+                    {itemData.designation ? itemData.designation : "-"}
+                  </dd>
 
-              <dt className="col-sm-3">Designation</dt>
-              <dd className="col-sm-3">
-                {itemData.designation ? itemData.designation : "-"}
-              </dd>
-            </dl>
+                  <dt className="col-sm-2">City</dt>
+                  <dd className="col-sm-5">
+                    {itemData.city ? itemData.city : "-"}
+                  </dd>
+                </dl>
+              </div>
+            </div>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Employee Id</dt>
-              <dd className="col-sm-3">
-                {itemData.employeeId ? itemData.employeeId : "-"}
+              <dt className="col-sm-2">Permanent Address</dt>
+              <dd className="col-sm-4">
+                {itemData.permanentAddress ? itemData.permanentAddress : "-"}
               </dd>
-              <dt className="col-sm-3">Address</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Address</dt>
+              <dd className="col-sm-4">
                 {itemData.tempAddress ? itemData.tempAddress : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Permanent Address</dt>
-              <dd className="col-sm-3">
-                {itemData.permanentAddress ? itemData.permanentAddress : "-"}
-              </dd>
-              <dt className="col-sm-3">City</dt>
-              <dd className="col-sm-3">
-                {itemData.city ? itemData.city : "-"}
-              </dd>
-            </dl>
-            <dl className="row mb-1">
-              <dt className="col-sm-3">State</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">State</dt>
+              <dd className="col-sm-4">
                 {itemData.state ? itemData.state : "-"}
               </dd>
-              <dt className="col-sm-3">PinCode</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">PinCode</dt>
+              <dd className="col-sm-4">
                 {itemData.pinCode ? itemData.pinCode : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Office Location</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Office Location</dt>
+              <dd className="col-sm-4">
                 {itemData.ofcLocation ? itemData.ofcLocation : "-"}
               </dd>
-              <dt className="col-sm-3">Manager Name</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Manager Name</dt>
+              <dd className="col-sm-4">
                 {itemData.managerName ? itemData.managerName : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Mobile Number</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Mobile Number</dt>
+              <dd className="col-sm-4">
                 {itemData.mobileNumber ? itemData.mobileNumber : "-"}
               </dd>
-              <dt className="col-sm-3">Emergency Mobile Number</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Emergency Mobile Number</dt>
+              <dd className="col-sm-4">
                 {itemData.emergencyMobileNumber
                   ? itemData.emergencyMobileNumber
                   : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Gender</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Gender</dt>
+              <dd className="col-sm-4">
                 {itemData.gender ? itemData.gender : "-"}
               </dd>
-              <dt className="col-sm-3">Type</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Type</dt>
+              <dd className="col-sm-4">
                 {itemData.type ? itemData.type : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Modified Date</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Modified Date</dt>
+              <dd className="col-sm-4">
                 {dateTimeFormate(itemData.modifiedDate)}
               </dd>
-              <dt className="col-sm-3">Department</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Department</dt>
+              <dd className="col-sm-4">
                 {itemData.department ? itemData.department : "-"}
               </dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Date of Birth</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Date of Birth</dt>
+              <dd className="col-sm-4">
                 {itemData.dob ? dateFormate(itemData.dob) : "-"}
               </dd>
-              <dt className="col-sm-3">PAN Number</dt>
-              <dd className="col-sm-3">{itemData.pan ? itemData.pan : "-"}</dd>
+              <dt className="col-sm-2">PAN Number</dt>
+              <dd className="col-sm-4">{itemData.pan ? itemData.pan : "-"}</dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Date of Joining</dt>
-              <dd className="col-sm-3">
+              <dt className="col-sm-2">Date of Joining</dt>
+              <dd className="col-sm-4">
                 {itemData.doj ? dateFormate(itemData.doj) : "-"}
               </dd>
-              <dt className="col-sm-3">UAN</dt>
-              <dd className="col-sm-3">{itemData.uan ? itemData.uan : "-"}</dd>
+              <dt className="col-sm-2">UAN</dt>
+              <dd className="col-sm-4">{itemData.uan ? itemData.uan : "-"}</dd>
             </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Assigned Projects </dt>
+              <dt className="col-sm-2">Assigned Projects </dt>
               {itemData.projects?.length === 0 ? (
                 <dd className="col-sm">
                   <span
