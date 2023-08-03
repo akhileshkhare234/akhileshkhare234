@@ -63,7 +63,7 @@ export default function LeaveList({
   };
   const getLeaves = useCallback(() => {
     console.log("itemStatus ", itemStatus);
-    setleaveStatus(false);
+    setleaveStatus(true);
     if (userInfo.email && token)
       fetch(APIUrl + `api/leave/data/${getYears()}?email=${userInfo.email}`, {
         headers: {
@@ -76,12 +76,12 @@ export default function LeaveList({
           if (res?.length > 0) {
             console.log("Leaves data : ", res);
             setLeaves([...res]);
-            setleaveStatus(true);
           }
+          setleaveStatus(false);
         });
     else {
       setLeaves([]);
-      setleaveStatus(true);
+      setleaveStatus(false);
     }
   }, [token, userInfo.email, itemStatus]);
   useEffect(() => {
@@ -309,9 +309,8 @@ export default function LeaveList({
                         </td>
                       ))}
                       <td className="text-center">
-                        {item.status === "Submit" &&
-                        item.email === userInfo.email &&
-                        checkDate(item["leaveFrom"]) ? (
+                        {["Submit", "submitted"].includes(item.status) &&
+                        item.email !== userInfo.email ? (
                           <>
                             <button
                               onClick={() => deletePopUpOpen(false, item.id)}
@@ -342,6 +341,8 @@ export default function LeaveList({
                 </tbody>
               </table>
             ) : leaveStatus ? (
+              <Loader msg="Leave data loading" />
+            ) : (
               <div
                 className="row datanotfound"
                 style={{ height: "calc(100vh - 360px)" }}
@@ -356,8 +357,6 @@ export default function LeaveList({
                   </h4>
                 </div>
               </div>
-            ) : (
-              <Loader msg="Leave data loading" />
             )}
           </div>
         </div>

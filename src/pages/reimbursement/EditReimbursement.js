@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { localDateFormate } from "../util.js";
-
+import { ToastContainer, toast } from "react-toastify";
 export default function EditReimbursement({
   editPopUp,
   editPopUpClose,
@@ -9,65 +9,75 @@ export default function EditReimbursement({
   token,
   changeStatus,
 }) {
-  const saveItem = (event) => {
+  const editDetails = (event) => {
     event.preventDefault();
-    let { type, comment, differenceAmonut, approveAmonut, status } =
+    let { type, comment, differenceAmount, approveAmount, status } =
       event.target;
-    //       {
-    //         "id": 1,
-    //         "spentDate": "2022-12-27T00:00:00.000+00:00",
-    // 		"status": "APPROVED",
-    // 		"approveAmonut": 750,
-    // 		"comment": "Extra things not be eligible for that.",
-    // 		"unit": "INR",
-    // 		"type": "Party",
-    //         "description": "description update by Admin",
-    //         "differenceAmonut": 250,
-    // 		"lastModifiedDate": "2023-05-30T00:00:00.000+00:00"
-    // }
     let itemData = {
       id: itemDetails.id,
-      type: type.value,
-      description: itemDetails.value,
-      submitAmonut: itemDetails.value,
-      spentDate: itemDetails.value,
-      lastModifiedDate: new Date().toLocaleDateString(),
-      differenceAmonut: differenceAmonut.value,
-      approveAmonut: approveAmonut.value,
+      type: itemDetails.type,
+      unit: itemDetails.unit,
+      description: itemDetails.description,
+      spentDate: itemDetails.spentDate,
+      lastModifiedDate: new Date().toISOString(),
+      differenceAmount: differenceAmount.value,
+      approveAmount: approveAmount.value,
       status: status.value,
       comment: comment.value,
     };
-    const dto_object = new Blob([JSON.stringify(itemData)], {
-      type: "application/json",
-    });
-    itemData = JSON.stringify(itemData);
-    let formdata = new FormData();
-
-    formdata.append("reimbursement", dto_object);
-    fetch(APIUrl + "api/reimbursement", {
-      method: "PUT",
-      body: formdata,
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        console.log("Edit Item : ", res);
-        editPopUpClose(true);
-        changeStatus(true);
-      })
-      .catch((err) => {
-        console.log("Item Not Edit : ", err);
-        editPopUpClose(true);
-        changeStatus(false);
+    console.log(" status.value ", status.value, itemDetails.status);
+    if (
+      approveAmount.value !== "" &&
+      status.value !== "" &&
+      itemDetails.status !== "APPROVED"
+    ) {
+      const dto_object = new Blob([JSON.stringify(itemData)], {
+        type: "application/json",
       });
+      itemData = JSON.stringify(itemData);
+      let formdata = new FormData();
+
+      formdata.append("reimbursement", dto_object);
+      fetch(APIUrl + "api/reimbursement", {
+        method: "PUT",
+        body: formdata,
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => {
+          console.log("Edit Item : ", res);
+          editPopUpClose(true);
+          changeStatus(true);
+        })
+        .catch((err) => {
+          console.log("Item Not Edit : ", err);
+          editPopUpClose(true);
+          changeStatus(false);
+        });
+    } else {
+      toast.warning(
+        itemDetails.status === "APPROVED"
+          ? "Amount already approved."
+          : "Please Enter approve amount and select reimbursement status.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "colored",
+        }
+      );
+    }
     console.log("itemData : ", itemData);
   };
   const setFormdata = (itemDetails) => {
     console.log("itemDetails : ", itemDetails);
     let ReimbursementForm = document.forms["ReimbursementForm"];
     ReimbursementForm.type.value = itemDetails.type;
-    ReimbursementForm.submitAmonut.value = itemDetails.submitAmonut;
+    ReimbursementForm.submitAmount.value = itemDetails.submitAmount;
+    ReimbursementForm.approveAmount.value = itemDetails.approveAmount;
+    ReimbursementForm.differenceAmount.value = itemDetails.differenceAmount;
     ReimbursementForm.spentDate.value = localDateFormate(itemDetails.spentDate);
     ReimbursementForm.submitDate.value = localDateFormate(
       itemDetails.submitDate
@@ -91,20 +101,13 @@ export default function EditReimbursement({
       (day < 10 ? "0" + day : day);
     return newDate;
   };
-  const customDateLimiter = (input) => {
-    let conditionDates = {
-      min: new Date(input.target.min),
-      max: new Date(input.target.max),
-    };
-    const currentDate = new Date(input.target.value);
-    if (currentDate < conditionDates.min || currentDate > conditionDates.max) {
-      input.preventDefault();
-      input.target.value = setMaxMinDate(
-        0,
-        currentDate.getMonth() + 1,
-        currentDate.getDate()
-      );
-    } else return currentDate;
+
+  const diffAmount = (ApproveAmount) => {
+    let differenceAmount = document.getElementById("differenceAmount");
+    let submitAmount = document.getElementById("submitAmount").value;
+    if (ApproveAmount >= 0) {
+      differenceAmount.value = submitAmount - ApproveAmount;
+    }
   };
   return (
     <div
@@ -132,7 +135,7 @@ export default function EditReimbursement({
             <form
               name="ReimbursementForm"
               className="row g-3"
-              onSubmit={saveItem}
+              onSubmit={editDetails}
             >
               <div className="col-md-6">
                 <label className="mb-1">Reimbursement type</label>
@@ -151,9 +154,9 @@ export default function EditReimbursement({
                 <label className="mb-1">Submit Amount</label>
                 <input
                   type="text"
-                  name="submitAmonut"
+                  name="submitAmount"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="submitAmount"
                   readOnly
                   placeholder="Amount"
                 />
@@ -183,10 +186,11 @@ export default function EditReimbursement({
               <div className="col-md-6">
                 <label className="mb-1">Approve Amount</label>
                 <input
-                  type="text"
-                  name="approveAmonut"
+                  type="number"
+                  name="approveAmount"
+                  onKeyUp={(e) => diffAmount(e.target.value)}
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="approveAmount"
                   placeholder="Approve Amount"
                 />
               </div>
@@ -194,16 +198,19 @@ export default function EditReimbursement({
                 <label className="mb-1">Difference Amount</label>
                 <input
                   type="text"
-                  name="differenceAmonut"
+                  readOnly
+                  name="differenceAmount"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="differenceAmount"
                   placeholder="Difference Amount"
                 />
               </div>
               <div className="col-md-6">
                 <label className="mb-1">Status</label>
                 <select name="status" className="form-control rounded-3">
-                  <option value="">Select status</option>
+                  <option value="" disabled>
+                    Select status
+                  </option>
                   <option value="APPROVED">APPROVED</option>
                   <option value="REJECTED">REJECTED</option>
                   <option value="PENDING">PENDING</option>
@@ -231,6 +238,7 @@ export default function EditReimbursement({
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

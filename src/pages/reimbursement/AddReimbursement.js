@@ -1,60 +1,79 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import { APIUrl } from "../../auth/constants";
-
+import { ToastContainer, toast } from "react-toastify";
 export default function AddReimbursement({
   entryPopUp,
   entryPopUpClose,
   token,
   changeStatus,
 }) {
-  //   {    "dataType":"pdf",
-  //     "description":"description",
-  //     "spentDate":"2022-12-27T00:00:00.000+00:00",
-  //     "submitAmonut":"1000",
-  //     "unit":"INR",
-  //     "submitDate":"2023-05-27T00:00:00.000+00:00",
-  //     "type":"Party"
-  // }
+  const [dataStatus, setDataStatus] = useState(false);
+  const [saveStatus, setsaveStatus] = useState(false);
+  const formRef1 = useRef(null);
   const saveItem = (event) => {
     event.preventDefault();
-    let { type, data, description, spentDate, submitDate, unit, submitAmonut } =
+    setsaveStatus(true);
+    let { type, data, description, spentDate, submitDate, unit, submitAmount } =
       event.target;
-    let itemData = {
-      type: type.value,
-      dataType: data.files[0].type,
-      description: description.value,
-      unit: unit.value,
-      submitAmonut: submitAmonut.value,
-      spentDate: spentDate.value,
-      submitDate: submitDate.value,
-    };
-    const dto_object = new Blob([JSON.stringify(itemData)], {
-      type: "application/json",
-    });
-    itemData = JSON.stringify(itemData);
-    let formdata = new FormData();
-    formdata.append("data", data.files[0]);
-    formdata.append("reimbursement", dto_object);
 
-    console.log("Assigned Users : ", data.files[0]);
-    fetch(APIUrl + "api/reimbursement", {
-      method: "POST",
-      body: formdata,
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        console.log("Save Reimbursement : ", res);
-        entryPopUpClose(true);
-        changeStatus(true);
-      })
-      .catch((err) => {
-        console.log("Reimbursement Not Save : ", err);
-        entryPopUpClose(true);
-        changeStatus(false);
+    if (
+      submitAmount.value !== "" &&
+      type.value !== "" &&
+      data.files.length > 0
+    ) {
+      let itemData = {
+        type: type.value,
+        dataType: data.files[0].type,
+        description: description.value,
+        unit: unit.value,
+        submitAmount: submitAmount.value,
+        spentDate: spentDate.value,
+        submitDate: submitDate.value,
+      };
+      const dto_object = new Blob([JSON.stringify(itemData)], {
+        type: "application/json",
       });
-    console.log("Reimbursement Data : ", itemData);
+      itemData = JSON.stringify(itemData);
+      let formdata = new FormData();
+      formdata.append("data", data.files[0]);
+      formdata.append("reimbursement", dto_object);
+
+      console.log("Assigned Users : ", data.files[0]);
+      fetch(APIUrl + "api/reimbursement", {
+        method: "POST",
+        body: formdata,
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => {
+          console.log("Save Reimbursement : ", res);
+          changeStatus(true);
+          formRef1.current.reset();
+          setsaveStatus(false);
+          entryPopUpClose(true);
+        })
+        .catch((err) => {
+          console.log("Reimbursement Not Save : ", err);
+          entryPopUpClose(true);
+          changeStatus(false);
+          setsaveStatus(false);
+        });
+      console.log("Reimbursement Data : ", itemData);
+      setDataStatus(false);
+    } else {
+      setDataStatus(true);
+      toast.warning(
+        "Please Enter amount and select reimbursement type and document.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "colored",
+        }
+      );
+    }
   };
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
@@ -95,12 +114,19 @@ export default function AddReimbursement({
       role="dialog"
       id="modalSignin"
     >
+      <ToastContainer />
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
             <h1 className="fw-bold mb-0 fs-2">Reimbursement Entry Form</h1>
             <button
-              onClick={() => entryPopUpClose(true)}
+              onClick={() => {
+                entryPopUpClose(true);
+                setDataStatus(false);
+                formRef1.current.reset();
+                setsaveStatus(false);
+                console.log(formRef1.current.submitAmount.value);
+              }}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -109,7 +135,7 @@ export default function AddReimbursement({
           </div>
 
           <div className="modal-body p-4">
-            <form className="row g-3" onSubmit={saveItem}>
+            <form ref={formRef1} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
                 <label className="mb-1">Reimbursement type</label>
                 <select
@@ -139,8 +165,8 @@ export default function AddReimbursement({
               <div className="col-md-6">
                 <label className="mb-1">Amount</label>
                 <input
-                  type="text"
-                  name="submitAmonut"
+                  type="number"
+                  name="submitAmount"
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Amount"
@@ -195,11 +221,20 @@ export default function AddReimbursement({
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
+                  disabled={saveStatus}
                 >
-                  Save
+                  {saveStatus ? "wait..." : "Save"}
                 </button>
               </div>
             </form>
+            {dataStatus ? (
+              <h6 style={{ color: "red" }}>
+                Please Enter the Reimbursement amount, select reimbursement type
+                and document.
+              </h6>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

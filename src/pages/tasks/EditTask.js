@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util.js";
 
-export default function EditProject({
+export default function EditTask({
   editPopUp,
   editPopUpClose,
   itemDetails,
@@ -13,28 +13,16 @@ export default function EditProject({
   const [selectedValue, setSelectedValue] = useState([]);
   const saveItem = (event) => {
     event.preventDefault();
-    let {
-      name,
-      manager,
-      projectDetail,
-      startDate,
-      completionDate,
-      clientContactName,
-      clientContactNumber,
-    } = event.target;
+    let { status, taskDetail, startDate, dueDate } = event.target;
     let itemData = {
-      projectId: itemDetails.projectId,
-      name: name.value,
-      manager: manager.value,
-      projectDetail: projectDetail.value,
-      clientContactName: clientContactName.value,
-      clientContactNumber: clientContactNumber.value,
+      taskId: itemDetails.taskId,
+      status: status.value,
+      taskDetail: taskDetail.value,
       startDate: startDate.value,
-      completionDate: completionDate.value,
+      dueDate: dueDate.value,
+      assignedTo: selectedValue[0].email,
     };
-    itemData["emails"] = selectedValue.map((row) => row.email).join();
-    itemData["teamSize"] = selectedValue.length;
-    fetch(APIUrl + "api/project", {
+    fetch(APIUrl + "api/task/add", {
       method: "PUT",
       body: JSON.stringify(itemData),
       headers: {
@@ -43,12 +31,12 @@ export default function EditProject({
       },
     })
       .then((res) => {
-        console.log("Edit Item : ", res);
+        console.log("Edit Task : ", res);
         editPopUpClose(true);
         changeStatus(true);
       })
       .catch((err) => {
-        console.log("Item Not Edit : ", err);
+        console.log("Task Not Edit : ", err);
         editPopUpClose(true);
         changeStatus(false);
       });
@@ -56,16 +44,14 @@ export default function EditProject({
   };
   const setFormdata = (itemDetails) => {
     console.log("itemDetails : ", itemDetails);
-    let projectForm = document.forms["projectForm"];
-    projectForm.name.value = itemDetails.name;
-    projectForm.manager.value = itemDetails.manager;
-    projectForm.projectDetail.value = itemDetails.projectDetail;
-    projectForm.startDate.value = assignDateFormate(itemDetails.startDate);
-    projectForm.completionDate.value = assignDateFormate(
-      itemDetails.completionDate
-    );
-    projectForm.clientContactName.value = itemDetails.clientContactName;
-    projectForm.clientContactNumber.value = itemDetails.clientContactNumber;
+    let itemLength = Object.keys(itemDetails).length;
+    if (itemLength > 0) {
+      let TaskForm = document.forms["TaskForm"];
+      TaskForm.taskDetail.value = itemDetails.taskDetail;
+      TaskForm.status.value = itemDetails.status;
+      TaskForm.dueDate.value = assignDateFormate(itemDetails.dueDate);
+      TaskForm.startDate.value = assignDateFormate(itemDetails.startDate);
+    }
   };
   const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
@@ -82,7 +68,7 @@ export default function EditProject({
           return { name: user.displayName, email: user.email, id: user.id };
         });
         let defaultUser = users.filter((row) =>
-          itemDetails.emails.split(",").includes(row.email)
+          itemDetails.assignedTo.split(",").includes(row.email)
         );
         setSelectedValue([...defaultUser]);
         setuserArray([...users]);
@@ -90,13 +76,13 @@ export default function EditProject({
           "Users List : ",
           users,
           defaultUser,
-          itemDetails.emails.split(",")
+          itemDetails.assignedTo.split(",")
         );
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
       });
-  }, [itemDetails.emails]);
+  }, [itemDetails.assignedTo]);
   useEffect(() => {
     getUsers();
     setFormdata(itemDetails);
@@ -152,7 +138,7 @@ export default function EditProject({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit Project</h1>
+            <h1 className="fw-bold mb-0 fs-2">Edit Task</h1>
             <button
               onClick={() => {
                 editPopUpClose(true);
@@ -166,46 +152,17 @@ export default function EditProject({
           </div>
 
           <div className="modal-body p-4">
-            <form name="projectForm" className="row g-3" onSubmit={saveItem}>
-              <div className="col-md-6">
-                <label className="mb-1">Project Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control rounded-3"
-                  placeholder="Enter Project Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Project Manager</label>
-                <input
-                  type="text"
-                  name="manager"
+            <form name="TaskForm" className="row g-3" onSubmit={saveItem}>
+              <div className="col-md-12">
+                <label className="mb-1">Task Detail</label>
+                <textarea
+                  multiline={true}
+                  name="taskDetail"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder="Project Manager Name"
+                  placeholder="Enter Task Detail"
                 />
               </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactName"
-                  className="form-control rounded-3"
-                  placeholder="Client Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactNumber"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Client Contact Number"
-                />
-              </div>
-
               <div className="col-md-6">
                 <label className="mb-1">Start Date</label>
                 <input
@@ -221,27 +178,21 @@ export default function EditProject({
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Completion Date</label>
+                <label className="mb-1">Due Date</label>
                 <input
                   type="date"
-                  name="completionDate"
+                  name="dueDate"
+                  max={setMaxMinDate(10)}
+                  defaultValue={setMaxMinDate(0)}
+                  onKeyDown={(e) => customDateLimiter(e)}
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Completion Date"
                 />
               </div>
+
               <div className="col-md-12">
-                <label className="mb-1">Project Detail</label>
-                <textarea
-                  multiline={true}
-                  name="projectDetail"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Enter Project Detail"
-                />
-              </div>
-              <div className="col-md-12">
-                <label className="mb-1">Assign Project</label>
+                <label className="mb-1">Assign Task</label>
                 <Multiselect
                   options={userArray} // Options to display in the dropdown
                   selectedValues={selectedValue} // Preselected value to persist in dropdown
@@ -250,7 +201,19 @@ export default function EditProject({
                   displayValue="name" // Property name to display in the dropdown options
                 />
               </div>
-
+              <div className="col-md-6">
+                <label className="mb-1">Status</label>
+                <select name="status" className="form-control rounded-3">
+                  <option value="" disabled>
+                    Select status
+                  </option>
+                  <option value="Todo">Todo</option>
+                  <option value="In-progress">In-progress</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Testing">Testing</option>
+                  <option value="Complete">Complete</option>
+                </select>
+              </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"

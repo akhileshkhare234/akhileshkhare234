@@ -31,7 +31,7 @@ export const userFields = [
   { name: "state", title: "State", type: "text" },
   { name: "pinCode", title: "PinCode", type: "text" },
   // { name: "remainingLeave", title: "Remaining Leave", type: "text" },
-  { name: "managerName", title: "Manager Name", type: "text" },
+  { name: "managerName", title: "Manager Name", type: "select" },
   { name: "mobileNumber", title: "Mobile Number", type: "text" },
   {
     name: "emergencyMobileNumber",
@@ -73,7 +73,7 @@ export const userFields = [
   { name: "uan", title: "UAN", type: "text" },
   {
     name: "role",
-    title: "User Role",
+    title: "Engineer Role",
     type: "select",
     values: [
       { value: 1, name: "User" },

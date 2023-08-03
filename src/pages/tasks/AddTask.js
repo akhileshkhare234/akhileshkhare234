@@ -2,35 +2,33 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { Multiselect } from "multiselect-react-dropdown";
 
-export default function AddProject({
+export default function AddTask({
   entryPopUp,
   entryPopUpClose,
   token,
   changeStatus,
 }) {
   const [selectedValue, setSelectedValue] = useState([]);
-  const formRef = useRef();
-  const saveItem = (event) => {
+  const taskForm = useRef();
+  const saveTask = (event) => {
     event.preventDefault();
-    let {
-      name,
-      manager,
-      projectDetail,
-      startDate,
-      clientContactName,
-      clientContactNumber,
-    } = event.target;
+    // "taskDetail": "first task",
+    // "dueDate": 1669692021000,
+    // "startDate": 1669692021000,
+    // "assignedTo": "pavan.jain@lirisoft.com",
+    // "status" : "In-progress",
+    // "taskId" : 1
+    // }
+    let { taskDetail, startDate, dueDate } = event.target;
     let itemData = {
-      name: name.value,
-      manager: manager.value,
-      projectDetail: projectDetail.value,
-      clientContactName: clientContactName.value,
-      clientContactNumber: clientContactNumber.value,
+      taskDetail: taskDetail.value,
+      dueDate: dueDate.value,
       startDate: startDate.value,
+      assignedTo: selectedValue[0].email,
     };
     console.log("Assigned Users : ", selectedValue);
-    itemData["emails"] = selectedValue.map((row) => row.email).join();
-    fetch(APIUrl + "api/project", {
+    // itemData["emails"] = selectedValue.map((row) => row.email).join();
+    fetch(APIUrl + "api/task/add", {
       method: "POST",
       body: JSON.stringify(itemData),
       headers: {
@@ -39,17 +37,17 @@ export default function AddProject({
       },
     })
       .then((res) => {
-        console.log("Save Project : ", res);
+        console.log("Save Task : ", res);
         entryPopUpClose(true);
         changeStatus(true);
-        formRef.current.reset();
+        taskForm.current.reset();
       })
       .catch((err) => {
-        console.log("Project Not Save : ", err);
+        console.log("Task Not Save : ", err);
         entryPopUpClose(true);
         changeStatus(false);
       });
-    console.log("ProjectData : ", itemData);
+    console.log("TaskData : ", itemData);
   };
   const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
@@ -130,9 +128,12 @@ export default function AddProject({
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Project Entry Form</h1>
+            <h1 className="fw-bold mb-0 fs-2">Task Entry Form</h1>
             <button
-              onClick={() => entryPopUpClose(true)}
+              onClick={() => {
+                entryPopUpClose(true);
+                taskForm.current.reset();
+              }}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -141,58 +142,19 @@ export default function AddProject({
           </div>
 
           <div className="modal-body p-4">
-            <form ref={formRef} className="row g-3" onSubmit={saveItem}>
-              <div className="col-md-6">
-                <label className="mb-1">Project Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-control rounded-3"
-                  placeholder="Enter Project Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Project Manager</label>
-                <input
-                  type="text"
-                  name="manager"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Project Manager Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactName"
-                  className="form-control rounded-3"
-                  placeholder="Client Name"
-                />
-              </div>
-              <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
-                <input
-                  type="text"
-                  name="clientContactNumber"
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Client Contact Number"
-                />
-              </div>
-
+            <form ref={taskForm} className="row g-3" onSubmit={saveTask}>
               <div className="col-md-12">
-                <label className="mb-1">Project Detail</label>
+                <label className="mb-1">Task Detail</label>
                 <textarea
                   multiline={true}
-                  name="projectDetail"
+                  name="taskDetail"
                   className="form-control rounded-3"
                   id="floatingInput"
-                  placeholder="Enter Project Detail"
+                  placeholder="Enter Task Detail"
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Assign Project</label>
+                <label className="mb-1">Assign to</label>
                 <Multiselect
                   options={userArray} // Options to display in the dropdown
                   selectedValues={selectedValue} // Preselected value to persist in dropdown
@@ -202,7 +164,7 @@ export default function AddProject({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Project Start Date</label>
+                <label className="mb-1">Start Date</label>
                 <input
                   type="date"
                   max={setMaxMinDate(10)}
@@ -216,17 +178,16 @@ export default function AddProject({
               </div>
 
               <div className="col-md-6">
-                {/* <label className="mb-1">Completion Date</label>
+                <label className="mb-1">Due Date</label>
                 <input
                   type="date"
                   min={setMaxMinDate(1)}
-                  defaultValue={setMaxMinDate(0)}
-                  disabled
-                  name="completionDate"
+                  defaultValue={setMaxMinDate(0)}                
+                  name="dueDate"
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Completion Date"
-                /> */}
+                />
               </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button

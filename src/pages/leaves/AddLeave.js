@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { getMonthByDate, getYears } from "../util";
 import { ToastContainer, toast } from "react-toastify";
@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
   const [days, setdays] = useState(1);
   const [userInfo, setUserInfo] = useState([]);
+  const formRef = useRef(null);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -55,6 +56,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
           console.log("Save Leave : ", res);
           entryPopUpClose(true);
           changeStatus(true);
+          formRef.current.reset();
         })
         .catch((err) => {
           console.log("Leave Not Save : ", err);
@@ -135,7 +137,12 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
           </div>
 
           <div className="modal-body p-4">
-            <form name="leaveForm" className="row g-3" onSubmit={saveItem}>
+            <form
+              ref={formRef}
+              name="leaveForm"
+              className="row g-3"
+              onSubmit={saveItem}
+            >
               <div className="col-md-6">
                 <label className="mb-1">Leave From</label>
                 <input

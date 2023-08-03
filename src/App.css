@@ -7,6 +7,17 @@
 .textColor{
   color: #fff;
 }
+.statusBtn_A,.statusBtn_R,.statusBtn_I,.statusBtn_P{
+  width: 110px;
+    display: block;
+    text-align: center;
+    border-radius: 3px;
+    padding: 5px;
+    color: #fff;
+    font-weight: 500;
+    /* cursor: pointer; */
+}
+.statusBtn_A{background-color: #0eb493;}.statusBtn_R{background-color:#f44336;}.statusBtn_I{background-color: #579bf2;}.statusBtn_P{background-color: #fbfbc6;color:#474747 ;}
 .textFont{
  font-size: 10pt;
  font-weight: 500;

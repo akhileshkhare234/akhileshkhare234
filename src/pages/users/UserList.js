@@ -20,6 +20,7 @@ export default function UserList({
   const [imagePreviewPopUp, setImagePreviewPopUp] = useState(true);
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
+  const [sortStatus, setSortStatus] = useState(false);
   const showImage = (status, data) => {
     setImagePreviewPopUp(status);
     setItemdata(data);
@@ -112,9 +113,31 @@ export default function UserList({
     }, 1000);
     return () => clearTimeout(getData);
   }, [searchInventory, serachText]);
+  const sortBy = (field) => {
+    let newArray = sortStatus
+      ? userArray.sort((p, n) =>
+          p[field].toUpperCase() < n[field].toUpperCase()
+            ? 1
+            : p[field].toUpperCase() === n[field].toUpperCase()
+            ? 0
+            : -1
+        )
+      : userArray.sort((p, n) =>
+          p[field].toUpperCase() < n[field].toUpperCase()
+            ? -1
+            : p[field].toUpperCase() === n[field].toUpperCase()
+            ? 0
+            : 1
+        );
+    console.log(newArray, sortStatus);
+    setSortStatus(!sortStatus);
+    let users = newArray.filter((row, index) => index < pageSize);
+    setUserPageArray([...users]);
+    setuserArray([...newArray]);
+  };
   return (
     <>
-      <Header title="Users List" />
+      <Header title="Engineers List" />
       <div className="container">
         <div className="row px-4 py-2">
           <div className="col justify-content-center">
@@ -138,7 +161,9 @@ export default function UserList({
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Name</th>
+                    <th scope="col" onClick={() => sortBy("displayName")}>
+                      Name
+                    </th>
                     <th scope="col">Email</th>
                     <th scope="col">Designation</th>
                     <th scope="col">Mobile No.</th>
@@ -153,6 +178,9 @@ export default function UserList({
                       DOJ
                     </th>
                     <th scope="col">Photo</th>
+                    {/* <th scope="col" className="text-center">
+                      Notes
+                    </th> */}
                     <th scope="col" className="text-center">
                       Action
                     </th>
@@ -201,6 +229,22 @@ export default function UserList({
                           alt=""
                         />
                       </td>
+                      {/* <td className="text-center">
+                        <button
+                          onClick={() => editPopUpOpen(false, user)}
+                          type="button"
+                          className="btn btn-outline-primary me-1"
+                        >
+                          <i className="bi bi-plus"></i>
+                        </button>
+                        <button
+                          onClick={() => userDetails(false, user)}
+                          type="button"
+                          className="btn btn-outline-primary"
+                        >
+                          <i className="bi bi-eye"></i>
+                        </button>
+                      </td> */}
                       <td className="text-center">
                         <button
                           onClick={() => editPopUpOpen(false, user)}
@@ -269,13 +313,13 @@ export default function UserList({
               <div className="row datanotfound">
                 <div className="col-12 text-center">
                   <h4 className="datanotfound">
-                    <i className="bi bi-search datanotfoundIcon"></i> Data not
-                    found
+                    <i className="bi bi-search datanotfoundIcon"></i>Employee
+                    data not found
                   </h4>
                 </div>
               </div>
             ) : (
-              <Loader msg="User data loading" />
+              <Loader msg="Engineers data loading" />
             )}
           </div>
         </div>

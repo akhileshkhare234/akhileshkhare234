@@ -7,10 +7,10 @@ export default function ReimbursementDetails({
   detailsPopUpClose,
   itemData,
 }) {
-  const [userArray, setuserArray] = useState([]);
+  const [reimbursementHistory, setreimbursementHistory] = useState([]);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
+    fetch(APIUrl + "api/reimbursement/history/" + itemData.id, {
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + tokenValue,
@@ -18,19 +18,13 @@ export default function ReimbursementDetails({
     })
       .then((res) => res.json())
       .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        let defaultUser = users
-          .filter((row) => itemData.emails.split(",").includes(row.email))
-          .map((row) => row.name);
-        setuserArray([...defaultUser]);
-        console.log("Users List : ", defaultUser);
+        setreimbursementHistory([...res]);
+        console.log("Reimbursement History List : ", res);
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
       });
-  }, [itemData.emails]);
+  }, [itemData]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -44,10 +38,10 @@ export default function ReimbursementDetails({
       role="dialog"
       id="modalSignin"
     >
-      <div className="modal-dialog modal-lg" role="document">
+      <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Reimbursement Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Reimbursement history</h1>
             <button
               onClick={() => detailsPopUpClose(true)}
               type="button"
@@ -56,53 +50,82 @@ export default function ReimbursementDetails({
               aria-label="Close"
             ></button>
           </div>
-
-          <div className="modal-body px-5 pt-0">
+          <div className="modal-body px-0 pt-0">
             <hr className="mb-3" />
-            <dl className="row">
-              <dt className="col-sm-3">Reimbursement Name</dt>
-              <dd className="col-sm-3">{itemData.name}</dd>
-              <dt className="col-sm-3">Manager</dt>
-              <dd className="col-sm-3">{itemData.manager}</dd>
+            {/* <dl className="row">
+              <dt className="col-sm-3">Reimbursement type</dt>
+              <dd className="col-sm-3">{itemData.type}</dd>
+              <dt className="col-sm-3">Amount</dt>
+              <dd className="col-sm-3">{itemData.submitAmount}</dd>
             </dl>
             <dl className="row">
-              <dt className="col-sm-3">Start Date</dt>
-              <dd className="col-sm-3">{dateFormate(itemData.startDate)}</dd>
-              <dt className="col-sm-3">Completion Date</dt>
-              <dd className="col-sm-3">
-                {dateFormate(itemData.completionDate)}
-              </dd>
+              <dt className="col-sm-3">Approve Amount</dt>
+              <dd className="col-sm-3">{itemData.approveAmount}</dd>
+              <dt className="col-sm-3">Difference Amount</dt>
+              <dd className="col-sm-3">{itemData.differenceAmount}</dd>
             </dl>
             <dl className="row">
-              <dt className="col-sm-3">Client Name</dt>
-              <dd className="col-sm-3">{itemData.clientContactName}</dd>
-              <dt className="col-sm-3">Client Contact</dt>
-              <dd className="col-sm-3">{itemData.clientContactNumber}</dd>
+              <dt className="col-sm-3">Spent Date</dt>
+              <dd className="col-sm-3"> {dateFormate(itemData.spentDate)}</dd>
+              <dt className="col-sm-3">Submit Date</dt>
+              <dd className="col-sm-3"> {dateFormate(itemData.submitDate)}</dd>
             </dl>
             <dl className="row">
-              <dt className="col-sm-3">Reimbursement Detail</dt>
-              <dd className="col-sm-9">{itemData.ReimbursementDetail}</dd>
+              <dt className="col-sm-3">Submit By</dt>
+              <dd className="col-sm-3">{itemData.username}</dd>
+              <dt className="col-sm-3">Status</dt>
+              <dd className="col-sm-3">{itemData.status}</dd>
             </dl>
             <dl className="row">
-              <dt className="col-sm-3">Assigned Users</dt>
-              {userArray.map((user, index) => (
-                <dd className="col-sm-3" key={index}>
-                  <i
-                    className="bi bi-person"
-                    style={{
-                      backgroundColor: "#0eb493",
-                      color: "#fff",
-                      padding: "2px 5px",
-                      borderRadius: "5px",
-                      boxShadow: "2px 1px 3px 0px #eae8e8",
-                      marginRight: "5px",
-                    }}
-                  ></i>{" "}
-                  {user}
-                </dd>
-              ))}
+              <dt className="col-sm-3">Description</dt>
+              <dd className="col-sm-9">{itemData.description}</dd>
             </dl>
-
+            <hr className="mb-3" />
+            <div className="p-2 pb-2  headercolor bgColor">
+              <h1 className="fw-bold mb-0 fs-2">Reimbursement history</h1>
+            </div> */}
+            <div className="container-fulid">
+              <div className="row">
+                <div className="col mt-3">
+                  <table className="table tabletext">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Submit By</th>
+                        <th scope="col">Approved By</th>
+                        <th scope="col">Submit Date</th>
+                        <th scope="col">Modified Date</th>
+                        <th scope="col">Spent Date</th>
+                        <th scope="col">Submit Amount</th>
+                        <th scope="col">Approve Amount</th>
+                        <th scope="col">Difference Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reimbursementHistory.map((user, index) => (
+                        <tr key={index}>
+                          <th scope="row">{index + 1}</th>
+                          <td>{user.type}</td>
+                          <td>{user.description}</td>
+                          <td>{user.status}</td>
+                          <td>{user.username}</td>
+                          <td>{user.admin}</td>
+                          <td>{dateFormate(user.submitDate)}</td>
+                          <td>{dateFormate(user.lastModifiedDate)}</td>
+                          <td>{dateFormate(user.spentDate)}</td>
+                          <td>{user.submitAmount}</td>
+                          <td>{user.approveAmount}</td>
+                          <td>{user.differenceAmount}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
             <hr className="mb-3" />
           </div>
         </div>

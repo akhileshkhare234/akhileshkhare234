@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import {
@@ -17,6 +23,7 @@ export default function ItemEntry({
     inventoryTypesKeys[0]
   );
   const userInfo = useContext(UserData);
+  const formRef = useRef();
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -80,6 +87,7 @@ export default function ItemEntry({
         console.log("Save Item : ", res);
         entryPopUpClose(true);
         changeStatus(true);
+        formRef.current.reset();
       })
       .catch((err) => {
         console.log("Item Not Save : ", err);
@@ -170,7 +178,7 @@ export default function ItemEntry({
           </div>
 
           <div className="modal-body p-4">
-            <form className="row g-3" onSubmit={saveItem}>
+            <form ref={formRef} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
                   Model
@@ -381,7 +389,7 @@ export default function ItemEntry({
               </div>
               <div className="col-md-4">
                 <label htmlFor="floatingInput" className="mb-1">
-                  User Email
+                  Employee Email
                 </label>
                 <input
                   type="text"

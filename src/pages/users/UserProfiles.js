@@ -130,7 +130,7 @@ export default function UserProfiles() {
               </div>
               <hr className="mb-3" />
               <dl className="row mb-1">
-                <dt className="col-sm-2">User Name</dt>
+                <dt className="col-sm-2">Employee Name</dt>
                 <dd className="col-sm-4">
                   {userInfo?.displayName ? userInfo?.displayName : "-"}
                 </dd>

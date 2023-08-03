@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
 import { userFields } from "./fileds";
+import { UserData } from "../../App";
 
 export default function EditUser({
   editPopUp,
@@ -12,8 +13,35 @@ export default function EditUser({
   token,
   changeStatus,
 }) {
+  const userInfo = useContext(UserData);
   const [msgStatus, setMsgStatus] = useState(false);
   const [msg, setMsg] = useState("");
+  const [userArray, setuserArray] = useState([]);
+  const getUsers = useCallback(() => {
+    if (userInfo.role === 2) {
+      let tokenValue = window.localStorage.getItem("am_token");
+      fetch(APIUrl + "api/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          let users = res.map((user) =>
+            Object.assign({ name: user.displayName, email: user.email })
+          );
+          setuserArray([...users]);
+          console.log("Users List : ", users);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err);
+        });
+    } else setuserArray([]);
+  }, [userInfo.role]);
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
   const checkFields = (itemData) => {
     let msg = "Please enter ";
     let fields = {};
@@ -155,7 +183,10 @@ export default function EditUser({
     itemForm.department.value = itemDetails.department;
     itemForm.pan.value = itemDetails.pan;
     itemForm.dob.value = assignDateFormate(itemDetails.dob);
-    itemForm.doj.value = assignDateFormate(itemDetails.doj);
+    itemForm.doj.value =
+      assignDateFormate(itemDetails.doj) === "1970-01-01"
+        ? assignDateFormate(new Date().toDateString())
+        : assignDateFormate(itemDetails.doj);
     itemForm.uan.value = itemDetails.uan;
     itemForm.role.value = itemDetails.role;
   };
@@ -176,7 +207,7 @@ export default function EditUser({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit User Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Edit Engineer Details</h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"
@@ -193,13 +224,42 @@ export default function EditUser({
                   <label htmlFor="floatingInput" className="mb-1">
                     {field.title}
                   </label>
-                  {field.type === "text" || field.type === "date" ? (
+                  {field.name === "displayName" ? (
+                    <input
+                      type={field.type}
+                      name={field.name}
+                      readOnly
+                      className="form-control rounded-3"
+                      placeholder={"Enter " + field.title}
+                    />
+                  ) : field.type === "text" || field.type === "date" ? (
                     <input
                       type={field.type}
                       name={field.name}
                       className="form-control rounded-3"
                       placeholder={"Enter " + field.title}
                     />
+                  ) : field.name === "managerName" ? (
+                    <select
+                      className="form-control rounded-3"
+                      name={field.name}
+                      onChange={(e) => {
+                        console.dir(e.target);
+                        console.log(
+                          e.target.options[e.target.selectedIndex].value,
+                          e.target.options[e.target.selectedIndex].text
+                        );
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select manager
+                      </option>
+                      {userArray?.map((val, index) => (
+                        <option key={index} value={val.email}>
+                          {val.name}
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     <select
                       className="form-control rounded-3"
@@ -224,7 +284,7 @@ export default function EditUser({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
                   type="submit"
                 >
-                  Edit User
+                  Edit
                 </button>
               </div>
             </form>

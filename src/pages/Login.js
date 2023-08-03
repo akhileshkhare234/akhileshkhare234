@@ -59,6 +59,17 @@ export default function Login() {
             className="back2"
             alt="Lirisoft"
           />
+          {/* <span
+            onClick={() => {
+              window.localStorage.setItem(
+                "am_token",
+                "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNjg5ODMwNDUwLCJleHAiOjE2OTA2OTQ0NTB9.Wy6kTdW6hFw3CQO_yk2Tgi570HNG4TI26hQLi4mNZ8-lULYeYu4DCXJCi8bFy3pu0lAVunyt8yZkjBisfz3-DA"
+              );
+            }}
+            style={{ marginRight: 8, fontWeight: "bold" }}
+          >
+            Login
+          </span> */}
           <a
             className="btn btn-sm btn-primary mt-5 logo2"
             style={{

@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { APIUrl } from "../../auth/constants";
-import DeleteReimbursement from "./DeleteReimbursement";
-import EditReimbursement from "./EditReimbursement";
-// import ReimbursementDetails from "./ReimbursementDetails";
-import AddReimbursement from "./AddReimbursement";
-import ReimbursementList from "./ReimbursementList";
-import ReimbursementDetails from "./ReimbursementDetails";
+import DeleteTask from "./DeleteTask";
+import EditTask from "./EditTask";
+import TaskDetails from "./TaskDetails";
+import AddTask from "./AddTask";
+import TaskList from "./TaskList";
 
-export default function Reimbursement() {
+export default function Tasks() {
   const navigate = useNavigate();
   const [editPopUp, setEditPopUp] = useState(true);
   const [deletePopUp, setDeletePopUp] = useState(true);
@@ -56,33 +55,33 @@ export default function Reimbursement() {
   }, [checkUser, getUserData, itemStatus]);
   return (
     <>
-      <AddReimbursement
+      <AddTask
         token={token}
         entryPopUp={entryPopUp}
         entryPopUpClose={(status) => setEntryPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></AddReimbursement>
-      <EditReimbursement
+      ></AddTask>
+      <EditTask
         token={token}
         itemDetails={itemData}
         editPopUp={editPopUp}
         editPopUpClose={(status) => setEditPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></EditReimbursement>
-      <DeleteReimbursement
+      ></EditTask>
+      <DeleteTask
         token={token}
-        itemid={itemId}
+        taskId={itemId}
         deletePopUp={deletePopUp}
         deletePopUpClose={(status) => setDeletePopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></DeleteReimbursement>
+      ></DeleteTask>
 
-      <ReimbursementDetails
+      <TaskDetails
         itemData={itemData}
         detailsPopUp={detailsPopUp}
         detailsPopUpClose={(status) => setDetailsPopUp(status)}
-      ></ReimbursementDetails>
-      <ReimbursementList
+      ></TaskDetails>
+      <TaskList
         token={token}
         entryPopUpOpen={(status) => setEntryPopUp(status)}
         editPopUpOpen={(status, data) => setEditData(status, data)}
@@ -92,7 +91,7 @@ export default function Reimbursement() {
         }}
         detailsPopUpOpen={(status, data) => showDetails(status, data)}
         itemStatus={itemStatus}
-      ></ReimbursementList>
+      ></TaskList>
     </>
   );
 }

@@ -6,13 +6,21 @@ import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
 const tableData = {
   type: "Reimbursement type",
-
-  submitAmonut: "Amount",
+  submitAmount: "Amount",
+  approveAmount: "Approve Amount",
+  differenceAmount: "Difference Amount",
   username: "Submit By",
   spentDate: "Spent Date",
   submitDate: "Submit Date",
   status: "Status",
+  document: "Bill/Document",
   description: "Description",
+};
+const buttonStyle = {
+  INITIATED: "statusBtn_I",
+  APPROVED: "statusBtn_A",
+  REJECTED: "statusBtn_R",
+  PENDING: "statusBtn_P",
 };
 export default function ReimbursementList({
   entryPopUpOpen,
@@ -29,8 +37,10 @@ export default function ReimbursementList({
   const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(false);
   const setReimbursementData = useCallback(() => {
     setStart(0);
+    setLoadingStatus(true);
     fetch(APIUrl + "api/reimbursement", {
       headers: {
         "Content-Type": "application/json",
@@ -55,6 +65,13 @@ export default function ReimbursementList({
           setIReimbursements([]);
           setPages([]);
         }
+        setLoadingStatus(false);
+      })
+      .catch((err) => {
+        setReimbursement([]);
+        setIReimbursements([]);
+        setPages([]);
+        setLoadingStatus(false);
       });
   }, [token]);
   useEffect(() => {
@@ -110,6 +127,10 @@ export default function ReimbursementList({
     setReimbursement([...inventory]);
     setStart(start);
   };
+  const documentLink = (items) => {
+    console.log("documentLink ", items);
+    return URL.createObjectURL(items?.data);
+  };
   return (
     <>
       <Header title="Reimbursements List" />
@@ -129,18 +150,16 @@ export default function ReimbursementList({
                   />
                 </div>
               </div>
-              {userInfo && userInfo.role === 2 ? (
-                <div className="col justify-content-end text-end">
-                  <button
-                    onClick={() => entryPopUpOpen(false)}
-                    type="button"
-                    className="btn btn-outline-primary"
-                  >
-                    <i className="bi bi-plus-circle me-2"></i>
-                    <span className="ml-2">Add</span>
-                  </button>
-                </div>
-              ) : null}
+              <div className="col justify-content-end text-end">
+                <button
+                  onClick={() => entryPopUpOpen(false)}
+                  type="button"
+                  className="btn btn-outline-primary"
+                >
+                  <i className="bi bi-plus-circle me-2"></i>
+                  <span className="ml-2">Add</span>
+                </button>
+              </div>
             </div>
             {Reimbursements && Reimbursements.length > 0 ? (
               <>
@@ -153,9 +172,13 @@ export default function ReimbursementList({
                           {field}
                         </th>
                       ))}
-                      <th scope="col" className="text-center">
-                        Action
-                      </th>
+                      {userInfo && userInfo.role === 2 ? (
+                        <th scope="col" className="text-center">
+                          Action
+                        </th>
+                      ) : (
+                        ""
+                      )}
                     </tr>
                   </thead>
                   <tbody>
@@ -167,20 +190,43 @@ export default function ReimbursementList({
                             <span
                               className={
                                 field === "status"
-                                  ? item.status === "INITIATED"
-                                    ? "px-2 btn  py-1 rounded-1 textColor textFont bg-primary"
-                                    : "px-2 btn  py-1 rounded-1 textColor textFont bg-danger"
+                                  ? buttonStyle[item.status]
                                   : ""
                               }
                             >
-                              {field.includes("Date")
-                                ? dateFormate(item[field])
-                                : field.includes("Amonut")
-                                ? item[field] + " " + item["unit"]
-                                : item[field]}
+                              {field.includes("Date") ? (
+                                dateFormate(item[field])
+                              ) : field.includes("Amonut") ? (
+                                item[field] === null ? (
+                                  "0"
+                                ) : (
+                                  <>
+                                    <span style={{ fontSize: "15px" }}>
+                                      &#8360;
+                                    </span>
+                                    {". "}
+                                    {item[field]}
+                                  </>
+                                )
+                              ) : field.includes("document") ? (
+                                <a
+                                  download
+                                  href={
+                                    "data:" +
+                                    item["dataType"] +
+                                    ";base64," +
+                                    item["data"]
+                                  }
+                                >
+                                  Download Doc
+                                </a>
+                              ) : (
+                                item[field]
+                              )}
                             </span>
                           </td>
                         ))}
+
                         <td className="text-center">
                           {userInfo && userInfo.role === 2 ? (
                             <>
@@ -200,14 +246,16 @@ export default function ReimbursementList({
                               </button>
                             </>
                           ) : null}
-                          {/* <button
+                          <button
                             onClick={() => detailsPopUpOpen(false, item)}
                             type="button"
                             className="btn btn-outline-primary me-1"
                           >
-                            <i className="bi bi-eye"></i>
-                          </button> */}
+                            <i className="bi bi-clock-history"></i>
+                          </button>
                         </td>
+
+                        <td className="text-center"></td>
                       </tr>
                     ))}
                   </tbody>
@@ -256,8 +304,14 @@ export default function ReimbursementList({
                   </h4>
                 </div>
               </div>
-            ) : (
+            ) : loadingStatus ? (
               <Loader msg="Reimbursement data loading" />
+            ) : (
+              <>
+                <h5 className="text-center mt-4">
+                  Reimbursement data not found.
+                </h5>
+              </>
             )}
           </div>
         </div>

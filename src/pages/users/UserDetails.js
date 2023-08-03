@@ -19,7 +19,7 @@ export default function UserDetails({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">User Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Engineer Details</h1>
             <button
               onClick={() => detailsPopUpClose(true)}
               type="button"
@@ -52,7 +52,7 @@ export default function UserDetails({
                   <dd className="col-sm-3">
                     {itemData.employeeId ? itemData.employeeId : "-"}
                   </dd>
-                  <dt className="col-sm-2">User Name</dt>
+                  <dt className="col-sm-2">Employee Name</dt>
                   <dd className="col-sm-3">
                     {itemData.displayName ? itemData.displayName : "-"}
                   </dd>

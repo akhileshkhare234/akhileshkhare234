@@ -75,7 +75,7 @@ export default function ItemDetails({
             <dl className="row">
               <dt className="col-sm-3">Inventory Password</dt>
               <dd className="col-sm-3">{itemData.assetPassword}</dd>
-              <dt className="col-sm-3">User Email</dt>
+              <dt className="col-sm-3">Employee Email</dt>
               <dd className="col-sm-3">{itemData.userEmail}</dd>
             </dl>
             <dl className="row">
