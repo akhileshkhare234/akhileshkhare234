@@ -17,10 +17,10 @@ export default function ItemsList({
   const userInfo = useContext(UserData);
   const [items, setItems] = useState([]);
   const [inventories, setInventories] = useState([]);
-  const [pages, setPages] = useState([]);
-  const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
+  const [start, setStart] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [pages, setPages] = useState([]);
   const [searchStatus, setSerachStatus] = useState(false);
   const setItemsData = useCallback(() => {
     setStart(0);
@@ -110,6 +110,7 @@ export default function ItemsList({
                     type="search"
                     placeholder="Search inventory here..."
                     defaultValue={serachText}
+                    autocomplete="off"
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
                     onKeyUp={(event) => setSerachText(event.target.value)}
@@ -211,11 +212,11 @@ export default function ItemsList({
                         <td colSpan="2">
                           <select
                             style={{
-                              width: "50px",
+                              width: "75px",
                               paddingLeft: "8px",
                               height: "35px",
                             }}
-                            className="rounded-3"
+                            className="form-select rounded-3"
                             name="type"
                             onChange={(e) => setPageSize(e.target.value)}
                           >

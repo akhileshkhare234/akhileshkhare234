@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { APIUrl } from "../../auth/constants.js";
 import { dateFormate } from "../util.js";
 
@@ -7,7 +7,7 @@ export default function TaskDetails({
   detailsPopUpClose,
   itemData,
 }) {
-  const [userArray, setuserArray] = useState([]);
+  // const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/users", {
@@ -24,7 +24,7 @@ export default function TaskDetails({
         let defaultUser = users
           .filter((row) => itemData.emails.split(",").includes(row.email))
           .map((row) => row.name);
-        setuserArray([...defaultUser]);
+        // setuserArray([...defaultUser]);
         console.log("Users List : ", defaultUser);
       })
       .catch((err) => {
@@ -44,7 +44,7 @@ export default function TaskDetails({
       role="dialog"
       id="modalSignin"
     >
-      <div className="modal-dialog modal-xl" role="document">
+      <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
             <h1 className="fw-bold mb-0 fs-2">Task Details</h1>
@@ -65,17 +65,20 @@ export default function TaskDetails({
             </dl>
             <dl className="row">
               <dt className="col-sm-3">Start Date</dt>
-              <dd className="col-sm-3">{dateFormate(itemData.startDate)}</dd>
+              <dd className="col-sm-9">{dateFormate(itemData.startDate)}</dd>
+            </dl>
+            <dl className="row">
               <dt className="col-sm-3">Due Date</dt>
-              <dd className="col-sm-3">{dateFormate(itemData.dueDate)}</dd>
+              <dd className="col-sm-9">{dateFormate(itemData.dueDate)}</dd>
             </dl>
             <dl className="row">
               <dt className="col-sm-3">Assigned To</dt>
-              <dd className="col-sm-3">{itemData.assignedTo}</dd>
-              <dt className="col-sm-3">Assigned By</dt>
-              <dd className="col-sm-3">{itemData.assignedBy}</dd>
+              <dd className="col-sm-9">{itemData.assignedTo}</dd>
             </dl>
-
+            <dl className="row">
+              <dt className="col-sm-3">Assigned By</dt>
+              <dd className="col-sm-9">{itemData.assignedBy}</dd>
+            </dl>
             <hr className="mb-3" />
           </div>
         </div>

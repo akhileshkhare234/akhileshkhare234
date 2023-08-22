@@ -185,7 +185,9 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="model"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Model"
@@ -197,7 +199,9 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="brand"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Brand"
@@ -208,8 +212,9 @@ export default function ItemEntry({
                   Inventory type
                 </label>
                 <select
-                  className="form-control rounded-3"
+                  className="form-select rounded-3"
                   name="type"
+                  required
                   onChange={(e) =>
                     setinventoryIdentity(
                       inventoryTypesKeys[e.target.selectedIndex]
@@ -235,6 +240,7 @@ export default function ItemEntry({
                       </label>
                       <input
                         type="text"
+                        autocomplete="off"
                         name="ram"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -247,6 +253,7 @@ export default function ItemEntry({
                       </label>
                       <input
                         type="text"
+                        autocomplete="off"
                         name="processor"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -259,6 +266,7 @@ export default function ItemEntry({
                       </label>
                       <input
                         type="text"
+                        autocomplete="off"
                         name="harddisk"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -271,6 +279,7 @@ export default function ItemEntry({
                       </label>
                       <input
                         type="text"
+                        autocomplete="off"
                         name="harddiskType"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -283,6 +292,7 @@ export default function ItemEntry({
                       </label>
                       <input
                         type="text"
+                        autocomplete="off"
                         name="operatingSystem"
                         className="form-control rounded-3"
                         id="floatingInput"
@@ -299,6 +309,7 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="identity"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -311,7 +322,11 @@ export default function ItemEntry({
                 <label htmlFor="floatingInput" className="mb-1">
                   Inventory location
                 </label>
-                <select name="location" className="form-control rounded-3">
+                <select
+                  name="location"
+                  required
+                  className="form-select rounded-3"
+                >
                   <option value="Bangalore">Bangalore</option>
                   <option value="Indore">Indore</option>
                   <option value="Other">Other</option>
@@ -323,6 +338,7 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="status"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -334,7 +350,7 @@ export default function ItemEntry({
                 <label htmlFor="floatingInput" className="mb-1">
                   Inventory owner
                 </label>
-                <select className="form-control rounded-3" name="owner">
+                <select className="form-select rounded-3" required name="owner">
                   {userArray.map((user, index) => (
                     <option value={getUserInfo(user, 0)} key={index}>
                       {getUserInfo(user, 0)}
@@ -347,7 +363,8 @@ export default function ItemEntry({
                   Assign To
                 </label>
                 <select
-                  className="form-control rounded-3"
+                  required
+                  className="form-select rounded-3"
                   onChange={(e) => setuserEmail(getUserInfo(e.target.value, 1))}
                   name="assign"
                 >
@@ -370,6 +387,7 @@ export default function ItemEntry({
                   defaultValue={setMaxMinDate(0)}
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="assignDate"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Assign Date"
@@ -381,6 +399,7 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="assetPassword"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -393,6 +412,7 @@ export default function ItemEntry({
                 </label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="userEmail"
                   className="form-control rounded-3"
                   id="floatingInput"

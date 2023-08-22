@@ -22,7 +22,7 @@ export default function EditTask({
       dueDate: dueDate.value,
       assignedTo: selectedValue[0].email,
     };
-    fetch(APIUrl + "api/task/add", {
+    fetch(APIUrl + "api/task/update", {
       method: "PUT",
       body: JSON.stringify(itemData),
       headers: {
@@ -203,7 +203,7 @@ export default function EditTask({
               </div>
               <div className="col-md-6">
                 <label className="mb-1">Status</label>
-                <select name="status" className="form-control rounded-3">
+                <select name="status" className="form-select rounded-3">
                   <option value="" disabled>
                     Select status
                   </option>

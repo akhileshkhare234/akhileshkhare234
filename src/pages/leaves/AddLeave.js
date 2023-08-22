@@ -30,7 +30,15 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
   const saveItem = (event) => {
     event.preventDefault();
     let { leaveTo, leaveFrom, reason, leaveType } = event.target;
-    if (reason.value) {
+    if (leaveTo.value < leaveFrom.value) {
+      toast.error("Leave to date value cannot be less than leave from date. ", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "colored",
+      });
+    } else if (reason.value) {
       let itemData = {
         leaveTo: leaveTo.value,
         leaveFrom: leaveFrom.value,
@@ -53,14 +61,30 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
         },
       })
         .then((res) => {
-          console.log("Save Leave : ", res);
-          entryPopUpClose(true);
-          changeStatus(true);
-          formRef.current.reset();
+          toast.success("Leave apply successfully.", {
+            position: "top-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            theme: "colored",
+          });
+          window.setTimeout(() => {
+            console.log("Save Leave : ", res);
+            entryPopUpClose(true);
+            changeStatus(true);
+            formRef.current.reset();
+            event.target.reset();
+          }, 3000);
         })
         .catch((err) => {
           console.log("Leave Not Save : ", err);
-          entryPopUpClose(true);
+          toast.error("Leave not apply. " + err, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            theme: "colored",
+          });
           changeStatus(false);
         });
       event.target.reset();
@@ -83,7 +107,10 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
   }, [entryPopUp]);
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
-    let month = months ? months : today.getMonth() + 1;
+    let month =
+      months !== null
+        ? today.getMonth() + parseInt(months)
+        : today.getMonth() + 1;
     let day = days ? days : today.getDate();
     let year = today.getFullYear() + years;
 
@@ -128,7 +155,11 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
             <h1 className="fw-bold mb-0 fs-2">Leave Entry Form</h1>
             <button
-              onClick={() => entryPopUpClose(true)}
+              onClick={() => {
+                entryPopUpClose(true);
+                let leaveForm = document.forms["leaveForm"];
+                leaveForm.reset();
+              }}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -147,8 +178,8 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 <label className="mb-1">Leave From</label>
                 <input
                   type="date"
-                  min={setMaxMinDate(-10)}
-                  max={setMaxMinDate(10)}
+                  min={setMaxMinDate(0, 0)}
+                  max={setMaxMinDate(1)}
                   defaultValue={setMaxMinDate(0)}
                   name="leaveFrom"
                   className="form-control rounded-3"
@@ -160,7 +191,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 <label className="mb-1">Leave To</label>
                 <input
                   type="date"
-                  min={setMaxMinDate(-1)}
+                  min={setMaxMinDate(0, 0)}
                   max={setMaxMinDate(1)}
                   defaultValue={setMaxMinDate(0)}
                   name="leaveTo"
@@ -173,6 +204,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 <input
                   type="text"
                   name="reason"
+                  autocomplete="off"
                   className="form-control rounded-3"
                   placeholder="Leave reason"
                 />
@@ -191,7 +223,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 <label htmlFor="floatingInput" className="mb-1">
                   Leave Type
                 </label>
-                <select name="leaveType" className="form-control rounded-3">
+                <select name="leaveType" className="form-select rounded-3">
                   <option value="Sick leave">Sick leave</option>
                   <option value="Urgent leave">Urgent leave</option>
                   <option value="Maternity and paternity leave">
@@ -206,6 +238,8 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                   </option>
                   <option value="Sabbatical leave">Sabbatical leave</option>
                   <option value="Unpaid leave">Unpaid leave</option>
+                  <option value="Paid leave">Paid leave</option>
+                  <option value="Other leave">Other leave</option>
                 </select>
               </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">

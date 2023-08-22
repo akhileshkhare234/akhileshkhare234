@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { UserData } from "../../App";
-import { LocalUrl } from "../../auth/constants";
 import Footer from "./Footer";
 
 export default function DashboardLayout() {
@@ -10,10 +9,6 @@ export default function DashboardLayout() {
   const [logoutPopUp, setLogoutPopUp] = useState(true);
   const userLogout = () => {
     window.localStorage.removeItem("am_token");
-    window.location.replace(
-      "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=" +
-        LocalUrl
-    );
     navigate("/");
   };
   const checkUser = useCallback(() => {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { APIUrl } from "../../auth/constants";
 import { localDateFormate } from "../util.js";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,8 +11,7 @@ export default function EditReimbursement({
 }) {
   const editDetails = (event) => {
     event.preventDefault();
-    let { type, comment, differenceAmount, approveAmount, status } =
-      event.target;
+    let { comment, differenceAmount, approveAmount, status } = event.target;
     let itemData = {
       id: itemDetails.id,
       type: itemDetails.type,
@@ -87,20 +86,20 @@ export default function EditReimbursement({
   useEffect(() => {
     setFormdata(itemDetails);
   }, [itemDetails]);
-  const setMaxMinDate = (years, months = null, days = null) => {
-    let today = new Date();
-    let month = months ? months : today.getMonth() + 1;
-    let day = days ? days : today.getDate();
-    let year = today.getFullYear() + years;
+  // const setMaxMinDate = (years, months = null, days = null) => {
+  //   let today = new Date();
+  //   let month = months ? months : today.getMonth() + 1;
+  //   let day = days ? days : today.getDate();
+  //   let year = today.getFullYear() + years;
 
-    let newDate =
-      year +
-      "-" +
-      (month < 10 ? "0" + month : month) +
-      "-" +
-      (day < 10 ? "0" + day : day);
-    return newDate;
-  };
+  //   let newDate =
+  //     year +
+  //     "-" +
+  //     (month < 10 ? "0" + month : month) +
+  //     "-" +
+  //     (day < 10 ? "0" + day : day);
+  //   return newDate;
+  // };
 
   const diffAmount = (ApproveAmount) => {
     let differenceAmount = document.getElementById("differenceAmount");
@@ -139,7 +138,7 @@ export default function EditReimbursement({
             >
               <div className="col-md-6">
                 <label className="mb-1">Reimbursement type</label>
-                <select name="type" className="form-control rounded-3">
+                <select name="type" className="form-select rounded-3">
                   <option value="Reimbursement type" disabled>
                     Select reimbursement type
                   </option>
@@ -207,7 +206,7 @@ export default function EditReimbursement({
               </div>
               <div className="col-md-6">
                 <label className="mb-1">Status</label>
-                <select name="status" className="form-control rounded-3">
+                <select name="status" className="form-select rounded-3">
                   <option value="" disabled>
                     Select status
                   </option>

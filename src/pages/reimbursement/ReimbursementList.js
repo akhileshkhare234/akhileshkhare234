@@ -14,7 +14,7 @@ const tableData = {
   submitDate: "Submit Date",
   status: "Status",
   document: "Bill/Document",
-  description: "Description",
+  // description: "Description",
 };
 const buttonStyle = {
   INITIATED: "statusBtn_I",
@@ -127,10 +127,10 @@ export default function ReimbursementList({
     setReimbursement([...inventory]);
     setStart(start);
   };
-  const documentLink = (items) => {
-    console.log("documentLink ", items);
-    return URL.createObjectURL(items?.data);
-  };
+  // const documentLink = (items) => {
+  //   console.log("documentLink ", items);
+  //   return URL.createObjectURL(items?.data);
+  // };
   return (
     <>
       <Header title="Reimbursements List" />
@@ -143,6 +143,7 @@ export default function ReimbursementList({
                   <input
                     className="form-control  border"
                     type="search"
+                    autocomplete="off"
                     placeholder="Search Reimbursement here..."
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
@@ -165,10 +166,21 @@ export default function ReimbursementList({
               <>
                 <table className="table tabletext">
                   <thead>
-                    <tr>
+                    <tr style={{ verticalAlign: "baseline" }}>
                       <th scope="col">#</th>
                       {Object.values(tableData).map((field, index) => (
-                        <th scope="col" key={field}>
+                        <th
+                          scope="col"
+                          key={field}
+                          style={{
+                            width: [
+                              "Approve Amount",
+                              "Difference Amount",
+                            ].includes(field)
+                              ? "100px"
+                              : "auto",
+                          }}
+                        >
                           {field}
                         </th>
                       ))}

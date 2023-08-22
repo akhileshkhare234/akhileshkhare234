@@ -29,7 +29,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
       .then((res) => {
         let users = res.map((user) => user.displayName + "/" + user.email);
         setuserArray([...users]);
-        console.log("Users List : ", users);
+        // console.log("Users List : ", users);
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
@@ -38,51 +38,10 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-  const setProjectData = useCallback(() => {
-    setStart(0);
-    token &&
-      fetch(APIUrl + "api/project", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          if (res?.length > 0) {
-            let project = res.filter((row, index) => index < 10);
-            console.log("projects List ", project);
-            setProject([...project]);
-            let pageSize = 10;
-            let pages = [];
-            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-              pages.push(I);
-            }
-            setPages(pages);
-          } else {
-            setProject([]);
-            setPages([]);
-          }
-        });
-  }, [token]);
-  useEffect(() => {
-    setProjectData();
-  }, [setProjectData, itemStatus]);
-  const showNextInventory = (pos) => {
-    let start = pos === 1 ? 0 : pos * 10 - 10;
-    let inventory = timeSheetData.filter(
-      (row, index) => index >= start && index < pos * 10
-    );
-    console.log("start, pos,inventory ", start, pos, inventory);
-    setItems([...inventory]);
-    setStart(start);
-  };
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
-  };
   const getTimeSheet = (e) => {
-    e.preventDefault();
-    let { users, projects, years, months } = e.target;
+    e?.preventDefault();
+    let userForm = document.forms["timesheetform"];
+    let { users, projects, years, months } = userForm;
     let payload = {
       users: users.value,
       projects: projects.value,
@@ -126,6 +85,51 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         }
       });
   };
+  const setProjectData = useCallback(() => {
+    setStart(0);
+    token &&
+      fetch(APIUrl + "api/project", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          if (res?.length > 0) {
+            let project = res.filter((row, index) => index < 10);
+            console.log("projects List ", project);
+            setProject([...project]);
+            getTimeSheet();
+
+            let pageSize = 10;
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+          } else {
+            setProject([]);
+            setPages([]);
+          }
+        });
+  }, [token]);
+  useEffect(() => {
+    setProjectData();
+  }, [setProjectData, itemStatus]);
+  const showNextInventory = (pos) => {
+    let start = pos === 1 ? 0 : pos * 10 - 10;
+    let inventory = timeSheetData.filter(
+      (row, index) => index >= start && index < pos * 10
+    );
+    console.log("start, pos,inventory ", start, pos, inventory);
+    setItems([...inventory]);
+    setStart(start);
+  };
+  const getUserInfo = (userinfo, index) => {
+    return userinfo.split("/")[index];
+  };
+
   const exportFile = () => {
     let timesheetform = document.forms["timesheetform"];
     let payload = {
@@ -160,9 +164,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
               a.click();
               console.log(url);
             })
-        : // .then((res) => res.arrayBuffer())
-          // .then((res) => console.log(res))
-          console.log("We can export only one project data.");
+        : console.log("We can export only one project data.");
     } else {
       toast.warning("Please select a project to export timesheet.", {
         position: "top-right",
@@ -187,7 +189,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     <label htmlFor="floatingInput" className="mb-1">
                       Users
                     </label>
-                    <select className="form-control rounded-3" name="users">
+                    <select className="form-select rounded-3" name="users">
                       <option value="All">All</option>
                       {userArray.map((user, index) => (
                         <option value={getUserInfo(user, 1)} key={index}>
@@ -200,7 +202,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     <label htmlFor="floatingInput" className="mb-1">
                       Projects
                     </label>
-                    <select className="form-control rounded-3" name="projects">
+                    <select className="form-select rounded-3" name="projects">
                       <option value="All">All</option>
                       {projects.map((project, index) => (
                         <option value={project.projectId} key={index}>
@@ -214,7 +216,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                       Year
                     </label>
                     <select
-                      className="form-control rounded-3"
+                      className="form-select rounded-3"
                       name="years"
                       defaultValue={getYears()}
                     >
@@ -230,7 +232,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                       Month
                     </label>
                     <select
-                      className="form-control rounded-3"
+                      className="form-select rounded-3"
                       name="months"
                       defaultValue={getMonthName()}
                     >
@@ -289,7 +291,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                       )}
                     </td>
                     <td className="text-center">
-                      {payload.projects === "All" ? (
+                      {payload?.projects === "All" ? (
                         item.projectIds.split("|").map((id) => {
                           let data = projects.filter(
                             (project) => project.projectId === parseInt(id)
@@ -323,25 +325,24 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                                 (row) =>
                                   row.projectId === parseInt(payload.projects)
                               ),
-                              projectName: projects.filter(
+                              projectName: projects?.filter(
                                 (project) =>
                                   project.projectId ===
                                   parseInt(payload.projects)
-                              )[0].name,
+                              )[0]?.name,
                               month: item.month,
                               year: item.year,
                             })
                           }
                           title={
-                            "View " +
-                            projects.filter(
+                            "View " + projects?.length > 0 &&
+                            projects?.filter(
                               (project) =>
                                 project.projectId === parseInt(payload.projects)
-                            )[0].name +
-                            " TimeSheet"
+                            )[0]?.name + " TimeSheet"
                           }
                         >
-                          {projects.filter(
+                          {projects?.filter(
                             (project) =>
                               project.projectId === parseInt(payload.projects)
                           )[0].name + " "}

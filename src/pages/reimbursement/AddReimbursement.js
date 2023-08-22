@@ -140,7 +140,7 @@ export default function AddReimbursement({
                 <label className="mb-1">Reimbursement type</label>
                 <select
                   name="type"
-                  className="form-control rounded-3"
+                  className="form-select rounded-3"
                   defaultValue="Reimbursement type"
                 >
                   <option value="Reimbursement type" disabled>
@@ -166,7 +166,9 @@ export default function AddReimbursement({
                 <label className="mb-1">Amount</label>
                 <input
                   type="number"
+                  autocomplete="off"
                   name="submitAmount"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Amount"
@@ -176,6 +178,7 @@ export default function AddReimbursement({
                 <label className="mb-1">Amount unit</label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="unit"
                   defaultValue={"INR"}
                   className="form-control rounded-3"
@@ -212,6 +215,7 @@ export default function AddReimbursement({
                 <textarea
                   multiline="true"
                   name="description"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Reimbursement description"

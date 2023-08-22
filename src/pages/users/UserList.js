@@ -2,13 +2,15 @@ import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
-import { dateFormate } from "../util";
 import ImagePreview from "./ImagePreview";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
 
 export default function UserList({
   userDetails,
   editPopUpOpen,
   itemStatus,
+  projectDetails,
   token,
 }) {
   const [userArray, setuserArray] = useState([]);
@@ -86,7 +88,13 @@ export default function UserList({
         (row, index) =>
           Object.keys(row).filter((field) => {
             let text = row[field] + "";
-            return text.toUpperCase().includes(serachText.toUpperCase());
+            if (Array.isArray(row[field])) {
+              return (
+                row[field].filter((row) =>
+                  row.name.toUpperCase().includes(serachText.toUpperCase())
+                ).length > 0
+              );
+            } else return text.toUpperCase().includes(serachText.toUpperCase());
           }).length > 0
       );
       console.log("serachText,inventory ", serachText, inventory);
@@ -164,23 +172,18 @@ export default function UserList({
                     <th scope="col" onClick={() => sortBy("displayName")}>
                       Name
                     </th>
+                    <th scope="col" className="text-center">
+                      Projects
+                    </th>
                     <th scope="col">Email</th>
-                    <th scope="col">Designation</th>
                     <th scope="col">Mobile No.</th>
+
+                    {/* <th scope="col">City</th> */}
+
+                    <th scope="col">Photo</th>
                     <th scope="col" className="text-center">
                       Role
                     </th>
-                    <th scope="col">City</th>
-                    <th scope="col" className="text-center">
-                      DOB
-                    </th>
-                    <th scope="col" className="text-center">
-                      DOJ
-                    </th>
-                    <th scope="col">Photo</th>
-                    {/* <th scope="col" className="text-center">
-                      Notes
-                    </th> */}
                     <th scope="col" className="text-center">
                       Action
                     </th>
@@ -191,43 +194,75 @@ export default function UserList({
                     <tr key={index}>
                       <th scope="row">{start + index + 1}</th>
                       <td>{user.displayName}</td>
+                      <td className="text-center">
+                        <div
+                          onClick={() => projectDetails(false, user)}
+                          className="prj-count"
+                          style={{
+                            backgroundColor:
+                              user.projects?.length === 0
+                                ? "#ff8d8d"
+                                : "#51c6f6",
+                          }}
+                          title={
+                            user.projects?.length > 0
+                              ? user.projects
+                                  ?.map(
+                                    (prj, index) =>
+                                      index + 1 + ". " + prj.name + "\n"
+                                  )
+                                  .join(" ")
+                              : "No projects assigned yet."
+                          }
+                        >
+                          {user.projects?.length}
+                        </div>
+                      </td>
                       <td>{user.email}</td>
-                      <td>{user.designation}</td>
-
                       <td>{user.mobileNumber}</td>
+                      {/* <td>{user.city}</td> */}
+                      <td>
+                        <LazyLoadImage
+                          alt={user.displayName}
+                          onClick={() => showImage(false, user)}
+                          className="profileimage3"
+                          effect="blur" // You can use different loading effects like 'opacity', 'black-and-white', etc.
+                          src={
+                            user.imageUrl
+                              ? user.imageUrl
+                              : user.gender === "Female"
+                              ? process.env.PUBLIC_URL + "/images/female.png"
+                              : process.env.PUBLIC_URL + "/images/male.png"
+                          }
+                        />
+
+                        {/* <img
+                          onClick={() => showImage(false, user)}
+                          className="profileimage3"
+                          src={
+                            user.imageUrl
+                              ? user.imageUrl
+                              : user.gender === "Female"
+                              ? process.env.PUBLIC_URL + "/images/female.png"
+                              : process.env.PUBLIC_URL + "/images/male.png"
+                          }
+                          alt=""
+                        /> */}
+                      </td>
                       <td className="text-center">
                         <span
                           onClick={() => updateUserRole(user)}
                           title="Click for user change Role!"
                           style={{ cursor: "pointer", fontSize: 15 }}
                           className={
-                            "px-2 btn  py-0 rounded-1 textColor " +
-                            (user.role === 1 ? "bg-primary" : "bg-danger")
+                            "btn  py-0 rounded-1 textColor " +
+                            (user.role === 1
+                              ? "px-3 bg-primary"
+                              : "px-2 bg-danger")
                           }
                         >
                           {user.role === 1 ? "User" : "Admin"}
                         </span>
-                      </td>
-                      <td>{user.city}</td>
-                      <td className="text-center">
-                        {user.dob ? dateFormate(user.dob) : "-"}
-                      </td>
-                      <td className="text-center">
-                        {user.doj ? dateFormate(user.doj) : "-"}
-                      </td>
-                      <td>
-                        <img
-                          onClick={() => showImage(false, user)}
-                          className="profileimage3"
-                          src={
-                            user.data
-                              ? "data:image/png;base64," + user.data
-                              : user.gender === "Female"
-                              ? process.env.PUBLIC_URL + "/images/female.png"
-                              : process.env.PUBLIC_URL + "/images/male.png"
-                          }
-                          alt=""
-                        />
                       </td>
                       {/* <td className="text-center">
                         <button
@@ -270,11 +305,11 @@ export default function UserList({
                       <td colSpan="2">
                         <select
                           style={{
-                            width: "50px",
+                            width: "75px",
                             paddingLeft: "8px",
                             height: "35px",
                           }}
-                          className="rounded-3"
+                          className="form-select rounded-3"
                           name="type"
                           onChange={(e) => {
                             setStart(0);

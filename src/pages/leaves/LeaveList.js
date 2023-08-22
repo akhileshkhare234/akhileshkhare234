@@ -3,14 +3,12 @@ import { UserData } from "../../App";
 import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  dateFormate,
-  getMonthFullName,
-  getMonthsFullName,
-  getYears,
-} from "../util.js";
+import { dateFormate, getMonthsFullName, getYears } from "../util.js";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
+
 const tableData = {
   email: "Name",
   leaveFrom: "Leave From",
@@ -30,8 +28,12 @@ export default function LeaveList({
 }) {
   const userInfo = useContext(UserData);
   const [leaves, setLeaves] = useState([]);
+  const [items, setItems] = useState([]);
+  const [start, setStart] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [pageSizeStatus, setPageSizeStatus] = useState(false);
+  const [pages, setPages] = useState([]);
   const [userArray, setuserArray] = useState([]);
-  const [payload, setPayload] = useState({});
   const [leaveStatus, setleaveStatus] = useState(false);
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
@@ -44,7 +46,9 @@ export default function LeaveList({
       })
         .then((res) => res.json())
         .then((res) => {
-          let users = res.map((user) => user.displayName + "/" + user.email);
+          let users = res.map(
+            (user) => user.displayName + "/" + user.email + "/" + user.imageUrl
+          );
           setuserArray([...users]);
           console.log("Users List : ", users);
         })
@@ -59,13 +63,31 @@ export default function LeaveList({
     getUsers();
   }, [getUsers]);
   const getUserInfo = (userinfo, index) => {
+    // console.log("User Info Data : ", userinfo);
     return userinfo?.split("/")[index];
   };
   const getLeaves = useCallback(() => {
+    setStart(0);
     console.log("itemStatus ", itemStatus);
-    setleaveStatus(true);
-    if (userInfo.email && token)
-      fetch(APIUrl + `api/leave/data/${getYears()}?email=${userInfo.email}`, {
+    if (userInfo.email && token) {
+      let urlValue = null;
+      if (pageSizeStatus) {
+        let leavesList = document.forms["leavesList"];
+        console.log("payload Data: ", leavesList);
+        console.log("payload Data: ", leavesList.users.value);
+        let payload = {
+          users: leavesList.users.value,
+          years: leavesList.years.value,
+          months: leavesList.months.value,
+          status: leavesList.status.value,
+        };
+        console.log("payload Data: ", payload);
+        urlValue = getURL(payload);
+      } else {
+        urlValue = `api/leave/data/${getYears()}?email=${userInfo.email}`;
+        setleaveStatus(true);
+      }
+      fetch(APIUrl + urlValue, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + token,
@@ -74,16 +96,32 @@ export default function LeaveList({
         .then((res) => res.json())
         .then((res) => {
           if (res?.length > 0) {
-            console.log("Leaves data : ", res);
+            res.sort((p, n) => {
+              let date1 = new Date(n.leaveFrom);
+              let date2 = new Date(p.leaveFrom);
+              return date1 - date2;
+            });
+            let leavesData = res.filter((row, index) => index < pageSize);
+            console.log("leavesData Info ", leavesData);
+            setItems([...leavesData]);
             setLeaves([...res]);
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+          } else {
+            setItems([]);
+            setLeaves([]);
+            setPages([]);
           }
           setleaveStatus(false);
         });
-    else {
+    } else {
       setLeaves([]);
       setleaveStatus(false);
     }
-  }, [token, userInfo.email, itemStatus]);
+  }, [itemStatus, userInfo.email, token, pageSizeStatus, pageSize]);
   useEffect(() => {
     getLeaves();
   }, [getLeaves]);
@@ -99,6 +137,8 @@ export default function LeaveList({
   };
   const getLeaveFilterData = (e) => {
     e.preventDefault();
+    setStart(0);
+    setPageSize(10);
     let { users, years, months, status } = e.target;
     let payload = {
       users: users.value,
@@ -106,9 +146,6 @@ export default function LeaveList({
       months: months.value,
       status: status.value,
     };
-    console.log(payload);
-    setPayload(payload);
-    // http://localhost:8080/api/timesheet?year=2023&email=shailendra.bardiya@lirisoft.com,abc.xyz@lirisoft.com&month=JAN&projectId=2&status=ReSubmitted
     let urldata = getURL(payload);
     fetch(APIUrl + urldata, {
       headers: {
@@ -119,27 +156,59 @@ export default function LeaveList({
       .then((res) => res.json())
       .then((res) => {
         if (res?.length > 0) {
-          console.log("Leaves data : ", res);
+          res.sort((p, n) => {
+            let date1 = new Date(n.leaveFrom);
+            let date2 = new Date(p.leaveFrom);
+            return date1 - date2;
+          });
+          let leavesData = res.filter((row, index) => index < pageSize);
+          console.log("leavesData Info ", leavesData);
+
+          console.log(
+            "Sort data : ",
+            res.sort((p, n) => {
+              let date1 = new Date(n.leaveFrom);
+              let date2 = new Date(p.leaveFrom);
+              return date1 - date2;
+            })
+          );
+          setItems([...leavesData]);
           setLeaves([...res]);
+          let pages = [];
+          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+            pages.push(I);
+          }
+          setPages(pages);
         } else {
+          setItems([]);
           setLeaves([]);
+          setPages([]);
         }
       });
   };
   const checkDate = (fromdate) => {
     let curDate = new Date();
     let frmDate = new Date(fromdate);
-    console.log(
-      curDate.getTime() <= frmDate.getTime(),
-      curDate.toLocaleDateString(),
-      frmDate.toLocaleDateString(),
-      new Date(curDate.toLocaleDateString() + " 00:00").getTime(),
-      new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
-    );
+    // console.log(
+    //   curDate.getTime() <= frmDate.getTime(),
+    //   curDate.toLocaleDateString(),
+    //   frmDate.toLocaleDateString(),
+    //   new Date(curDate.toLocaleDateString() + " 00:00").getTime(),
+    //   new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
+    // );
     return (
       new Date(curDate.toLocaleDateString() + " 00:00").getTime() <=
       new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
     );
+  };
+  const showNextInventory = (pos) => {
+    let start = pos === 1 ? 0 : pos * pageSize - pageSize;
+    let leavesData = leaves.filter(
+      (row, index) => index >= start && index < pos * pageSize
+    );
+    console.log("start, pos,leavesData ", start, pos, leavesData);
+    setItems([...leavesData]);
+    setStart(start);
   };
   return (
     <>
@@ -163,16 +232,22 @@ export default function LeaveList({
             {userInfo && userInfo.role === 2 ? (
               <>
                 <hr className="mb-3" />
-                <form onSubmit={getLeaveFilterData}>
+                <form name="leavesList" onSubmit={getLeaveFilterData}>
                   <div className="row px-4 py-2">
                     <div className="col-md-3">
                       <label htmlFor="floatingInput" className="mb-1">
                         Users
                       </label>
-                      <select className="form-control rounded-3" name="users">
+                      <select className="form-select rounded-3" name="users">
                         <option value="All">All</option>
                         {userArray.map((user, index) => (
-                          <option value={getUserInfo(user, 1)} key={index}>
+                          <option
+                            value={getUserInfo(user, 1)}
+                            selected={getUserInfo(user, 1).includes(
+                              userInfo.email
+                            )}
+                            key={index}
+                          >
                             {getUserInfo(user, 0)}
                           </option>
                         ))}
@@ -184,7 +259,7 @@ export default function LeaveList({
                         Year
                       </label>
                       <select
-                        className="form-control rounded-3"
+                        className="form-select rounded-3"
                         name="years"
                         defaultValue={getYears()}
                       >
@@ -199,11 +274,7 @@ export default function LeaveList({
                       <label htmlFor="floatingInput" className="mb-1">
                         Month
                       </label>
-                      <select
-                        className="form-control rounded-3"
-                        name="months"
-                        defaultValue={getMonthFullName()}
-                      >
+                      <select className="form-select rounded-3" name="months">
                         <option value="All">All</option>
                         {getMonthsFullName().map((month, index) => (
                           <option value={month} key={index + month}>
@@ -216,7 +287,7 @@ export default function LeaveList({
                       <label htmlFor="floatingInput" className="mb-1">
                         Status
                       </label>
-                      <select className="form-control rounded-3" name="status">
+                      <select className="form-select rounded-3" name="status">
                         {["All", "Submit", "Approve", "Reject"].map(
                           (status, index) => (
                             <option value={status} key={index + status}>
@@ -239,34 +310,61 @@ export default function LeaveList({
               </>
             ) : null}
             <hr className="mb-3" />
-            {leaves && leaves.length > 0 ? (
+            {items && items.length > 0 ? (
               <table className="table tabletext">
                 <thead>
                   <tr>
-                    <th scope="col">#</th>
-                    {Object.values(tableData).map((field, index) => (
-                      <th scope="col" key={field}>
-                        {field}
-                      </th>
-                    ))}
+                    <th scope="col" style={{ width: "35px" }}>
+                      #
+                    </th>
+                    {/* <th></th> */}
+                    <th scope="col" style={{ width: "210px" }}>
+                      Name
+                    </th>
+                    <th scope="col" style={{ width: "120px" }}>
+                      Leave From
+                    </th>
+                    <th scope="col" style={{ width: "120px" }}>
+                      Leave To
+                    </th>
+                    <th scope="col" style={{ width: "120px" }}>
+                      No. of Days
+                    </th>
+                    <th scope="col">Reason</th>
+                    <th scope="col" style={{ width: "90px" }}>
+                      Status
+                    </th>
                     <th scope="col" className="text-center">
                       Action
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {leaves.map((item, index) => (
+                  {items.map((item, index) => (
                     <tr key={index + item["leaveFrom"]}>
-                      <th scope="row">{index + 1}</th>
+                      <th scope="row">{start + index + 1}</th>
+                      {/* <td>
+                        <LazyLoadImage
+                          alt={item.displayName}
+                          // onClick={() => showImage(false, user)}
+                          className="profileimage3"
+                          effect="blur" // You can use different loading effects like 'opacity', 'black-and-white', etc.
+                          src={
+                            item.imageUrl
+                              ? item.imageUrl
+                              : item.gender === "Female"
+                              ? process.env.PUBLIC_URL + "/images/female.png"
+                              : process.env.PUBLIC_URL + "/images/male.png"
+                          }
+                        />
+                      </td> */}
                       {Object.keys(tableData).map((field, index) => (
                         <td key={field}>
                           {field.includes("leaveFrom") ||
                           field.includes("leaveTo") ? (
                             dateFormate(item[field])
                           ) : field.includes("status") ? (
-                            userInfo &&
-                            userInfo.role === 2 &&
-                            checkDate(item["leaveFrom"]) ? (
+                            userInfo && userInfo.role === 2 ? (
                               <span
                                 className={
                                   item[field] === "Reject"
@@ -308,9 +406,8 @@ export default function LeaveList({
                           )}
                         </td>
                       ))}
-                      <td className="text-center">
-                        {["Submit", "submitted"].includes(item.status) &&
-                        item.email !== userInfo.email ? (
+                      <td className="text-start" style={{ width: "100px" }}>
+                        {["Submit", "submitted"].includes(item.status) ? (
                           <>
                             <button
                               onClick={() => deletePopUpOpen(false, item.id)}
@@ -339,6 +436,59 @@ export default function LeaveList({
                     </tr>
                   ))}
                 </tbody>
+                {leaves.length > pageSize && pages.length > 0 ? (
+                  <tfoot>
+                    <tr>
+                      <td colSpan="2">
+                        <select
+                          style={{
+                            width: "75px",
+                            paddingLeft: "8px",
+                            height: "35px",
+                          }}
+                          className="form-select rounded-3"
+                          name="type"
+                          onChange={(e) => {
+                            setPageSize(e.target.value);
+                            setPageSizeStatus(true);
+                          }}
+                        >
+                          <option value="10">10</option>
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                        </select>
+                      </td>
+                      <td colSpan="12">
+                        <nav aria-label="Page navigation example">
+                          <ul className="pagination justify-content-end m-0">
+                            {/* <li className="page-item disabled">
+                            <span className="page-link">Previous</span>
+                          </li> */}
+                            {pages.map((page, index) => (
+                              <li
+                                className="page-item"
+                                key={index}
+                                onClick={() => showNextInventory(page)}
+                              >
+                                <span className="page-link" href="#">
+                                  {page}
+                                </span>
+                              </li>
+                            ))}
+
+                            {/* <li className="page-item">
+                            <span className="page-link" href="#">
+                              Next
+                            </span>
+                          </li> */}
+                          </ul>
+                        </nav>
+                      </td>
+                    </tr>
+                  </tfoot>
+                ) : (
+                  ""
+                )}
               </table>
             ) : leaveStatus ? (
               <Loader msg="Leave data loading" />

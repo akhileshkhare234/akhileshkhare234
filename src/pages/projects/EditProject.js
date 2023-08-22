@@ -82,7 +82,7 @@ export default function EditProject({
           return { name: user.displayName, email: user.email, id: user.id };
         });
         let defaultUser = users.filter((row) =>
-          itemDetails.emails.split(",").includes(row.email)
+          itemDetails.emails?.split(",")?.includes(row.email)
         );
         setSelectedValue([...defaultUser]);
         setuserArray([...users]);
@@ -90,7 +90,7 @@ export default function EditProject({
           "Users List : ",
           users,
           defaultUser,
-          itemDetails.emails.split(",")
+          itemDetails?.emails?.split(",")
         );
       })
       .catch((err) => {

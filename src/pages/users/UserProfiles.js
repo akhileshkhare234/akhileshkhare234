@@ -75,10 +75,10 @@ export default function UserProfiles() {
             <div className="col mt-4">
               <div className="profiles">
                 <div className="upload-btn-wrapper">
-                  {userInfo && userInfo.data ? (
+                  {userInfo && userInfo.imageUrl ? (
                     <img
                       className="profileimage2"
-                      src={"data:image/png;base64," + userInfo.data}
+                      src={userInfo.imageUrl}
                       alt=""
                     />
                   ) : (

@@ -12,13 +12,6 @@ export default function AddTask({
   const taskForm = useRef();
   const saveTask = (event) => {
     event.preventDefault();
-    // "taskDetail": "first task",
-    // "dueDate": 1669692021000,
-    // "startDate": 1669692021000,
-    // "assignedTo": "pavan.jain@lirisoft.com",
-    // "status" : "In-progress",
-    // "taskId" : 1
-    // }
     let { taskDetail, startDate, dueDate } = event.target;
     let itemData = {
       taskDetail: taskDetail.value,
@@ -27,7 +20,6 @@ export default function AddTask({
       assignedTo: selectedValue[0].email,
     };
     console.log("Assigned Users : ", selectedValue);
-    // itemData["emails"] = selectedValue.map((row) => row.email).join();
     fetch(APIUrl + "api/task/add", {
       method: "POST",
       body: JSON.stringify(itemData),
@@ -74,9 +66,6 @@ export default function AddTask({
     getUsers();
     console.log("entryPopUp", entryPopUp);
   }, [entryPopUp, getUsers]);
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
-  };
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
     let month = months ? months : today.getMonth() + 1;
@@ -148,6 +137,7 @@ export default function AddTask({
                 <textarea
                   multiline={true}
                   name="taskDetail"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Task Detail"
@@ -182,7 +172,7 @@ export default function AddTask({
                 <input
                   type="date"
                   min={setMaxMinDate(1)}
-                  defaultValue={setMaxMinDate(0)}                
+                  defaultValue={setMaxMinDate(0)}
                   name="dueDate"
                   className="form-control rounded-3"
                   id="floatingInput"

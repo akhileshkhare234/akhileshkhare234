@@ -1,5 +1,7 @@
 import React from "react";
 import { dateFormate, dateTimeFormate } from "../util";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
 
 export default function UserDetails({
   detailsPopUp,
@@ -33,17 +35,29 @@ export default function UserDetails({
             <hr className="mb-3" />
             <div className="row">
               <div className="col-2 text-center">
-                <img
+                <LazyLoadImage
+                  alt={itemData.displayName}
+                  className="profileimage3 userimage2"
+                  effect="blur" // You can use different loading effects like 'opacity', 'black-and-white', etc.
+                  src={
+                    itemData.imageUrl
+                      ? itemData.imageUrl
+                      : itemData.gender === "Female"
+                      ? process.env.PUBLIC_URL + "/images/female.png"
+                      : process.env.PUBLIC_URL + "/images/male.png"
+                  }
+                />
+                {/* <img
                   className="profileimage3 userimage2"
                   src={
-                    itemData.data
-                      ? "data:image/png;base64," + itemData.data
+                    itemData.imageUrl
+                      ? itemData.imageUrl
                       : itemData.gender === "Female"
                       ? process.env.PUBLIC_URL + "/images/female.png"
                       : process.env.PUBLIC_URL + "/images/male.png"
                   }
                   alt=""
-                />
+                /> */}
               </div>
               <div className="col-10">
                 {" "}
@@ -145,7 +159,11 @@ export default function UserDetails({
             <dl className="row mb-1">
               <dt className="col-sm-2">Date of Birth</dt>
               <dd className="col-sm-4">
-                {itemData.dob ? dateFormate(itemData.dob) : "-"}
+                {itemData.dob
+                  ? dateFormate(itemData.doj) === "01-JAN-1970"
+                    ? "Not set"
+                    : dateFormate(itemData.dob)
+                  : "-"}
               </dd>
               <dt className="col-sm-2">PAN Number</dt>
               <dd className="col-sm-4">{itemData.pan ? itemData.pan : "-"}</dd>
@@ -153,7 +171,11 @@ export default function UserDetails({
             <dl className="row mb-1">
               <dt className="col-sm-2">Date of Joining</dt>
               <dd className="col-sm-4">
-                {itemData.doj ? dateFormate(itemData.doj) : "-"}
+                {itemData.doj
+                  ? dateFormate(itemData.doj) === "01-JAN-1970"
+                    ? "Not set"
+                    : dateFormate(itemData.doj)
+                  : "-"}
               </dd>
               <dt className="col-sm-2">UAN</dt>
               <dd className="col-sm-4">{itemData.uan ? itemData.uan : "-"}</dd>
@@ -173,23 +195,26 @@ export default function UserDetails({
                   </span>
                 </dd>
               ) : (
-                itemData.projects?.map((row) => (
-                  <dd className="col-sm" key={row.projectId}>
-                    <span
-                      style={{
-                        backgroundColor: "#f1eed2",
-                        color: "#333",
-                        padding: "5px 10px",
-                      }}
-                    >
-                      <i
-                        className="bi bi-person-vcard "
-                        style={{ color: "#333", marginRight: "10px" }}
-                      ></i>{" "}
-                      {row.name}
-                    </span>
-                  </dd>
-                ))
+                <div className="row mt-3">
+                  {itemData.projects?.map((row) => (
+                    <dd className="col-sm mb-3" key={row.projectId}>
+                      <span
+                        className="no-wrap"
+                        style={{
+                          backgroundColor: "#f1eed2",
+                          color: "#333",
+                          padding: "5px 10px",
+                        }}
+                      >
+                        <i
+                          className="bi bi-person-vcard "
+                          style={{ color: "#333", marginRight: "10px" }}
+                        ></i>{" "}
+                        {row.name}
+                      </span>
+                    </dd>
+                  ))}
+                </div>
               )}
             </dl>
             <hr className="mb-3" />

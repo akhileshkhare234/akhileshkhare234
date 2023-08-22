@@ -33,8 +33,8 @@ export default function ImagePreview({
             <img
               style={{ width: "90%" }}
               src={
-                imageData?.data
-                  ? "data:image/png;base64," + imageData.data
+                imageData?.imageUrl
+                  ? imageData.imageUrl
                   : imageData?.gender === "Female"
                   ? process.env.PUBLIC_URL + "/images/female.png"
                   : process.env.PUBLIC_URL + "/images/male.png"

@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
-import { APIUrl } from "../../auth/constants";
+// import { APIUrl } from "../../auth/constants";
 
 export default function ApproveTimeSheet({
   approvePopUp,
   approvePopUpClose,
-  token,
-  itemid,
-  changeStatus,
+  // token,
+  // itemid,
+  // changeStatus,
 }) {
   useEffect(() => {
     console.log("approvePopUp ", approvePopUp);

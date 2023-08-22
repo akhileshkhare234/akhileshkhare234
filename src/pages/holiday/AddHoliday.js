@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { APIUrl } from "../../auth/constants";
 import { getFullDayName, getMonthByDate } from "../util";
 import { ToastContainer, toast } from "react-toastify";
@@ -146,7 +146,7 @@ export default function AddHoliday({
                 <label htmlFor="floatingInput" className="mb-1">
                   Location
                 </label>
-                <select name="location" className="form-control rounded-3">
+                <select name="location" className="form-select rounded-3">
                   <option value="Both">Both</option>
                   <option value="Bangalore">Bangalore</option>
                   <option value="Indore">Indore</option>
@@ -167,7 +167,7 @@ export default function AddHoliday({
                 <label htmlFor="floatingInput" className="mb-1">
                   Holiday Type
                 </label>
-                <select name="type" className="form-control rounded-3">
+                <select name="type" className="form-select rounded-3">
                   <option value="mandatory">Mandatory</option>
                   <option value="optional">Optional</option>
                 </select>

@@ -120,6 +120,7 @@ export default function TaskList({
                   <input
                     className="form-control  border"
                     type="search"
+                    autocomplete="off"
                     placeholder="Search Task here..."
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
@@ -183,15 +184,15 @@ export default function TaskList({
                               >
                                 <i className="bi bi-trash3"></i>
                               </button>
-                              <button
-                                onClick={() => editPopUpOpen(false, item)}
-                                type="button"
-                                className="btn btn-outline-primary me-1"
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </button>
                             </>
                           ) : null}
+                          <button
+                            onClick={() => editPopUpOpen(false, item)}
+                            type="button"
+                            className="btn btn-outline-primary me-1"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
                           <button
                             onClick={() => detailsPopUpOpen(false, item)}
                             type="button"
@@ -239,7 +240,7 @@ export default function TaskList({
                   )}
                 </table>
               </>
-            ) : !loadingStatus && searchStatus && serachText?.length > 0 ? (
+            ) : !loadingStatus || (searchStatus && serachText?.length > 0) ? (
               <div className="row datanotfound">
                 <div className="col-12 text-center">
                   <h4 className="datanotfound">

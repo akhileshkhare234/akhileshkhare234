@@ -76,9 +76,6 @@ export default function AddProject({
     getUsers();
     console.log("entryPopUp", entryPopUp);
   }, [entryPopUp, getUsers]);
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
-  };
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
     let month = months ? months : today.getMonth() + 1;
@@ -146,7 +143,9 @@ export default function AddProject({
                 <label className="mb-1">Project Name</label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="name"
+                  required
                   className="form-control rounded-3"
                   placeholder="Enter Project Name"
                 />
@@ -155,17 +154,21 @@ export default function AddProject({
                 <label className="mb-1">Project Manager</label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="manager"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Project Manager Name"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
+                <label className="mb-1">Client Name</label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="clientContactName"
+                  required
                   className="form-control rounded-3"
                   placeholder="Client Name"
                 />
@@ -174,6 +177,7 @@ export default function AddProject({
                 <label className="mb-1">Client Contact</label>
                 <input
                   type="text"
+                  autocomplete="off"
                   name="clientContactNumber"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -186,6 +190,7 @@ export default function AddProject({
                 <textarea
                   multiline={true}
                   name="projectDetail"
+                  required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Enter Project Detail"

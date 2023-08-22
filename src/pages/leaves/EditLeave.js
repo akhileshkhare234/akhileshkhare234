@@ -174,7 +174,7 @@ export default function EditLeave({
                 <label htmlFor="floatingInput" className="mb-1">
                   Leave Type
                 </label>
-                <select name="leaveType" className="form-control rounded-3">
+                <select name="leaveType" className="form-select rounded-3">
                   <option value="Sick leave">Sick leave</option>
                   <option value="Urgent leave">Urgent leave</option>
                   <option value="Maternity and paternity leave">

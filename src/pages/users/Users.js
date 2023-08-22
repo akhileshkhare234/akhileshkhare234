@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import EditUser from "./EditUser";
 import UserDetails from "./UserDetails";
 import UsersList from "./UserList";
+import AssignProject from "./AssignProject";
 
 export default function Items() {
   const navigate = useNavigate();
   const [detailsPopUp, setDetailsPopUp] = useState(true);
+  const [projectPopUp, setProjectPopUp] = useState(true);
   const [itemData, setItemdata] = useState({});
   const [token, setToken] = useState(null);
   const [editPopUp, setEditPopUp] = useState(true);
@@ -15,6 +17,11 @@ export default function Items() {
   const showDetails = (status, data) => {
     console.log("status, data ", status, data);
     setDetailsPopUp(status);
+    setItemdata(data);
+  };
+  const showProjectDetails = (status, data) => {
+    console.log("status, data ", status, data);
+    setProjectPopUp(status);
     setItemdata(data);
   };
 
@@ -45,9 +52,16 @@ export default function Items() {
         detailsPopUp={detailsPopUp}
         detailsPopUpClose={(status) => setDetailsPopUp(status)}
       ></UserDetails>
+      <AssignProject
+        itemData={itemData}
+        projectPopUp={projectPopUp}
+        projectPopUpClose={(status) => setProjectPopUp(status)}
+        changeStatus={(status) => setItemStatus(status)}
+      ></AssignProject>
       <UsersList
         token={token}
         userDetails={(status, data) => showDetails(status, data)}
+        projectDetails={(status, data) => showProjectDetails(status, data)}
         editPopUpOpen={(status, data) => setEditData(status, data)}
         itemStatus={itemStatus}
       ></UsersList>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
 import { profileFileds } from "./profilefileds";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 export default function EditProfile({
   editPopUp,
@@ -16,6 +16,7 @@ export default function EditProfile({
   const checkFields = (itemData) => {
     let msg = "Please enter ";
     let fields = {};
+    console.log("fields ", itemData, Object.keys(fields).length);
     if (itemData.displayName.length === 0)
       fields["displayName"] = "Display name";
     if (itemData.city.length === 0) fields["city"] = "City";
@@ -28,7 +29,7 @@ export default function EditProfile({
       new Date("1/1/1970").toDateString()
     )
       fields["dob"] = "Date of birth";
-    console.log("fields ", Object.keys(fields).length);
+
     if (Object.keys(fields).length === 0) {
       setMsgStatus(true);
       setMsg("");
@@ -164,10 +165,7 @@ export default function EditProfile({
                       placeholder={"Enter " + field.title}
                     />
                   ) : (
-                    <select
-                      className="form-control rounded-3"
-                      name={field.name}
-                    >
+                    <select className="form-select rounded-3" name={field.name}>
                       {field.values?.map((val, index) => (
                         <option key={index} value={val.value}>
                           {val.name}

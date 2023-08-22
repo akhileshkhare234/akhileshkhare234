@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
@@ -121,6 +121,7 @@ export default function EditUser({
       doj: doj.value,
       uan: uan.value,
       role: role.value,
+      projects: itemDetails.projects,
     };
     let blankFields = checkFields(itemData);
     displayName.style.border = "1px solid #ccc";
@@ -241,7 +242,7 @@ export default function EditUser({
                     />
                   ) : field.name === "managerName" ? (
                     <select
-                      className="form-control rounded-3"
+                      className="form-select rounded-3"
                       name={field.name}
                       onChange={(e) => {
                         console.dir(e.target);
@@ -261,10 +262,7 @@ export default function EditUser({
                       ))}
                     </select>
                   ) : (
-                    <select
-                      className="form-control rounded-3"
-                      name={field.name}
-                    >
+                    <select className="form-select rounded-3" name={field.name}>
                       {field.values?.map((val, index) => (
                         <option key={index} value={val.value}>
                           {val.name}

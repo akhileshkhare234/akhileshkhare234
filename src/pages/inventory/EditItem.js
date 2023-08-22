@@ -160,7 +160,7 @@ export default function EditItem({
                 <label htmlFor="floatingInput" className="mb-1">
                   Assign To
                 </label>
-                <select className="form-control rounded-3" name="assign">
+                <select className="form-select rounded-3" name="assign">
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
                     <option value={user} key={index}>
@@ -316,7 +316,7 @@ export default function EditItem({
                 <label htmlFor="floatingInput" className="mb-1">
                   Inventory location
                 </label>
-                <select name="location" className="form-control rounded-3">
+                <select name="location" className="form-select rounded-3">
                   <option value="Bangalore">Bangalore</option>
                   <option value="Indore">Indore</option>
                   <option value="Other">Other</option>
@@ -339,7 +339,7 @@ export default function EditItem({
                 <label htmlFor="floatingInput" className="mb-1">
                   Inventory owner
                 </label>
-                <select className="form-control rounded-3" name="owner">
+                <select className="form-select rounded-3" name="owner">
                   {userArray.map((user, index) => (
                     <option value={user} key={index}>
                       {user}

@@ -1,4 +1,4 @@
-const monthNames = [
+export const monthNames = [
   "JAN",
   "FEB",
   "MAR",
@@ -157,6 +157,6 @@ export const getMonthDates = (
       });
     }
   }
-  console.log("Time Sheet Data : ", dates, projects);
+  // console.log("Time Sheet Data : ", dates, projects);
   return dates;
 };
