@@ -4,14 +4,15 @@ import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
+import { useNavigate } from "react-router-dom";
 const tableData = {
   name: "Project Name",
   manager: "Manager",
   teamSize: "Team Size",
   startDate: "Start Date",
-  completionDate: "Completion Date",
+  // completionDate: "Completion Date",
   clientContactName: "Client Name",
-  clientContactNumber: "Client Contact",
+  // clientContactNumber: "Client Contact",
   projectDetail: "Project Detail",
 };
 export default function ProjectList({
@@ -26,39 +27,47 @@ export default function ProjectList({
   const [projects, setProject] = useState([]);
   const [projectData, setIProjects] = useState([]);
   const [pages, setPages] = useState([]);
+  const [pageSize, setPageSize] = useState(10);
   const [start, setStart] = useState(0);
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
+  const navigate = useNavigate();
   const setProjectData = useCallback(() => {
     setStart(0);
-    fetch(APIUrl + "api/project", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res?.length > 0) {
-          let project = res.filter((row, index) => index < 10);
-          console.log("projects List ", project);
-          setProject([...project]);
-          setIProjects([...res]);
-          let pageSize = 10;
-          let pages = [];
-          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-            pages.push(I);
+    token &&
+      fetch(APIUrl + "api/project", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          if (res?.length > 0) {
+            let project = res.filter((row, index) => index < pageSize);
+            console.log("projects List ", project);
+            setProject([...project]);
+            setIProjects([...res]);
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+          } else {
+            setProject([]);
+            setIProjects([]);
+            setPages([]);
           }
-          setPages(pages);
-        } else {
-          setProject([]);
-          setIProjects([]);
-          setPages([]);
-        }
-      });
-  }, [token]);
+        });
+  }, [pageSize, token]);
   useEffect(() => {
     setProjectData();
+    console.log("setProjectData");
   }, [setProjectData, itemStatus]);
   const searchProject = useCallback(() => {
     setSerachStatus(false);
@@ -95,6 +104,7 @@ export default function ProjectList({
     const getData = setTimeout(() => {
       searchProject(serachText);
     }, 1000);
+    console.log("searchProject");
     return () => clearTimeout(getData);
   }, [searchProject, serachText]);
   const showNextInventory = (pos) => {
@@ -125,7 +135,7 @@ export default function ProjectList({
                   />
                 </div>
               </div>
-              {userInfo && userInfo.role === 2 ? (
+              {userInfo && userInfo?.role === 2 ? (
                 <div className="col justify-content-end text-end">
                   <button
                     onClick={() => entryPopUpOpen(false)}
@@ -140,7 +150,7 @@ export default function ProjectList({
             </div>
             {projects && projects.length > 0 ? (
               <>
-                <table className="table tabletext">
+                <table className="table tabletext2">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
@@ -161,7 +171,10 @@ export default function ProjectList({
                         {Object.keys(tableData).map((field, index) => (
                           <td key={field}>
                             {field.includes("Date")
-                              ? dateFormate(item[field])
+                              ? field === "completionDate" &&
+                                dateFormate(item[field]).includes("01-JAN-1970")
+                                ? "-"
+                                : dateFormate(item[field])
                               : field === "teamSize"
                               ? item[field] === null
                                 ? item["emails"].split(",").length
@@ -170,7 +183,7 @@ export default function ProjectList({
                           </td>
                         ))}
                         <td className="text-center">
-                          {userInfo && userInfo.role === 2 ? (
+                          {userInfo && userInfo?.role === 2 ? (
                             <>
                               <button
                                 onClick={() =>
@@ -204,12 +217,28 @@ export default function ProjectList({
                   {projectData.length > 10 && pages.length > 0 ? (
                     <tfoot>
                       <tr>
-                        <td colSpan="14">
+                        <td colSpan="2">
+                          {/* <select
+                            style={{
+                              width: "75px",
+                              paddingLeft: "8px",
+                              height: "35px",
+                            }}
+                            className="form-select rounded-3"
+                            name="type"
+                            onChange={(e) => {
+                              setStart(0);
+                              setPageSize(e.target.value);
+                            }}
+                          >
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                          </select> */}
+                        </td>
+                        <td colSpan="12">
                           <nav aria-label="Page navigation example">
                             <ul className="pagination justify-content-end m-0">
-                              <li className="page-item disabled">
-                                <span className="page-link">Previous</span>
-                              </li>
                               {pages.map((page, index) => (
                                 <li
                                   className="page-item"
@@ -221,12 +250,6 @@ export default function ProjectList({
                                   </span>
                                 </li>
                               ))}
-
-                              <li className="page-item">
-                                <span className="page-link" href="#">
-                                  Next
-                                </span>
-                              </li>
                             </ul>
                           </nav>
                         </td>

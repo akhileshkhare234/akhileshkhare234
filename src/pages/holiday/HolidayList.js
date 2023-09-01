@@ -3,6 +3,7 @@ import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate, getYears } from "../util.js";
+import { useNavigate } from "react-router-dom";
 
 const tableData = {
   month: "Month",
@@ -15,6 +16,7 @@ const tableData = {
 export default function HolidayList({ token, itemStatus }) {
   const [holidays, setHolidays] = useState([]);
   const [start, setStart] = useState(0);
+  const navigate = useNavigate();
   const setHolidaysData = useCallback(() => {
     setStart(0);
     token &&
@@ -24,7 +26,12 @@ export default function HolidayList({ token, itemStatus }) {
           Authorization: "Bearer " + token,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           if (res?.length > 0) {
             setHolidays([...res]);
@@ -42,7 +49,7 @@ export default function HolidayList({ token, itemStatus }) {
         <div className="row">
           <div className="col">
             {holidays && holidays.length > 0 ? (
-              <table className="table tabletext">
+              <table className="table tabletext2 mt-4">
                 <thead>
                   <tr>
                     <th scope="col">#</th>
@@ -55,7 +62,15 @@ export default function HolidayList({ token, itemStatus }) {
                 </thead>
                 <tbody>
                   {holidays.map((item, index) => (
-                    <tr key={index}>
+                    <tr
+                      key={index}
+                      style={{
+                        color:
+                          item.holidayDate < new Date().toISOString()
+                            ? "#ccc"
+                            : "#000",
+                      }}
+                    >
                       <th scope="row">{start + index + 1}</th>
                       {Object.keys(tableData).map((field, index) => (
                         <td key={field}>

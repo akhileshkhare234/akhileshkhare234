@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { APIUrl } from "../../auth/constants.js";
+import React, { useState, useCallback, useEffect, useContext } from "react";
 import { dateFormate } from "../util.js";
+import { UserData } from "../../App.js";
 
 export default function ProjectDetails({
   detailsPopUp,
@@ -8,29 +8,21 @@ export default function ProjectDetails({
   itemData,
 }) {
   const [userArray, setuserArray] = useState([]);
+
+  const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        let defaultUser = users
-          .filter((row) => itemData.emails.split(",").includes(row.email))
+    let users = userInfo?.userList.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    if (Object.keys(itemData).length > 0) {
+      let defaultUser =
+        itemData &&
+        users
+          ?.filter((row) => itemData?.emails.split(",").includes(row.email))
           .map((row) => row.name);
-        setuserArray([...defaultUser]);
-        console.log("Users List : ", defaultUser);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, [itemData.emails]);
+      setuserArray([...defaultUser]);
+    }
+  }, [itemData, userInfo?.userList]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -49,7 +41,10 @@ export default function ProjectDetails({
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
             <h1 className="fw-bold mb-0 fs-2">Project Details</h1>
             <button
-              onClick={() => detailsPopUpClose(true)}
+              onClick={() => {
+                detailsPopUpClose(true);
+                setuserArray([]);
+              }}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -70,7 +65,9 @@ export default function ProjectDetails({
               <dd className="col-sm-3">{dateFormate(itemData.startDate)}</dd>
               <dt className="col-sm-3">Completion Date</dt>
               <dd className="col-sm-3">
-                {dateFormate(itemData.completionDate)}
+                {dateFormate(itemData.completionDate) === "01-JAN-1970"
+                  ? "-"
+                  : dateFormate(itemData.completionDate)}
               </dd>
             </dl>
             <dl className="row">
@@ -85,22 +82,28 @@ export default function ProjectDetails({
             </dl>
             <dl className="row">
               <dt className="col-sm-3">Assigned Users</dt>
-              {userArray.map((user, index) => (
-                <dd className="col-sm-3" key={index}>
-                  <i
-                    className="bi bi-person"
-                    style={{
-                      backgroundColor: "#0eb493",
-                      color: "#fff",
-                      padding: "2px 5px",
-                      borderRadius: "5px",
-                      boxShadow: "2px 1px 3px 0px #eae8e8",
-                      marginRight: "5px",
-                    }}
-                  ></i>{" "}
-                  {user}
+              {userArray?.length > 0 ? (
+                userArray.map((user, index) => (
+                  <dd className="col-sm-3" key={index}>
+                    <i
+                      className="bi bi-person"
+                      style={{
+                        backgroundColor: "#2980b9",
+                        color: "#fff",
+                        padding: "2px 5px",
+                        borderRadius: "5px",
+                        boxShadow: "2px 1px 3px 0px #eae8e8",
+                        marginRight: "5px",
+                      }}
+                    ></i>{" "}
+                    {user}
+                  </dd>
+                ))
+              ) : (
+                <dd className="col-sm-3 text-center" style={{ color: "green" }}>
+                  Users data loading...
                 </dd>
-              ))}
+              )}
             </dl>
 
             <hr className="mb-3" />

@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect } from "react";
-import { APIUrl } from "../../auth/constants.js";
+import React from "react";
 import { dateFormate } from "../util.js";
 
 export default function TaskDetails({
@@ -7,33 +6,6 @@ export default function TaskDetails({
   detailsPopUpClose,
   itemData,
 }) {
-  // const [userArray, setuserArray] = useState([]);
-  const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        let defaultUser = users
-          .filter((row) => itemData.emails.split(",").includes(row.email))
-          .map((row) => row.name);
-        // setuserArray([...defaultUser]);
-        console.log("Users List : ", defaultUser);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, [itemData.emails]);
-  useEffect(() => {
-    getUsers();
-  }, [getUsers]);
   return (
     <div
       className={

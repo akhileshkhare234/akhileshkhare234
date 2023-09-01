@@ -4,6 +4,7 @@ import { APIUrl } from "../../auth/constants";
 import Header from "./Header";
 import { dateFormate } from "../util.js";
 import Loader from "../../util/Loader";
+import { useNavigate } from "react-router-dom";
 
 export default function ItemsList({
   entryPopUpOpen,
@@ -22,6 +23,7 @@ export default function ItemsList({
   const [pageSize, setPageSize] = useState(10);
   const [pages, setPages] = useState([]);
   const [searchStatus, setSerachStatus] = useState(false);
+  const navigate = useNavigate();
   const setItemsData = useCallback(() => {
     setStart(0);
     token &&
@@ -31,11 +33,16 @@ export default function ItemsList({
           Authorization: "Bearer " + token,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           if (res.assets?.length > 0) {
             let inventory = res.assets.filter((row, index) => index < pageSize);
-            console.log("inventory Info ", inventory);
+            // console.log("inventory Info ", inventory);
             setItems([...inventory]);
             setInventories([...res.assets]);
             let pages = [];
@@ -110,14 +117,14 @@ export default function ItemsList({
                     type="search"
                     placeholder="Search inventory here..."
                     defaultValue={serachText}
-                    autocomplete="off"
+                    autoComplete="off"
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
                     onKeyUp={(event) => setSerachText(event.target.value)}
                   />
                 </div>
               </div>
-              {userInfo && userInfo.role === 2 ? (
+              {userInfo && userInfo?.role === 2 ? (
                 <div className="col justify-content-end text-end">
                   <button
                     onClick={() => entryPopUpOpen(false)}
@@ -132,7 +139,7 @@ export default function ItemsList({
             </div>
             {items && items.length > 0 ? (
               <>
-                <table className="table tabletext">
+                <table className="table tabletext2">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
@@ -140,10 +147,11 @@ export default function ItemsList({
                       <th scope="col">Assign To</th>
                       <th scope="col">Assign Date</th>
                       <th scope="col">Location</th>
-                      <th scope="col">Model</th>
+                      <th scope="col">Type</th>
                       <th scope="col">Brand</th>
+                      <th scope="col">Model</th>
                       {/* <th scope="col">Purchase Date</th> */}
-                      <th scope="col">Identity Type</th>
+                      {/* <th scope="col">Identity Type</th> */}
                       <th scope="col" style={{ width: "220px" }}>
                         Identity Value
                       </th>
@@ -162,15 +170,16 @@ export default function ItemsList({
                         <td>{item.assign}</td>
                         <td>{dateFormate(item.assignDate)}</td>
                         <td>{item.location}</td>
-                        <td>{item.model}</td>
+                        <td>{item.type}</td>
                         <td>{item.brand}</td>
+                        <td>{item.model}</td>
                         {/* <td>{dateFormate(item.purchaseDate)}</td> */}
-                        <td>{item.identityType}</td>
+                        {/* <td>{item.identityType}</td> */}
                         <td>{item.identity}</td>
                         {/* <td>{dateFormate(item.validityFrom)}</td>
                     <td>{dateFormate(item.validityTo)}</td> */}
                         <td className="text-center">
-                          {userInfo && userInfo.role === 2 ? (
+                          {userInfo && userInfo?.role === 2 ? (
                             <>
                               <button
                                 onClick={() => deletePopUpOpen(false, item.id)}

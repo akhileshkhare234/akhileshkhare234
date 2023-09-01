@@ -5,6 +5,7 @@ import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util";
 import { userFields } from "./fileds";
 import { UserData } from "../../App";
+import { useNavigate } from "react-router-dom";
 
 export default function EditUser({
   editPopUp,
@@ -12,33 +13,42 @@ export default function EditUser({
   itemDetails,
   token,
   changeStatus,
+  shouldFetchData,
 }) {
   const userInfo = useContext(UserData);
   const [msgStatus, setMsgStatus] = useState(false);
   const [msg, setMsg] = useState("");
   const [userArray, setuserArray] = useState([]);
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
-    if (userInfo.role === 2) {
-      let tokenValue = window.localStorage.getItem("am_token");
-      fetch(APIUrl + "api/users", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + tokenValue,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          let users = res.map((user) =>
-            Object.assign({ name: user.displayName, email: user.email })
-          );
-          setuserArray([...users]);
-          console.log("Users List : ", users);
+    if (!shouldFetchData) {
+      if (userInfo?.role === 2) {
+        let tokenValue = window.localStorage.getItem("am_token");
+        fetch(APIUrl + "api/users", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + tokenValue,
+          },
         })
-        .catch((err) => {
-          console.log("User Not Get : ", err);
-        });
-    } else setuserArray([]);
-  }, [userInfo.role]);
+          .then((res) => {
+            if (res.status === 401) {
+              window.localStorage.removeItem("am_token");
+              navigate("/");
+            } else return res.json();
+          })
+          .then((res) => {
+            let users = res.map((user) =>
+              Object.assign({ name: user.displayName, email: user.email })
+            );
+            setuserArray([...users]);
+            // console.log("Users List : ", users);
+          })
+          .catch((err) => {
+            console.log("User Not Get : ", err);
+          });
+      } else setuserArray([]);
+    }
+  }, [navigate, shouldFetchData, userInfo?.role]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -97,6 +107,7 @@ export default function EditUser({
       doj,
       uan,
       role,
+      userStatus,
     } = event.target;
     let itemData = {
       id: parseInt(itemDetails.id),
@@ -122,6 +133,7 @@ export default function EditUser({
       uan: uan.value,
       role: role.value,
       projects: itemDetails.projects,
+      userStatus: userStatus.value,
     };
     let blankFields = checkFields(itemData);
     displayName.style.border = "1px solid #ccc";
@@ -277,9 +289,21 @@ export default function EditUser({
                   <h5>{msg}</h5>
                 </div>
               ) : null}
-              <div className="d-grid gap-2 d-md-flex justify-content-md-end">
+              <div
+                className="d-grid gap-2 d-md-flex "
+                style={{ justifyContent: "space-between" }}
+              >
+                <select
+                  className="form-select rounded-3"
+                  style={{ width: "200px", float: "left" }}
+                  name="userStatus"
+                  defaultValue="active"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
                 <button
-                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2"
+                  className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 "
                   type="submit"
                 >
                   Edit

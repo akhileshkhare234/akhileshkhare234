@@ -4,6 +4,7 @@ import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
+import { useNavigate } from "react-router-dom";
 const tableData = {
   type: "Reimbursement type",
   submitAmount: "Amount",
@@ -38,41 +39,48 @@ export default function ReimbursementList({
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(false);
+  const navigate = useNavigate();
   const setReimbursementData = useCallback(() => {
     setStart(0);
     setLoadingStatus(true);
-    fetch(APIUrl + "api/reimbursement", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res?.length > 0) {
-          let Reimbursement = res.filter((row, index) => index < 10);
-          console.log("Reimbursements List ", Reimbursement);
-          setReimbursement([...Reimbursement]);
-          setIReimbursements([...res]);
-          let pageSize = 10;
-          let pages = [];
-          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-            pages.push(I);
+    token &&
+      fetch(APIUrl + "api/reimbursement", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          if (res?.length > 0) {
+            let Reimbursement = res.filter((row, index) => index < 10);
+            console.log("Reimbursements List ", Reimbursement);
+            setReimbursement([...Reimbursement]);
+            setIReimbursements([...res]);
+            let pageSize = 10;
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+          } else {
+            setReimbursement([]);
+            setIReimbursements([]);
+            setPages([]);
           }
-          setPages(pages);
-        } else {
+          setLoadingStatus(false);
+        })
+        .catch((err) => {
           setReimbursement([]);
           setIReimbursements([]);
           setPages([]);
-        }
-        setLoadingStatus(false);
-      })
-      .catch((err) => {
-        setReimbursement([]);
-        setIReimbursements([]);
-        setPages([]);
-        setLoadingStatus(false);
-      });
+          setLoadingStatus(false);
+        });
   }, [token]);
   useEffect(() => {
     setReimbursementData();
@@ -143,7 +151,7 @@ export default function ReimbursementList({
                   <input
                     className="form-control  border"
                     type="search"
-                    autocomplete="off"
+                    autoComplete="off"
                     placeholder="Search Reimbursement here..."
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
@@ -164,7 +172,7 @@ export default function ReimbursementList({
             </div>
             {Reimbursements && Reimbursements.length > 0 ? (
               <>
-                <table className="table tabletext">
+                <table className="table tabletext2">
                   <thead>
                     <tr style={{ verticalAlign: "baseline" }}>
                       <th scope="col">#</th>
@@ -184,7 +192,7 @@ export default function ReimbursementList({
                           {field}
                         </th>
                       ))}
-                      {userInfo && userInfo.role === 2 ? (
+                      {userInfo && userInfo?.role === 2 ? (
                         <th scope="col" className="text-center">
                           Action
                         </th>
@@ -240,7 +248,7 @@ export default function ReimbursementList({
                         ))}
 
                         <td className="text-center">
-                          {userInfo && userInfo.role === 2 ? (
+                          {userInfo && userInfo?.role === 2 ? (
                             <>
                               <button
                                 onClick={() => deletePopUpOpen(false, item.id)}

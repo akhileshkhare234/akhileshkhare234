@@ -21,8 +21,8 @@ export default function EditLeave({
       leaveType: leaveType.value,
     };
     itemData["id"] = itemDetails.id;
-    itemData["status"] = "submitted";
-    itemData["department"] = "development";
+    itemData["status"] = itemDetails.status;
+    itemData["department"] = itemDetails.department;
     itemData["comment"] = "";
     itemData["year"] = getYears();
     itemData["month"] = getMonthByDate(leaveTo.value);

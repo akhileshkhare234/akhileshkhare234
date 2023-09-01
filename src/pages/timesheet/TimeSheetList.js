@@ -6,6 +6,7 @@ import { APIUrl } from "../../auth/constants";
 import Header from "../inventory/Header";
 import { getMonthName, getMonths, getYears } from "../util.js";
 import ApproveTimeSheet from "./ApproveTimeSheet";
+import { useNavigate } from "react-router-dom";
 
 export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
   const userInfo = useContext(UserData);
@@ -17,6 +18,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
   const [payload, setPayload] = useState({});
   const [userArray, setuserArray] = useState([]);
   const [projects, setProject] = useState([]);
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/users", {
@@ -25,7 +27,12 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         Authorization: "Bearer " + tokenValue,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         let users = res.map((user) => user.displayName + "/" + user.email);
         setuserArray([...users]);
@@ -65,7 +72,12 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         Authorization: "Bearer " + token,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         if (res?.length > 0) {
           let timeSheet = res.filter((row, index) => index < 10);
@@ -94,7 +106,12 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
           Authorization: "Bearer " + token,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           if (res?.length > 0) {
             let project = res.filter((row, index) => index < 10);
@@ -126,8 +143,8 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
     setItems([...inventory]);
     setStart(start);
   };
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
+  const getUserInfo = (user, index) => {
+    return user?.split("/")[index];
   };
 
   const exportFile = () => {
@@ -182,7 +199,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
       <div className="container">
         <div className="row">
           <div className="col">
-            {userInfo && userInfo.role === 2 ? (
+            {userInfo && userInfo?.role === 2 ? (
               <form name="timesheetform" onSubmit={getTimeSheet}>
                 <div className="row px-4 py-2">
                   <div className="col-md-3">
@@ -263,7 +280,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
               </form>
             ) : null}
             <hr className="mb-3" />
-            <table className="table tabletext">
+            <table className="table tabletext2">
               <thead>
                 <tr>
                   <th scope="col">#</th>
@@ -352,18 +369,22 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     </td>
                     {payload.projects === "All" ? null : (
                       <td className="text-center">
-                        {userInfo && userInfo.role === 2 ? (
-                          <span
-                            className="status_btn"
-                            onClick={() => setapprovePopUp(false)}
-                          >
-                            {
-                              item?.data.filter(
-                                (row) =>
-                                  row.projectId === parseInt(payload.projects)
-                              )[0]?.status
-                            }
-                          </span>
+                        {userInfo && userInfo?.role === 2 ? (
+                          item?.data.length > 0 ? (
+                            <span
+                              className="status_btn"
+                              onClick={() => setapprovePopUp(false)}
+                            >
+                              {
+                                item?.data.filter(
+                                  (row) =>
+                                    row.projectId === parseInt(payload.projects)
+                                )[0]?.status
+                              }
+                            </span>
+                          ) : (
+                            <span className="status_btn">Not Filled</span>
+                          )
                         ) : (
                           <span className="status_btn">
                             {

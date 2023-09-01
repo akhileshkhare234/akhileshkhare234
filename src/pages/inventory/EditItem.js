@@ -9,6 +9,7 @@ export default function EditItem({
   itemDetails,
   token,
   changeStatus,
+  userArray,
 }) {
   const userInfo = useContext(UserData);
   const saveItem = (event) => {
@@ -106,31 +107,39 @@ export default function EditItem({
       itemForm.operatingSystem.value = itemDetails.config.operatingSystem;
     }
   };
-  const [userArray, setuserArray] = useState([]);
-  const getUsers = useCallback(() => {
-    if (userInfo.role === 2) {
-      let tokenValue = window.localStorage.getItem("am_token");
-      fetch(APIUrl + "api/users", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + tokenValue,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          let users = res.map((user) => user.displayName);
-          setuserArray([...users]);
-          console.log("Users List : ", users);
-        })
-        .catch((err) => {
-          console.log("User Not Get : ", err);
-        });
-    } else setuserArray([]);
-  }, [userInfo.role]);
+  // const [userArray, setuserArray] = useState([]);
+  // const getUsers = useCallback(() => {
+  //   if (userInfo?.role === 2) {
+  //     let tokenValue = window.localStorage.getItem("am_token");
+  //     fetch(APIUrl + "api/users", {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: "Bearer " + tokenValue,
+  //       },
+  //     })
+  //      .then((res) => {
+      //   if (res.status === 401) {
+      //     window.localStorage.removeItem("am_token");
+      //     navigate("/");
+      //   } else return res.json();
+      // })
+  //       .then((res) => {
+  //         let users = res.map((user) => user.displayName);
+  //         setuserArray([...users]);
+  //         // console.log("Users List : ", users);
+  //       })
+  //       .catch((err) => {
+  //         console.log("User Not Get : ", err);
+  //       });
+  //   } else setuserArray([]);
+  // }, [userInfo?.role]);
   useEffect(() => {
-    getUsers();
+    // getUsers();
     setFormdata(itemDetails);
-  }, [getUsers, itemDetails]);
+  }, [itemDetails]);
+  const getUserInfo = (user, index) => {
+    return user?.split("/")[index];
+  };
   return (
     <div
       className={
@@ -163,8 +172,8 @@ export default function EditItem({
                 <select className="form-select rounded-3" name="assign">
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
-                    <option value={user} key={index}>
-                      {user}
+                    <option value={getUserInfo(user, 0)} key={index}>
+                      {getUserInfo(user, 0)}
                     </option>
                   ))}
                 </select>

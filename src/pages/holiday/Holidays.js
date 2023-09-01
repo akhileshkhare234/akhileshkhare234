@@ -13,7 +13,7 @@ export default function Holidays() {
     console.log("user checking...");
     let tokenValue = window.localStorage.getItem("am_token");
     if (tokenValue && tokenValue !== "undefined") {
-      console.log("Dashboard Page:User already login!", tokenValue);
+      // console.log("Dashboard Page:User already login!", tokenValue);
       setToken(tokenValue);
     } else {
       console.log("Invalid Token!", tokenValue);
@@ -22,17 +22,17 @@ export default function Holidays() {
   }, [navigate]);
   useEffect(() => {
     checkUser();
-    console.log("Item Page itemStatus : ", itemStatus);
+    // console.log("Item Page itemStatus : ", itemStatus);
     setItemStatus(false);
   }, [checkUser, itemStatus]);
   return (
     <>
-      <AddHoliday
+      {/* <AddHoliday
         token={token}
         entryPopUp={entryPopUp}
         entryPopUpClose={(status) => setEntryPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
-      ></AddHoliday>
+      ></AddHoliday> */}
       <HolidayList
         token={token}
         entryPopUpOpen={(status) => setEntryPopUp(status)}

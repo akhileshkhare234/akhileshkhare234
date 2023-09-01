@@ -1,32 +1,44 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
+import { useNavigate } from "react-router-dom";
 export default function AssignProject({
   projectPopUp,
   projectPopUpClose,
   itemData,
   changeStatus,
+  shouldFetchData,
 }) {
   const [projects, setProject] = useState([]);
   const [assignedProjects, setAssignedProject] = useState([]);
-  const [selectedProject, setSelectedProject] = useState();
+  const [selectedProject, setSelectedProject] = useState("");
+  const navigate = useNavigate();
   const setProjectData = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/project", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setProject([...res]);
-      });
-  }, []);
+    if (!shouldFetchData) {
+      let tokenValue = window.localStorage.getItem("am_token");
+      fetch(APIUrl + "api/project", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          setProject([...res]);
+          setSelectedProject("");
+        });
+    }
+  }, [shouldFetchData]);
   useEffect(() => {
     setProjectData();
     console.log("itemData ", itemData);
     if (Object.keys(itemData).length > 0)
       setAssignedProject([...itemData?.projects]);
+    setSelectedProject("");
   }, [itemData, setProjectData, projectPopUp]);
   const deleteProject = (row) => {
     let tempProjects = assignedProjects.filter(
@@ -45,7 +57,12 @@ export default function AssignProject({
         Authorization: "Bearer " + tokenValue,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         console.log("Update User : ", res);
         changeStatus(true);
@@ -72,6 +89,7 @@ export default function AssignProject({
             <h1 className="fw-bold mb-0 fs-2">Project Details</h1>
             <button
               onClick={() => {
+                setSelectedProject("");
                 projectPopUpClose(true);
               }}
               type="button"
@@ -165,11 +183,15 @@ export default function AssignProject({
               <dt className="col-sm-12">Assign New Project</dt>
             </dl> */}
             <hr className="mb-3" />
+            <dl className="row mb-1 mt-3">
+              <dt className="col-sm-12">Assign New Project</dt>
+            </dl>
             <dl className="row mb-1">
-              <dt className="col-sm-3">Assign New Project</dt>
-              <dd className="col-sm-6">
+              <dd className="col-sm-8">
                 <select
                   className="form-select rounded-3"
+                  value={selectedProject}
+                  // defaultValue={selectedProject}
                   onChange={(e) => setSelectedProject(e.target.value)}
                 >
                   <option value="">Select Project</option>
@@ -187,9 +209,9 @@ export default function AssignProject({
                     ))}
                 </select>
               </dd>
-              <dd className="col-sm-3">
+              <dd className="col-sm-4">
                 <button
-                  className="mb-0 btn btn-md rounded-3 btn-primary center profilebtn2"
+                  className="mb-0 btn btn-md rounded-3 btn-success center profilebtn2"
                   type="button"
                   onClick={() => {
                     if (selectedProject) {
@@ -204,6 +226,8 @@ export default function AssignProject({
                   Add Project
                 </button>
               </dd>
+            </dl>
+            <dl className="row mb-1">
               <hr className="mb-3 mt-2" />
               <dd className="col-sm-12 d-flex justify-content-center">
                 <button

@@ -1,9 +1,16 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { UserData } from "../../App";
 import Footer from "./Footer";
-
-export default function DashboardLayout() {
+import { useLocation } from "react-router-dom";
+function DashboardLayout() {
+  const location = useLocation();
   const userInfo = useContext(UserData);
   const navigate = useNavigate();
   const [logoutPopUp, setLogoutPopUp] = useState(true);
@@ -18,9 +25,9 @@ export default function DashboardLayout() {
     }
   }, [navigate]);
   useEffect(() => {
-    console.log("userInfo Context ", userInfo);
-    checkUser();
-  }, [checkUser, userInfo]);
+    console.log("DashboardLayout Call ");
+    // checkUser();
+  }, [checkUser]);
   return (
     <div className="container-fulid">
       <div className="row pagesize pageMargin">
@@ -38,25 +45,44 @@ export default function DashboardLayout() {
               <span>Inventory Management</span>
             </div>
             <li className="nav-item">
-              <Link to="items">
+              <Link
+                className={
+                  location.pathname === "/dashboard/items" ? "activeclass" : ""
+                }
+                to="items"
+              >
                 <i className="bi bi-list-ul"></i>
                 <span>Inventory</span>
               </Link>
             </li>
-            {userInfo && userInfo.role === 2 ? (
+            {userInfo && userInfo?.role === 2 ? (
               <>
                 <li className="nav-item">
-                  <Link to="users">
+                  <Link
+                    className={
+                      location.pathname === "/dashboard/users"
+                        ? "activeclass"
+                        : ""
+                    }
+                    to="users"
+                  >
                     <i className="bi bi-person-lines-fill"></i>
                     <span>Engineers</span>
                   </Link>
                 </li>
               </>
             ) : null}
-            {userInfo && userInfo.role === 2 ? (
+            {userInfo && userInfo?.role === 2 ? (
               <>
                 <li className="nav-item">
-                  <Link to="project">
+                  <Link
+                    className={
+                      location.pathname === "/dashboard/project"
+                        ? "activeclass"
+                        : ""
+                    }
+                    to="project"
+                  >
                     <i className="bi bi-person-lines-fill"></i>
                     <span>Project</span>
                   </Link>
@@ -64,52 +90,104 @@ export default function DashboardLayout() {
               </>
             ) : null}
             <li className="nav-item">
-              <Link to="tasks">
+              <Link
+                className={
+                  location.pathname === "/dashboard/tasks" ? "activeclass" : ""
+                }
+                to="tasks"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>Tasks</span>
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link to="userprofile">
+              <Link
+                className={
+                  location.pathname === "/dashboard/userprofile"
+                    ? "activeclass"
+                    : ""
+                }
+                to="userprofile"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>My Profile</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="holidays">
+              <Link
+                className={
+                  location.pathname === "/dashboard/holidays"
+                    ? "activeclass"
+                    : ""
+                }
+                to="holidays"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>Holidays</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="reimbursement">
+              <Link
+                className={
+                  location.pathname === "/dashboard/reimbursement"
+                    ? "activeclass"
+                    : ""
+                }
+                to="reimbursement"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>Reimbursement</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="leaves">
+              <Link
+                className={
+                  location.pathname === "/dashboard/leaves" ? "activeclass" : ""
+                }
+                to="leaves"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>Leaves</span>
               </Link>
             </li>
             <li className="nav-item">
-              <Link to="timesheet">
+              <Link
+                className={
+                  location.pathname === "/dashboard/timesheet"
+                    ? "activeclass"
+                    : ""
+                }
+                to="timesheet"
+              >
                 <i className="bi bi-person-vcard"></i>
                 <span>Fill TimeSheet</span>
               </Link>
             </li>
-            {userInfo && userInfo.role === 2 ? (
+            {userInfo && userInfo?.role === 2 ? (
               <>
                 <li className="nav-item">
-                  <Link to="timesheets">
+                  <Link
+                    className={
+                      location.pathname === "/dashboard/timesheets"
+                        ? "activeclass"
+                        : ""
+                    }
+                    to="timesheets"
+                  >
                     <i className="bi bi-person-vcard"></i>
                     <span>View TimeSheets</span>
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link to="uploadcsv">
+                  <Link
+                    className={
+                      location.pathname === "/dashboard/uploadcsv"
+                        ? "activeclass"
+                        : ""
+                    }
+                    to="uploadcsv"
+                  >
                     <i className="bi bi-person-lines-fill"></i>
                     <span>Upload CSV</span>
                   </Link>
@@ -178,3 +256,4 @@ export default function DashboardLayout() {
     </div>
   );
 }
+export default memo(DashboardLayout);

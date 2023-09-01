@@ -77,6 +77,7 @@ export default function EditItem({
   };
   useEffect(() => {
     setFormdata(itemDetails);
+    console.log("DashboardLayout call");
   }, [itemDetails]);
   return (
     <div

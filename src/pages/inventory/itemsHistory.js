@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { dateFormate } from "../util";
+import { useNavigate } from "react-router-dom";
 
 export default function ItemsHistory({
   itemid,
@@ -8,6 +9,7 @@ export default function ItemsHistory({
   historyPopUpClose,
 }) {
   const [itemArray, setitemArray] = useState([]);
+  const navigate = useNavigate();
   const getItems = useCallback(() => {
     if (itemid) {
       let tokenValue = window.localStorage.getItem("am_token");
@@ -17,7 +19,12 @@ export default function ItemsHistory({
           Authorization: "Bearer " + tokenValue,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           setitemArray([...res]);
           console.log("Items History : ", res);
@@ -63,7 +70,7 @@ export default function ItemsHistory({
               <div className="container-fulid">
                 <div className="row">
                   <div className="col mt-3">
-                    <table className="table tabletext">
+                    <table className="table tabletext2">
                       <thead>
                         <tr>
                           <th scope="col">#</th>
@@ -77,7 +84,9 @@ export default function ItemsHistory({
                           {/* <th scope="col">Validity From</th>
                           <th scope="col">Validity To</th> */}
                           <th scope="col">Assign Date</th>
-                          <th scope="col">Release Date</th>
+                          <th scope="col" className="text-center">
+                            Release Date
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -94,7 +103,11 @@ export default function ItemsHistory({
                             {/* <td>{dateFormate(user.validityFrom)}</td>
                             <td>{dateFormate(user.validityTo)}</td> */}
                             <td>{dateFormate(user.assignDate)}</td>
-                            <td>{dateFormate(user.releaseDate)}</td>
+                            <td className="text-center">
+                              {dateFormate(user.releaseDate) === "01-JAN-1970"
+                                ? "No"
+                                : dateFormate(user.releaseDate)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

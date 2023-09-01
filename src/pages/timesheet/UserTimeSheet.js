@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../inventory/Header";
 import Loader from "../../util/Loader";
+import { useNavigate } from "react-router-dom";
 function UserTimeSheet() {
   const [projects, setProjects] = useState([]);
   const [projectstatus, setProjectstatus] = useState(false);
@@ -16,6 +17,8 @@ function UserTimeSheet() {
   const [timesheetForm, setTimeSheetForm] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
+  const navigate = useNavigate();
+  // Get Users List code
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -24,7 +27,12 @@ function UserTimeSheet() {
         Authorization: "Bearer " + tokenValue,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         console.log("res.project : ", res.projects);
         setUserInfo(res);
@@ -38,7 +46,7 @@ function UserTimeSheet() {
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-
+  //Save Timesheet code
   const saveTimeSheet = (e) => {
     e.preventDefault();
     let fieldFilled = [];
@@ -95,8 +103,8 @@ function UserTimeSheet() {
       return payload;
     });
     let timeSheetPayload = {
-      userName: userInfo.userName,
-      email: userInfo.email,
+      userName: userInfo?.userName,
+      email: userInfo?.email,
       month: selectedMonth ? selectedMonth : getMonthName(),
       year: selectedYear ? selectedYear : getYears(),
       status: "InProgress",
@@ -144,7 +152,7 @@ function UserTimeSheet() {
       );
     }
   };
-
+  //Update Timesheet code
   const updateTimeSheet = (e) => {
     e.preventDefault();
     let fieldFilled = [];
@@ -157,11 +165,23 @@ function UserTimeSheet() {
     });
     let countHours = 0;
     let payloadNewData = projects.map((project) => {
-      if (timeSheetData.projectIds?.includes(project.projectId)) {
-        timeSheetValue = timeSheetData.data.filter(
-          (row) => row.projectId === project.projectId
-        )[0];
-        let payload = {
+      // if (timeSheetData.projectIds?.includes(project.projectId)) {
+      timeSheetValue = timeSheetData.data.filter(
+        (row) => row.projectId === project.projectId
+      )[0];
+      console.log("timeSheetValue : ", timeSheetValue);
+      let payload = null;
+      if (timeSheetValue === undefined)
+        payload = {
+          projectId: project.projectId,
+          projectName: project.name,
+          detail: [],
+          comment: project.comment,
+          status: "InProgress",
+          totalHour: 0,
+        };
+      else
+        payload = {
           projectId: timeSheetValue.projectId,
           projectName: timeSheetValue.name,
           detail: [],
@@ -171,64 +191,64 @@ function UserTimeSheet() {
           totalHour: project.totalHour,
         };
 
-        let taskDetails = getMonthDates(
-          monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) +
-            1,
-          selectedYear ? selectedYear : getYears(),
-          projects
-        ).map((data) => {
-          let rowData = data.details.filter(
-            (row) => row.projectId === project.projectId
-          )[0];
-          if (
-            parseInt(e.target[rowData["hour"]].value) > 0 &&
-            !e.target[rowData["task"]].value
-          ) {
-            e.target[rowData["task"]].focus();
-            e.target[rowData["task"]].style.borderColor = "red";
-            fieldFilled.push(false);
-          } else if (
-            (e.target[rowData["task"]].value &&
-              isNaN(parseInt(e.target[rowData["hour"]].value))) ||
-            (e.target[rowData["task"]].value &&
-              parseInt(e.target[rowData["hour"]].value) === 0)
-          ) {
-            fieldFilled.push(false);
-            e.target[rowData["hour"]].focus();
-            e.target[rowData["hour"]].style.borderColor = "red";
-          } else {
-            fieldFilled.push(true);
-            e.target[rowData["task"]].style.borderColor = "#ced4da";
-            e.target[rowData["hour"]].style.borderColor = "#ced4da";
-          }
-          return data.id > 0
-            ? {
-                id: data.id,
-                day: data.day,
-                task: e.target[rowData["task"]].value,
-                hour: e.target[rowData["hour"]].value,
-                comment: "",
-              }
-            : {
-                day: data.day,
-                task: e.target[
-                  data.details.filter(
-                    (row) => row.projectId === project.projectId
-                  )[0]["task"]
-                ].value,
-                hour: e.target[
-                  data.details.filter(
-                    (row) => row.projectId === project.projectId
-                  )[0]["hour"]
-                ].value,
-                comment: "",
-              };
-        });
-        payload.detail = [...taskDetails];
-        countHours += parseInt(payload.totalHour);
-        return payload;
-      }
-      return {};
+      let taskDetails = getMonthDates(
+        monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) + 1,
+        selectedYear ? selectedYear : getYears(),
+        projects
+      ).map((data) => {
+        let rowData = data.details.filter(
+          (row) => row.projectId === project.projectId
+        )[0];
+        if (
+          parseInt(e.target[rowData["hour"]].value) > 0 &&
+          !e.target[rowData["task"]].value
+        ) {
+          e.target[rowData["task"]].focus();
+          e.target[rowData["task"]].style.borderColor = "red";
+          fieldFilled.push(false);
+        } else if (
+          (e.target[rowData["task"]].value &&
+            isNaN(parseInt(e.target[rowData["hour"]].value))) ||
+          (e.target[rowData["task"]].value &&
+            parseInt(e.target[rowData["hour"]].value) === 0)
+        ) {
+          fieldFilled.push(false);
+          e.target[rowData["hour"]].focus();
+          e.target[rowData["hour"]].style.borderColor = "red";
+        } else {
+          fieldFilled.push(true);
+          e.target[rowData["task"]].style.borderColor = "#ced4da";
+          e.target[rowData["hour"]].style.borderColor = "#ced4da";
+        }
+        return data.id > 0
+          ? {
+              id: data.id,
+              day: data.day,
+              task: e.target[rowData["task"]].value,
+              hour: e.target[rowData["hour"]].value,
+              comment: "",
+            }
+          : {
+              day: data.day,
+              task: e.target[
+                data.details.filter(
+                  (row) => row.projectId === project.projectId
+                )[0]["task"]
+              ].value,
+              hour: e.target[
+                data.details.filter(
+                  (row) => row.projectId === project.projectId
+                )[0]["hour"]
+              ].value,
+              comment: "",
+            };
+      });
+      payload.detail = [...taskDetails];
+      countHours += parseInt(payload.totalHour);
+      return payload;
+      // } else {
+      //   return {};
+      // }
     });
     console.log("updateTimeSheet payloadNewData : ", payloadNewData);
     let timeSheetPayload = {
@@ -281,6 +301,7 @@ function UserTimeSheet() {
       );
     }
   };
+  //set Hours Value onChange Text code
   const setHoursValue = (fieldName) => {
     console.log("onChange Call ", projects);
     let colIndex = -1;
@@ -355,19 +376,24 @@ function UserTimeSheet() {
             Authorization: "Bearer " + tokenValue,
           },
         })
-          .then((res) => res.json())
+          .then((res) => {
+            if (res.status === 401) {
+              window.localStorage.removeItem("am_token");
+              navigate("/");
+            } else return res.json();
+          })
           .then((res) => {
             let timesheet = document.forms["timesheet"];
-            timesheet.reset();
+            timesheet?.reset();
             setTimeSheetForm(timesheet);
             console.log(
               "timesheet Projects",
               res,
-              userInfo.projects,
+              userInfo?.projects,
               timesheetForm
             );
-            if (userInfo.projects && userInfo.projects.length > 0) {
-              let projectData = userInfo.projects.map((row) => {
+            if (userInfo?.projects && userInfo?.projects.length > 0) {
+              let projectData = userInfo?.projects.map((row) => {
                 row["totalHour"] = 0;
                 return row;
               });
@@ -382,14 +408,14 @@ function UserTimeSheet() {
                 hours["day_" + data.day] = 0;
               });
               setTotalHour(hours);
-              setProjects([...projectData]);
+
               let projectIds = projectData.map((row) => row.projectId);
               console.log(
                 "projectIds and projectData : ",
                 projectIds,
                 projectData,
                 timesheet,
-                userInfo.projects
+                userInfo?.projects
               );
               if (res.month !== null) {
                 res?.data?.forEach((row) => {
@@ -426,23 +452,27 @@ function UserTimeSheet() {
                   )[0]?.totalHour;
                   return row;
                 });
+                let curProjects = [...tempProjects];
+                //Project Filter Code
+                // .filter((row) => {
+                //   if (res.data === null) return true;
+                //   else
+                //     return (
+                //       res.data?.filter(
+                //         (proj) => proj.projectId === row.projectId
+                //       ).length > 0
+                //     );
+                // }),
                 console.log(
                   "tempProjects : ",
                   tempProjects,
                   projectData,
-                  res.data
+                  res.data,
+                  curProjects
                 );
-                setProjects([
-                  ...tempProjects.filter((row) => {
-                    if (res.data === null) return true;
-                    else
-                      return (
-                        res.data?.filter(
-                          (proj) => proj.projectId === row.projectId
-                        ).length > 0
-                      );
-                  }),
-                ]);
+                setProjects([...curProjects]);
+              } else {
+                setProjects([...projectData]);
               }
             }
             setTimeSheetData(res);
@@ -474,15 +504,19 @@ function UserTimeSheet() {
   return userInfo?.projects?.length > 0 ? (
     <>
       <TimeSheetDetails
-        projects={projects.filter((row) => {
-          if (timeSheetData.data === null) return true;
-          else
-            return (
-              timeSheetData.data?.filter(
-                (proj) => proj.projectId === row.projectId
-              ).length > 0
-            );
-        })}
+        projects={projects}
+        //Project Filter Code
+        // .filter((row) => {
+        //   if (timeSheetData.data === null) return true;
+        //   else {
+        //     console.log("timeSheetData : ", timeSheetData);
+        //     return (
+        //       timeSheetData.data?.filter(
+        //         (proj) => proj.projectId === row.projectId
+        //       ).length > 0
+        //     );
+        //   }
+        // })
         getMonthValue={(value) => getMonthValue(value)}
         getYearValue={(value) => getYearValue(value)}
       />
@@ -501,29 +535,41 @@ function UserTimeSheet() {
           <button type="submit" className="btn saveBtn">
             {timeSheetData.month === null ? "Save" : "Update"}
           </button>
-          <div style={{ overflow: "scroll", height: "430px", clear: "both" }}>
+          <div
+            style={{
+              overflow: "scroll",
+              height: "430px",
+              clear: "both",
+              margin: "0px 15px 10px 15px",
+            }}
+          >
             <table
-              className="table tabletext timesheettable"
+              className={
+                projects.length > 3
+                  ? "table tabletext timesheettable tablelarge"
+                  : "table tabletext timesheettable tablesmall"
+              }
               style={{
-                width: projects?.length > 3 ? "max-content" : "100%",
+                margin: projects?.length,
               }}
             >
-              <thead>
+              <thead className="sticky-header">
                 <tr>
                   <th scope="col" colSpan={1}>
                     Projects
                   </th>
-                  {projects
-                    .filter((row) => {
-                      if (timeSheetData.data === null) return true;
-                      else
-                        return (
-                          timeSheetData.data?.filter(
-                            (proj) => proj.projectId === row.projectId
-                          ).length > 0
-                        );
-                    })
-                    .map((project, index) => (
+                  {
+                    //Project Filter Code
+                    // .filter((row) => {
+                    //   if (timeSheetData.data === null) return true;
+                    //   else
+                    //     return (
+                    //       timeSheetData.data?.filter(
+                    //         (proj) => proj.projectId === row.projectId
+                    //       ).length > 0
+                    //     );
+                    // })
+                    projects.map((project, index) => (
                       <th
                         scope="col"
                         key={project.name + index}
@@ -532,72 +578,77 @@ function UserTimeSheet() {
                       >
                         {project.name}
                       </th>
-                    ))}
+                    ))
+                  }
                 </tr>
               </thead>
               <tbody>
-                {getMonthDates(
-                  monthNames.indexOf(
-                    selectedMonth ? selectedMonth : getMonthName()
-                  ) + 1,
-                  selectedYear ? selectedYear : getYears(),
-                  projects.filter((row) => {
-                    if (timeSheetData.data === null) return true;
-                    else
-                      return (
-                        timeSheetData.data?.filter(
-                          (proj) => proj.projectId === row.projectId
-                        ).length > 0
-                      );
-                  })
-                ).map((data, index) => (
-                  <tr key={index + data.day}>
-                    <th
-                      style={{ width: "70px" }}
-                      className="text-center verticalAlign"
-                    >
-                      <div className="bgColor textColor dateStyle">
-                        <div>{data.day}</div>
-                        <div>{data.dayName}</div>
-                      </div>
-                    </th>
-                    {data.details.map((row) => (
-                      <Fragment key={row.hour}>
-                        <td className="inputSize inputSize-1">
-                          <input
-                            type="number"
-                            name={row.hour}
-                            onChange={(event) =>
-                              setHoursValue(event.target.name)
-                            }
-                            className="form-control rounded-3 hoursinput"
-                            placeholder="Hrs"
-                            min="0"
-                            max="24"
-                            step="1"
-                            autocomplete="off"
-                            onInput={(event) => {
-                              event.target.value =
-                                Math.abs(Math.floor(event.target.value)) > 24
-                                  ? "0"
-                                  : Math.abs(Math.floor(event.target.value));
-                            }}
-                          />
-                        </td>
-                        <td className="inputSize textareaSize-1">
-                          <textarea
-                            multiline="true"
-                            type="text"
-                            autocomplete="off"
-                            name={row.task}
-                            className="form-control rounded-3"
-                            placeholder="Task Details"
-                          />
-                        </td>
-                      </Fragment>
-                    ))}
-                  </tr>
-                ))}
+                {
+                  //Project Filter Code
+                  // .filter((row) => {
+                  //   if (timeSheetData.data === null) return true;
+                  //   else
+                  //     return (
+                  //       timeSheetData.data?.filter(
+                  //         (proj) => proj.projectId === row.projectId
+                  //       ).length > 0
+                  //     );
+                  // })
+                  getMonthDates(
+                    monthNames.indexOf(
+                      selectedMonth ? selectedMonth : getMonthName()
+                    ) + 1,
+                    selectedYear ? selectedYear : getYears(),
+                    projects
+                  ).map((data, index) => (
+                    <tr key={index + data.day}>
+                      <th
+                        style={{ width: "70px" }}
+                        className="text-center verticalAlign fixed-col"
+                      >
+                        <div className="bgColor textColor dateStyle">
+                          <div>{data.day}</div>
+                          <div>{data.dayName}</div>
+                        </div>
+                      </th>
+                      {data.details.map((row) => (
+                        <Fragment key={row.hour}>
+                          <td className="inputSize inputSize-1">
+                            <input
+                              type="number"
+                              name={row.hour}
+                              onChange={(event) =>
+                                setHoursValue(event.target.name)
+                              }
+                              className="form-control rounded-3 hoursinput"
+                              placeholder="Hrs"
+                              min="0"
+                              max="24"
+                              step="1"
+                              autoComplete="off"
+                              onInput={(event) => {
+                                event.target.value =
+                                  Math.abs(Math.floor(event.target.value)) > 24
+                                    ? "0"
+                                    : Math.abs(Math.floor(event.target.value));
+                              }}
+                            />
+                          </td>
+                          <td className="inputSize textareaSize-1">
+                            <textarea
+                              multiline
+                              type="text"
+                              autoComplete="off"
+                              name={row.task}
+                              className="form-control rounded-3"
+                              placeholder="Task Details"
+                            />
+                          </td>
+                        </Fragment>
+                      ))}
+                    </tr>
+                  ))
+                }
               </tbody>
             </table>
           </div>

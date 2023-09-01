@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { APIUrl } from "../../auth/constants";
 import DeleteItem from "./DeleteItem";
@@ -7,9 +13,11 @@ import ItemDetails from "./ItemDetails";
 import ItemEntry from "./ItemEntry";
 import ItemsHistory from "./itemsHistory";
 import ItemsList from "./ItemsList";
+import { UserData } from "../../App";
 
-export default function Items() {
+function Items() {
   const navigate = useNavigate();
+  const userInfo = useContext(UserData);
   const [editPopUp, setEditPopUp] = useState(true);
   const [historiPopUp, setHistoriPopUp] = useState(true);
   const [deletePopUp, setDeletePopUp] = useState(true);
@@ -19,6 +27,40 @@ export default function Items() {
   const [token, setToken] = useState(null);
   const [itemId, setItemId] = useState(null);
   const [itemStatus, setItemStatus] = useState(false);
+  const [userArray, setuserArray] = useState([]);
+  const getUsers = useCallback(() => {
+    if (userInfo?.role === 2) {
+      // let tokenValue = window.localStorage.getItem("am_token");
+      // fetch(APIUrl + "api/users", {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     Authorization: "Bearer " + tokenValue,
+      //   },
+      // })
+      //  .then((res) => {
+      //   if (res.status === 401) {
+      //     window.localStorage.removeItem("am_token");
+      //     navigate("/");
+      //   } else return res.json();
+      // })
+      //   .then((res) => {
+      //     let users = res.map((user) => user.displayName + "/" + user.email);
+      //     setuserArray([...users]);
+      //     // console.log("Users List : ", users);
+      //   })
+      //   .catch((err) => {
+      //     console.log("User Not Get : ", err);
+      //   });
+      let users = userInfo?.userList.map(
+        (user) => user.displayName + "/" + user.email
+      );
+      setuserArray(users);
+    } else setuserArray([]);
+  }, [userInfo]);
+  useEffect(() => {
+    console.log("getUsers call");
+    getUsers();
+  }, [getUsers]);
   const showDetails = (status, data) => {
     setDetailsPopUp(status);
     setItemdata(data);
@@ -31,22 +73,27 @@ export default function Items() {
     setHistoriPopUp(status);
     setItemId(id);
   };
-  const getUserData = useCallback(() => {
-    token &&
-      fetch(APIUrl + "api/user/me", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => console.log("User Info ", res));
-  }, [token]);
+  // const getUserData = useCallback(() => {
+  //   token &&
+  //     fetch(APIUrl + "api/user/me", {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: "Bearer " + token,
+  //       },
+  //     })
+  //      .then((res) => {
+      //   if (res.status === 401) {
+      //     window.localStorage.removeItem("am_token");
+      //     navigate("/");
+      //   } else return res.json();
+      // })
+  //       .then((res) => console.log("User Info "));
+  // }, [token]);
   const checkUser = useCallback(() => {
-    console.log("user checking...");
+    // console.log("user checking...");
     let tokenValue = window.localStorage.getItem("am_token");
     if (tokenValue && tokenValue !== "undefined") {
-      console.log("Dashboard Page:User already login!", tokenValue);
+      // console.log("Dashboard Page:User already login!", tokenValue);
       setToken(tokenValue);
     } else {
       console.log("Invalid Token!", tokenValue);
@@ -54,21 +101,23 @@ export default function Items() {
     }
   }, [navigate]);
   useEffect(() => {
-    getUserData();
+    // getUserData();
     checkUser();
     console.log("Item Page itemStatus : ", itemStatus);
     setItemStatus(false);
-  }, [checkUser, getUserData, itemStatus]);
+  }, [checkUser, itemStatus]);
   return (
     <>
       <ItemEntry
         token={token}
+        userArray={userArray}
         entryPopUp={entryPopUp}
         entryPopUpClose={(status) => setEntryPopUp(status)}
         changeStatus={(status) => setItemStatus(status)}
       ></ItemEntry>
       <EditItem
         token={token}
+        userArray={userArray}
         itemDetails={itemData}
         editPopUp={editPopUp}
         editPopUpClose={(status) => setEditPopUp(status)}
@@ -76,6 +125,7 @@ export default function Items() {
       ></EditItem>
       <DeleteItem
         token={token}
+        userArray={userArray}
         itemid={itemId}
         deletePopUp={deletePopUp}
         deletePopUpClose={(status) => setDeletePopUp(status)}
@@ -83,6 +133,7 @@ export default function Items() {
       ></DeleteItem>
       <ItemsHistory
         token={token}
+        userArray={userArray}
         itemid={itemId}
         historyPopUpOpen={historiPopUp}
         historyPopUpClose={(status) => setHistoriPopUp(status)}
@@ -108,3 +159,4 @@ export default function Items() {
     </>
   );
 }
+export default memo(Items);

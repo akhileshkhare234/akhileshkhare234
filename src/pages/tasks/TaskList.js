@@ -4,6 +4,7 @@ import { APIUrl } from "../../auth/constants";
 import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
+import { useNavigate } from "react-router-dom";
 const tableData = {
   taskDetail: "Task Details",
   assignedTo: "Assign To",
@@ -27,37 +28,44 @@ export default function TaskList({
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(false);
+  const navigate = useNavigate();
   const setTaskData = useCallback(() => {
     setStart(0);
     setLoadingStatus(true);
-    fetch(APIUrl + "api/task/getAll", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res?.length > 0) {
-          let Task = res.filter((row, index) => index < 10);
-          console.log("Tasks List ", Task);
-          setTask([...Task]);
-          setITasks([...res]);
-          let pageSize = 10;
-          let pages = [];
-          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-            pages.push(I);
+    token &&
+      fetch(APIUrl + "api/task/getAll", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          if (res?.length > 0) {
+            let Task = res.filter((row, index) => index < 10);
+            console.log("Tasks List ", Task);
+            setTask([...Task]);
+            setITasks([...res]);
+            let pageSize = 10;
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+            setLoadingStatus(false);
+          } else {
+            setTask([]);
+            setITasks([]);
+            setPages([]);
+            console.log("Tasks not found");
+            setLoadingStatus(false);
           }
-          setPages(pages);
-          setLoadingStatus(false);
-        } else {
-          setTask([]);
-          setITasks([]);
-          setPages([]);
-          console.log("Tasks not found");
-          setLoadingStatus(false);
-        }
-      });
+        });
   }, [token]);
   useEffect(() => {
     setTaskData();
@@ -120,7 +128,7 @@ export default function TaskList({
                   <input
                     className="form-control  border"
                     type="search"
-                    autocomplete="off"
+                    autoComplete="off"
                     placeholder="Search Task here..."
                     onChange={(event) => setSerachText(event.target.value)}
                     id="example-search-input"
@@ -128,7 +136,7 @@ export default function TaskList({
                   />
                 </div>
               </div>
-              {userInfo && userInfo.role === 2 ? (
+              {userInfo && userInfo?.role === 2 ? (
                 <div className="col justify-content-end text-end">
                   <button
                     onClick={() => entryPopUpOpen(false)}
@@ -143,7 +151,7 @@ export default function TaskList({
             </div>
             {Tasks && Tasks.length > 0 ? (
               <>
-                <table className="table tabletext">
+                <table className="table tabletext2">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
@@ -173,7 +181,7 @@ export default function TaskList({
                           </td>
                         ))}
                         <td className="text-center">
-                          {userInfo && userInfo.role === 2 ? (
+                          {userInfo && userInfo?.role === 2 ? (
                             <>
                               <button
                                 onClick={() =>

@@ -3,9 +3,11 @@ import { APIUrl } from "../../auth/constants";
 import Header from "../inventory/Header";
 import { getMonthName, getMonths, getYears } from "../util.js";
 import ProjetcList from "./ProjetcList";
+import { useNavigate } from "react-router-dom";
 
 function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
   const [userInfo, setUserInfo] = useState([]);
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -14,7 +16,12 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
         Authorization: "Bearer " + tokenValue,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         setUserInfo(res);
         console.log("User Profile : ", res);
@@ -34,10 +41,12 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
         <dl className="row mb-1">
           <dt className="col-sm-2">User Name</dt>
           <dd className="col-sm-4">
-            {userInfo.displayName ? userInfo.displayName : "-"}
+            {userInfo?.displayName ? userInfo?.displayName : "-"}
           </dd>
           <dt className="col-sm-2">Email-id</dt>
-          <dd className="col-sm-4">{userInfo.email ? userInfo.email : "-"}</dd>
+          <dd className="col-sm-4">
+            {userInfo?.email ? userInfo?.email : "-"}
+          </dd>
         </dl>
         <dl className="row mb-1">
           <dt className="col-sm-2">Month</dt>

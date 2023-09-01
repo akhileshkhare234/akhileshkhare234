@@ -26,7 +26,7 @@ function ApproveLeave({
         reason: itemData.reason,
         leaveType: itemData.leaveType,
         id: itemData.id,
-        status: "Reject",
+        status: "rejected",
         department: itemData.department,
         comment: comments,
         year: itemData.year,
@@ -77,7 +77,7 @@ function ApproveLeave({
         reason: itemData.reason,
         leaveType: itemData.leaveType,
         id: itemData.id,
-        status: "Approve",
+        status: "approved ",
         department: itemData.department,
         comment: comments,
         year: itemData.year,
@@ -132,7 +132,7 @@ function ApproveLeave({
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="modal-title fs-5" id="exampleModalLabel">
-                Approve leave
+                Approve/Reject leave
               </h1>
               <button
                 onClick={() => approvePopUpClose(true)}
@@ -143,17 +143,20 @@ function ApproveLeave({
               ></button>
             </div>
             <div className="modal-body">
-              <h1 className="modal-title fs-6 ">
-                <i className="bi bi-info iconBg"></i> Are you sure you want to
-                approve this leave <i className="bi bi-question-circle"></i>
+              <h1 className="modal-title modal-titles fs-6 ">
+                <i className="bi bi-info iconBg"></i>
+                <span>
+                  If you want to accept the leave then press the approve button
+                  otherwise press the reject button.
+                </span>
               </h1>
               <div className="row">
                 <div className="col-12 text-end mt-3 mb-2">
                   <input
                     ref={commentInput}
                     type="text"
-                    style={{ width: "92%", paddingLeft: "10px" }}
-                    placeholder="Enter Comments of Accepted/Rejected Leave"
+                    style={{ width: "98%", paddingLeft: "10px" }}
+                    placeholder="Enter comments of approved/rejected leave?"
                     defaultValue={comments}
                     onChange={(e) => {
                       e.target.style.border = "2px solid #ccc";

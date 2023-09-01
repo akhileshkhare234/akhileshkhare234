@@ -1,7 +1,8 @@
 import Multiselect from "multiselect-react-dropdown";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util.js";
+import { UserData } from "../../App";
 
 export default function EditProject({
   editPopUp,
@@ -11,6 +12,7 @@ export default function EditProject({
   changeStatus,
 }) {
   const [selectedValue, setSelectedValue] = useState([]);
+  const userInfo = useContext(UserData);
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -68,39 +70,51 @@ export default function EditProject({
     projectForm.clientContactNumber.value = itemDetails.clientContactNumber;
   };
   const [userArray, setuserArray] = useState([]);
-  const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        let defaultUser = users.filter((row) =>
-          itemDetails.emails?.split(",")?.includes(row.email)
-        );
-        setSelectedValue([...defaultUser]);
-        setuserArray([...users]);
-        console.log(
-          "Users List : ",
-          users,
-          defaultUser,
-          itemDetails?.emails?.split(",")
-        );
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, [itemDetails.emails]);
+  // const getUsers = useCallback(() => {
+  //   let tokenValue = window.localStorage.getItem("am_token");
+  //   fetch(APIUrl + "api/users", {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: "Bearer " + tokenValue,
+  //     },
+  //   })
+  //    .then((res) => {
+  //   if (res.status === 401) {
+  //     window.localStorage.removeItem("am_token");
+  //     navigate("/");
+  //   } else return res.json();
+  // })
+  //     .then((res) => {
+  //       let users = res.map((user) => {
+  //         return { name: user.displayName, email: user.email, id: user.id };
+  //       });
+  //       let defaultUser = users.filter((row) =>
+  //         itemDetails.emails?.split(",")?.includes(row.email)
+  //       );
+  //       setSelectedValue([...defaultUser]);
+  //       setuserArray([...users]);
+  //       // console.log(
+  //       //   "Users List : ",
+  //       //   users,
+  //       //   defaultUser,
+  //       //   itemDetails?.emails?.split(",")
+  //       // );
+  //     })
+  //     .catch((err) => {
+  //       console.log("User Not Get : ", err);
+  //     });
+  // }, [itemDetails.emails]);
   useEffect(() => {
-    getUsers();
+    let users = userInfo?.userList?.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    let defaultUser = users.filter((row) =>
+      itemDetails.emails?.split(",")?.includes(row.email)
+    );
+    setSelectedValue([...defaultUser]);
+    setuserArray([...users]);
     setFormdata(itemDetails);
-  }, [getUsers, itemDetails]);
+  }, [itemDetails, userInfo?.userList]);
   const onSelect = (selectedList, selectedItem) => {
     console.log("selectedList ", selectedList);
     setSelectedValue([...selectedList]);
@@ -233,7 +247,7 @@ export default function EditProject({
               <div className="col-md-12">
                 <label className="mb-1">Project Detail</label>
                 <textarea
-                  multiline={true}
+                  multiline
                   name="projectDetail"
                   className="form-control rounded-3"
                   id="floatingInput"

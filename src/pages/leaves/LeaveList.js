@@ -6,8 +6,8 @@ import Header from "../inventory/Header";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { dateFormate, getMonthsFullName, getYears } from "../util.js";
-import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
+import { useNavigate } from "react-router-dom";
 
 const tableData = {
   email: "Name",
@@ -35,26 +35,13 @@ export default function LeaveList({
   const [pages, setPages] = useState([]);
   const [userArray, setuserArray] = useState([]);
   const [leaveStatus, setleaveStatus] = useState(false);
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    if (userInfo && userInfo.role === 2) {
-      fetch(APIUrl + "api/users", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + tokenValue,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          let users = res.map(
-            (user) => user.displayName + "/" + user.email + "/" + user.imageUrl
-          );
-          setuserArray([...users]);
-          console.log("Users List : ", users);
-        })
-        .catch((err) => {
-          console.log("User Not Get : ", err, userInfo);
-        });
+    if (userInfo && userInfo?.role === 2) {
+      let users = userInfo?.userList.map(
+        (user) => user.displayName + "/" + user.email + "/" + user.imageUrl
+      );
+      setuserArray([...users]);
     } else {
       setuserArray([]);
     }
@@ -62,16 +49,16 @@ export default function LeaveList({
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-  const getUserInfo = (userinfo, index) => {
-    // console.log("User Info Data : ", userinfo);
-    return userinfo?.split("/")[index];
+  const getUserInfo = (user, index) => {
+    return user?.split("/")[index];
   };
   const getLeaves = useCallback(() => {
     setStart(0);
     console.log("itemStatus ", itemStatus);
-    if (userInfo.email && token) {
+    if (userInfo?.email && token) {
       let urlValue = null;
-      if (pageSizeStatus) {
+      //pageSizeStatus
+      if (userInfo && userInfo?.role === 2) {
         let leavesList = document.forms["leavesList"];
         console.log("payload Data: ", leavesList);
         console.log("payload Data: ", leavesList.users.value);
@@ -84,7 +71,7 @@ export default function LeaveList({
         console.log("payload Data: ", payload);
         urlValue = getURL(payload);
       } else {
-        urlValue = `api/leave/data/${getYears()}?email=${userInfo.email}`;
+        urlValue = `api/leave/data/${getYears()}?email=${userInfo?.email}`;
         setleaveStatus(true);
       }
       fetch(APIUrl + urlValue, {
@@ -93,7 +80,12 @@ export default function LeaveList({
           Authorization: "Bearer " + token,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           if (res?.length > 0) {
             res.sort((p, n) => {
@@ -121,7 +113,7 @@ export default function LeaveList({
       setLeaves([]);
       setleaveStatus(false);
     }
-  }, [itemStatus, userInfo.email, token, pageSizeStatus, pageSize]);
+  }, [itemStatus, userInfo, token, pageSize]);
   useEffect(() => {
     getLeaves();
   }, [getLeaves]);
@@ -153,7 +145,12 @@ export default function LeaveList({
         Authorization: "Bearer " + token,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         if (res?.length > 0) {
           res.sort((p, n) => {
@@ -216,7 +213,7 @@ export default function LeaveList({
       <div className="container">
         <div className="row">
           <div className="col">
-            <div className="row px-4 py-2">
+            <div className="row px-4 pt-2 mb-2">
               <div className="col justify-content-end text-end">
                 <button
                   onClick={() => entryPopUpOpen(false)}
@@ -229,11 +226,13 @@ export default function LeaveList({
               </div>
             </div>
 
-            {userInfo && userInfo.role === 2 ? (
+            {userInfo && userInfo?.role === 2 ? (
               <>
-                <hr className="mb-3" />
                 <form name="leavesList" onSubmit={getLeaveFilterData}>
-                  <div className="row px-4 py-2">
+                  <div
+                    className="row mx-1 py-3 leavetab"
+                    style={{ backgroundColor: "#2980b9" }}
+                  >
                     <div className="col-md-3">
                       <label htmlFor="floatingInput" className="mb-1">
                         Users
@@ -241,13 +240,7 @@ export default function LeaveList({
                       <select className="form-select rounded-3" name="users">
                         <option value="All">All</option>
                         {userArray.map((user, index) => (
-                          <option
-                            value={getUserInfo(user, 1)}
-                            selected={getUserInfo(user, 1).includes(
-                              userInfo.email
-                            )}
-                            key={index}
-                          >
+                          <option value={getUserInfo(user, 1)} key={index}>
                             {getUserInfo(user, 0)}
                           </option>
                         ))}
@@ -288,7 +281,7 @@ export default function LeaveList({
                         Status
                       </label>
                       <select className="form-select rounded-3" name="status">
-                        {["All", "Submit", "Approve", "Reject"].map(
+                        {["All", "Submitted", "Approved", "Rejected"].map(
                           (status, index) => (
                             <option value={status} key={index + status}>
                               {status}
@@ -300,7 +293,7 @@ export default function LeaveList({
                     <div className="col justify-content-center text-center mt-4">
                       <button
                         type="submit"
-                        className="btn btn-outline-primary mt-2"
+                        className="btn btn-outline-warning mt-2 px-4 py-1"
                       >
                         <span className="ml-2">View</span>
                       </button>
@@ -309,9 +302,8 @@ export default function LeaveList({
                 </form>
               </>
             ) : null}
-            <hr className="mb-3" />
             {items && items.length > 0 ? (
-              <table className="table tabletext">
+              <table className="table tabletext2">
                 <thead>
                   <tr>
                     <th scope="col" style={{ width: "35px" }}>
@@ -343,28 +335,13 @@ export default function LeaveList({
                   {items.map((item, index) => (
                     <tr key={index + item["leaveFrom"]}>
                       <th scope="row">{start + index + 1}</th>
-                      {/* <td>
-                        <LazyLoadImage
-                          alt={item.displayName}
-                          // onClick={() => showImage(false, user)}
-                          className="profileimage3"
-                          effect="blur" // You can use different loading effects like 'opacity', 'black-and-white', etc.
-                          src={
-                            item.imageUrl
-                              ? item.imageUrl
-                              : item.gender === "Female"
-                              ? process.env.PUBLIC_URL + "/images/female.png"
-                              : process.env.PUBLIC_URL + "/images/male.png"
-                          }
-                        />
-                      </td> */}
                       {Object.keys(tableData).map((field, index) => (
                         <td key={field}>
                           {field.includes("leaveFrom") ||
                           field.includes("leaveTo") ? (
                             dateFormate(item[field])
                           ) : field.includes("status") ? (
-                            userInfo && userInfo.role === 2 ? (
+                            userInfo && userInfo?.role === 2 ? (
                               <span
                                 className={
                                   item[field] === "Reject"
@@ -390,7 +367,7 @@ export default function LeaveList({
                               </>
                             )
                           ) : field.includes("email") && item.email ? (
-                            userInfo.role === 2 ? (
+                            userInfo?.role === 2 ? (
                               getUserInfo(
                                 userArray.filter(
                                   (user, index) =>
@@ -399,7 +376,7 @@ export default function LeaveList({
                                 0
                               )
                             ) : (
-                              userInfo.displayName
+                              userInfo?.displayName
                             )
                           ) : (
                             item[field]
@@ -461,9 +438,6 @@ export default function LeaveList({
                       <td colSpan="12">
                         <nav aria-label="Page navigation example">
                           <ul className="pagination justify-content-end m-0">
-                            {/* <li className="page-item disabled">
-                            <span className="page-link">Previous</span>
-                          </li> */}
                             {pages.map((page, index) => (
                               <li
                                 className="page-item"
@@ -475,12 +449,6 @@ export default function LeaveList({
                                 </span>
                               </li>
                             ))}
-
-                            {/* <li className="page-item">
-                            <span className="page-link" href="#">
-                              Next
-                            </span>
-                          </li> */}
                           </ul>
                         </nav>
                       </td>

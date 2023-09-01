@@ -5,6 +5,7 @@ import Header from "../inventory/Header";
 import ImagePreview from "./ImagePreview";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
+import { useNavigate } from "react-router-dom";
 
 export default function UserList({
   userDetails,
@@ -22,36 +23,44 @@ export default function UserList({
   const [imagePreviewPopUp, setImagePreviewPopUp] = useState(true);
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
+  const [activeStatus, setActiveStatus] = useState(true);
   const [sortStatus, setSortStatus] = useState(false);
   const showImage = (status, data) => {
     setImagePreviewPopUp(status);
     setItemdata(data);
   };
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.filter((row, index) => index < pageSize);
-        setUserPageArray([...users]);
-        setuserArray([...res]);
-        let pages = [];
-        for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-          pages.push(I);
-        }
-        setPages(pages);
-        console.log("Users : ", res);
+    // let tokenValue = window.localStorage.getItem("am_token");
+    token &&
+      fetch(APIUrl + "api/users", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
-      .catch((err) => {
-        setuserArray([]);
-        console.log("User Not Get : ", err);
-      });
-  }, [pageSize]);
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          let users = res.filter((row, index) => index < pageSize);
+          setUserPageArray([...users]);
+          setuserArray([...res]);
+          let pages = [];
+          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+            pages.push(I);
+          }
+          setPages(pages);
+          // console.log("Users : ", res);
+        })
+        .catch((err) => {
+          setuserArray([]);
+          console.log("User Not Get : ", err);
+        });
+  }, [navigate, pageSize, token]);
   const updateUserRole = (user) => {
     let itemData = {
       id: parseInt(user.id),
@@ -81,10 +90,10 @@ export default function UserList({
     setUserPageArray([...users]);
     setStart(start);
   };
-  const searchInventory = useCallback(() => {
+  const searchUsers = useCallback(() => {
     setSerachStatus(false);
     if (serachText) {
-      let inventory = userArray.filter(
+      let userData = userArray.filter(
         (row, index) =>
           Object.keys(row).filter((field) => {
             let text = row[field] + "";
@@ -97,30 +106,30 @@ export default function UserList({
             } else return text.toUpperCase().includes(serachText.toUpperCase());
           }).length > 0
       );
-      console.log("serachText,inventory ", serachText, inventory);
-      setUserPageArray([...inventory]);
+      console.log("serachText,userData ", serachText, userData);
+      setUserPageArray([...userData]);
       setSerachStatus(true);
       let pages = [];
-      for (let I = 1; I <= Math.ceil(inventory.length / pageSize); I++) {
+      for (let I = 1; I <= Math.ceil(userData.length / pageSize); I++) {
         pages.push(I);
       }
       setPages(pages);
     } else {
-      let inventory = userArray.filter((row, index) => index < pageSize);
+      let userData = userArray.filter((row, index) => index < pageSize);
       let pages = [];
       for (let I = 1; I <= Math.ceil(userArray.length / pageSize); I++) {
         pages.push(I);
       }
       setPages(pages);
-      setUserPageArray([...inventory]);
+      setUserPageArray([...userData]);
     }
   }, [userArray, pageSize, serachText]);
   useEffect(() => {
     const getData = setTimeout(() => {
-      searchInventory(serachText);
+      searchUsers(serachText);
     }, 1000);
     return () => clearTimeout(getData);
-  }, [searchInventory, serachText]);
+  }, [searchUsers, serachText]);
   const sortBy = (field) => {
     let newArray = sortStatus
       ? userArray.sort((p, n) =>
@@ -143,6 +152,19 @@ export default function UserList({
     setUserPageArray([...users]);
     setuserArray([...newArray]);
   };
+  const getActiveUsers = (userType) => {
+    let userData = userArray.filter((row) => row.userStatus === userType);
+
+    setActiveStatus(userData.length !== 0);
+
+    setUserPageArray([...userData]);
+    setSerachStatus(false);
+    let pages = [];
+    for (let I = 1; I <= Math.ceil(userData.length / pageSize); I++) {
+      pages.push(I);
+    }
+    setPages(pages);
+  };
   return (
     <>
       <Header title="Engineers List" />
@@ -160,6 +182,16 @@ export default function UserList({
                 onKeyUp={(event) => setSerachText(event.target.value)}
               />
             </div>
+          </div>
+          <div className="col">
+            <select
+              className="form-select rounded-3"
+              style={{ width: "200px", float: "right" }}
+              onChange={(e) => getActiveUsers(e.target.value)}
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
           </div>
         </div>
         <div className="row">
@@ -350,6 +382,15 @@ export default function UserList({
                   <h4 className="datanotfound">
                     <i className="bi bi-search datanotfoundIcon"></i>Employee
                     data not found
+                  </h4>
+                </div>
+              </div>
+            ) : activeStatus === false ? (
+              <div className="row datanotfound">
+                <div className="col-12 text-center">
+                  <h4 className="datanotfound">
+                    <i className="bi bi-search datanotfoundIcon"></i>Inactive
+                    employee data not found
                   </h4>
                 </div>
               </div>

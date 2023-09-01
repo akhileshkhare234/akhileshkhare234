@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { APIUrl } from "../../auth/constants";
 import DeleteTask from "./DeleteTask";
 import EditTask from "./EditTask";
 import TaskDetails from "./TaskDetails";
@@ -26,21 +25,11 @@ export default function Tasks() {
     setItemdata(data);
   };
 
-  const getUserData = useCallback(() => {
-    fetch(APIUrl + "api/user/me", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => console.log("User Info ", res));
-  }, [token]);
   const checkUser = useCallback(() => {
     console.log("user checking...");
     let tokenValue = window.localStorage.getItem("am_token");
     if (tokenValue && tokenValue !== "undefined") {
-      console.log("Dashboard Page:User already login!", tokenValue);
+      // console.log("Dashboard Page:User already login!", tokenValue);
       setToken(tokenValue);
     } else {
       console.log("Invalid Token!", tokenValue);
@@ -48,11 +37,10 @@ export default function Tasks() {
     }
   }, [navigate]);
   useEffect(() => {
-    getUserData();
     checkUser();
-    console.log("Item Page itemStatus : ", itemStatus);
+    // console.log("Item Page itemStatus : ", itemStatus);
     setItemStatus(false);
-  }, [checkUser, getUserData, itemStatus]);
+  }, [checkUser, itemStatus]);
   return (
     <>
       <AddTask

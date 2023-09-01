@@ -1,32 +1,15 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useContext, useEffect, useRef, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { getMonthByDate, getYears } from "../util";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UserData } from "../../App";
 function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
+  const userInfo = useContext(UserData);
   const [days, setdays] = useState(1);
-  const [userInfo, setUserInfo] = useState([]);
+  // const [userInfo, setUserInfo] = useState([]);
   const formRef = useRef(null);
-  const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/user/me", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setUserInfo(res);
-        console.log("User Profile : ", res);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
-  useEffect(() => {
-    getUsers();
-  }, [getUsers]);
+
   const saveItem = (event) => {
     event.preventDefault();
     let { leaveTo, leaveFrom, reason, leaveType } = event.target;
@@ -46,12 +29,12 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
         reason: reason.value,
         leaveType: leaveType.value,
       };
-      itemData["status"] = "Submit";
+      itemData["status"] = "Submitted";
       itemData["department"] = "development";
       itemData["comment"] = "";
       itemData["year"] = getYears();
       itemData["month"] = getMonthByDate(leaveTo.value);
-      itemData["email"] = userInfo.email;
+      itemData["email"] = userInfo?.email;
       fetch(APIUrl + "api/leave", {
         method: "POST",
         body: JSON.stringify(itemData),
@@ -126,15 +109,17 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
   const getFromDate = (e) => {
     console.log(" getFromDate : ", e.target.value);
   };
-  const getToDate = (e) => {
-    console.log(" getToDate : ", e.target.value);
+  const getToDate = () => {
+    // console.log(" getToDate : ", e.target.value);
     let leaveForm = document.forms["leaveForm"];
     console.log(leaveForm.leaveFrom.value);
     let Difference_In_Time =
-      new Date(e.target.value).getTime() -
+      new Date(leaveForm.leaveTo.value).getTime() -
       new Date(leaveForm.leaveFrom.value).getTime();
     // To calculate the no. of days between two dates
-    var days = Difference_In_Time / (1000 * 3600 * 24) + 1;
+    var days =
+      Difference_In_Time / (1000 * 3600 * 24) +
+      parseFloat(leaveForm.leavefor.value);
     console.log("Days ", days);
     setdays(days);
     leaveForm.unit.value = days >= 2 ? days + " days" : days + " day";
@@ -174,7 +159,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
               className="row g-3"
               onSubmit={saveItem}
             >
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="mb-1">Leave From</label>
                 <input
                   type="date"
@@ -187,7 +172,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                   placeholder="Enter Release Date"
                 />
               </div>
-              <div className="col-md-6">
+              <div className="col-md-4">
                 <label className="mb-1">Leave To</label>
                 <input
                   type="date"
@@ -199,12 +184,25 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                   className="form-control rounded-3"
                 />
               </div>
+              <div className="col-md-4">
+                <label htmlFor="floatingInput" className="mb-1">
+                  Leave for
+                </label>
+                <select
+                  name="leavefor"
+                  className="form-select rounded-3"
+                  onChange={getToDate}
+                >
+                  <option value="1">Full day leave</option>
+                  <option value="0.5">Half day leave</option>
+                </select>
+              </div>
               <div className="col-md-12">
                 <label className="mb-1">Reason</label>
                 <input
                   type="text"
                   name="reason"
-                  autocomplete="off"
+                  autoComplete="off"
                   className="form-control rounded-3"
                   placeholder="Leave reason"
                 />
@@ -245,9 +243,9 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
-                  type="submit"
+                  type="Submitted"
                 >
-                  Submit
+                  Submitted
                 </button>
               </div>
             </form>

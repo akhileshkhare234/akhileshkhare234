@@ -29,8 +29,23 @@ function App() {
     })
       .then((res) => res.json())
       .then((res) => {
-        setUserInfo(res);
-        console.log("User Profile : ", res);
+        if (res.role === 2) {
+          fetch(APIUrl + "api/users", {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + tokenValue,
+            },
+          })
+            .then((res) => res.json())
+            .then((userArray) => {
+              let userData = { ...res, userList: [...userArray] };
+              setUserInfo(userData);
+              console.log("User Profile : ", userData);
+            });
+        } else {
+          setUserInfo(res);
+          console.log("User Profile : ", res);
+        }
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
@@ -38,12 +53,13 @@ function App() {
   }, []);
   useEffect(() => {
     getUsers();
+    console.log("Routing call");
   }, [getUsers]);
   return (
     <UserData.Provider value={userInfo}>
       <Router>
         <Routes>
-          <Route path="/" element={<Login />}></Route>
+          <Route path="/" exact element={<Login />}></Route>
           <Route path="/:?token" element={<Login />}></Route>
           <Route path="/dashboard" exact element={<DashboardLayout />}>
             <Route path="" exact element={<UserProfiles />} />

@@ -28,22 +28,11 @@ export default function Leaves() {
     setItemdata(data);
   };
 
-  const getUserData = useCallback(() => {
-    token &&
-      fetch(APIUrl + "api/user/me", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-        .then((res) => res.json())
-        .then((res) => console.log("User Info ", res));
-  }, [token]);
   const checkUser = useCallback(() => {
-    console.log("user checking...");
+    // console.log("user checking...");
     let tokenValue = window.localStorage.getItem("am_token");
     if (tokenValue && tokenValue !== "undefined") {
-      console.log("Dashboard Page:User already login!", tokenValue);
+      // console.log("Dashboard Page:User already login!", tokenValue);
       setToken(tokenValue);
     } else {
       console.log("Invalid Token!", tokenValue);
@@ -51,11 +40,10 @@ export default function Leaves() {
     }
   }, [navigate]);
   useEffect(() => {
-    getUserData();
     checkUser();
     console.log("Item Page itemStatus : ", itemStatus);
     setItemStatus(false);
-  }, [checkUser, getUserData, itemStatus]);
+  }, [checkUser, itemStatus]);
   return (
     <>
       <AddLeave

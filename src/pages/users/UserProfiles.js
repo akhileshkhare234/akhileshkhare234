@@ -6,7 +6,9 @@ import EditProfile from "./EditProfile";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loader from "../../util/Loader";
+import { useNavigate } from "react-router-dom";
 export default function UserProfiles() {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [itemData, setItemdata] = useState({});
   const [editPopUp, setEditPopUp] = useState(true);
@@ -19,7 +21,12 @@ export default function UserProfiles() {
         Authorization: "Bearer " + tokenValue,
       },
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 401) {
+          window.localStorage.removeItem("am_token");
+          navigate("/");
+        } else return res.json();
+      })
       .then((res) => {
         setUserInfo(res);
         console.log("User Profile : ", res, itemStatus);
@@ -27,7 +34,7 @@ export default function UserProfiles() {
       .catch((err) => {
         console.log("User Not Get : ", err);
       });
-  }, [itemStatus]);
+  }, [itemStatus, navigate]);
   useEffect(() => {
     getUsers();
     setItemStatus(false);
@@ -42,14 +49,19 @@ export default function UserProfiles() {
     formData.append("image", e.target.files[0]);
     console.log(e.target.files[0]);
     if (userInfo)
-      fetch(APIUrl + "api/image/" + userInfo.id, {
+      fetch(APIUrl + "api/image/" + userInfo?.id, {
         method: "POST",
         body: formData,
         headers: {
           Authorization: "Bearer " + tokenValue,
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
         .then((res) => {
           console.log("User Profile Image : ", res);
           setItemStatus(true);
@@ -75,10 +87,10 @@ export default function UserProfiles() {
             <div className="col mt-4">
               <div className="profiles">
                 <div className="upload-btn-wrapper">
-                  {userInfo && userInfo.imageUrl ? (
+                  {userInfo && userInfo?.imageUrl ? (
                     <img
                       className="profileimage2"
-                      src={userInfo.imageUrl}
+                      src={userInfo?.imageUrl}
                       alt=""
                     />
                   ) : (
@@ -114,7 +126,7 @@ export default function UserProfiles() {
                 Upload
               </button> */}
                 <button
-                  className="btn btn-success profilebtn"
+                  className="btn btn-primary profilebtn"
                   onClick={setEditProfile}
                 >
                   <i
@@ -253,6 +265,7 @@ export default function UserProfiles() {
                         color: "#333",
                         padding: "5px 10px",
                       }}
+                      className="no-wrap"
                     >
                       <i
                         className="bi bi-person-vcard "

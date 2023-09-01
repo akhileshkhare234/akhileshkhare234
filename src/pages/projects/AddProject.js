@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { APIUrl } from "../../auth/constants";
 import { Multiselect } from "multiselect-react-dropdown";
+import { UserData } from "../../App";
 
 export default function AddProject({
   entryPopUp,
@@ -10,6 +17,7 @@ export default function AddProject({
 }) {
   const [selectedValue, setSelectedValue] = useState([]);
   const formRef = useRef();
+  const userInfo = useContext(UserData);
   const saveItem = (event) => {
     event.preventDefault();
     let {
@@ -53,25 +61,35 @@ export default function AddProject({
   };
   const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        setuserArray([...users]);
-        console.log("Users List : ", users);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+    let users = userInfo?.userList?.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    console.log("users : ", users, userInfo?.userList);
+    setuserArray([...users]);
+    // let tokenValue = window.localStorage.getItem("am_token");
+    // fetch(APIUrl + "api/users", {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: "Bearer " + tokenValue,
+    //   },
+    // })
+    //  .then((res) => {
+    //   if (res.status === 401) {
+    //     window.localStorage.removeItem("am_token");
+    //     navigate("/");
+    //   } else return res.json();
+    // })
+    //   .then((res) => {
+    //     let users = res.map((user) => {
+    //       return { name: user.displayName, email: user.email, id: user.id };
+    //     });
+    //     setuserArray([...users]);
+    //     // console.log("Users List : ", users);
+    //   })
+    //   .catch((err) => {
+    //     console.log("User Not Get : ", err);
+    //   });
+  }, [userInfo?.userList]);
   useEffect(() => {
     getUsers();
     console.log("entryPopUp", entryPopUp);
@@ -129,7 +147,10 @@ export default function AddProject({
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
             <h1 className="fw-bold mb-0 fs-2">Project Entry Form</h1>
             <button
-              onClick={() => entryPopUpClose(true)}
+              onClick={() => {
+                entryPopUpClose(true);
+                formRef.current.reset();
+              }}
               type="button"
               className="btn-close"
               data-bs-dismiss="modal"
@@ -140,10 +161,12 @@ export default function AddProject({
           <div className="modal-body p-4">
             <form ref={formRef} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label className="mb-1">Project Name</label>
+                <label className="mb-1">
+                  Project Name <span className="required">*</span>
+                </label>
                 <input
                   type="text"
-                  autocomplete="off"
+                  autoComplete="off"
                   name="name"
                   required
                   className="form-control rounded-3"
@@ -151,22 +174,31 @@ export default function AddProject({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Project Manager</label>
-                <input
-                  type="text"
-                  autocomplete="off"
+                <label className="mb-1">
+                  Project Manager <span className="required">*</span>
+                </label>
+
+                <select
+                  className="form-select rounded-3"
                   name="manager"
                   required
-                  className="form-control rounded-3"
-                  id="floatingInput"
-                  placeholder="Project Manager Name"
-                />
+                  defaultValue=""
+                >
+                  <option value="">Select project manager</option>
+                  {userArray.map((user, index) => (
+                    <option value={user.email} key={index}>
+                      {user.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Client Name</label>
+                <label className="mb-1">
+                  Client Name <span className="required">*</span>
+                </label>
                 <input
                   type="text"
-                  autocomplete="off"
+                  autoComplete="off"
                   name="clientContactName"
                   required
                   className="form-control rounded-3"
@@ -177,7 +209,7 @@ export default function AddProject({
                 <label className="mb-1">Client Contact</label>
                 <input
                   type="text"
-                  autocomplete="off"
+                  autoComplete="off"
                   name="clientContactNumber"
                   className="form-control rounded-3"
                   id="floatingInput"
@@ -186,9 +218,11 @@ export default function AddProject({
               </div>
 
               <div className="col-md-12">
-                <label className="mb-1">Project Detail</label>
+                <label className="mb-1">
+                  Project Detail <span className="required">*</span>
+                </label>
                 <textarea
-                  multiline={true}
+                  multiline
                   name="projectDetail"
                   required
                   className="form-control rounded-3"

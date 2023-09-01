@@ -1,7 +1,8 @@
 import Multiselect from "multiselect-react-dropdown";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util.js";
+import { UserData } from "../../App";
 
 export default function EditTask({
   editPopUp,
@@ -54,35 +55,23 @@ export default function EditTask({
     }
   };
   const [userArray, setuserArray] = useState([]);
+  const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        let defaultUser = users.filter((row) =>
-          itemDetails.assignedTo.split(",").includes(row.email)
-        );
-        setSelectedValue([...defaultUser]);
-        setuserArray([...users]);
-        console.log(
-          "Users List : ",
-          users,
-          defaultUser,
-          itemDetails.assignedTo.split(",")
-        );
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, [itemDetails.assignedTo]);
+    let users = userInfo?.userList.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    if (Object.keys(itemDetails).length > 0) {
+      let defaultUser = users.filter((row) =>
+        itemDetails.assignedTo.split(",").includes(row.email)
+      );
+      setSelectedValue([...defaultUser]);
+      setuserArray([...users]);
+    }
+  }, [itemDetails, userInfo?.userList]);
+  useEffect(() => {
+    getUsers();
+  }, [getUsers]);
+
   useEffect(() => {
     getUsers();
     setFormdata(itemDetails);
@@ -156,7 +145,7 @@ export default function EditTask({
               <div className="col-md-12">
                 <label className="mb-1">Task Detail</label>
                 <textarea
-                  multiline={true}
+                  multiline
                   name="taskDetail"
                   className="form-control rounded-3"
                   id="floatingInput"

@@ -23,7 +23,7 @@ export default function AddReimbursement({
     ) {
       let itemData = {
         type: type.value,
-        dataType: data.files[0].type,
+        dataType: data.files.length > 0 ? data.files[0].type : null,
         description: description.value,
         unit: unit.value,
         submitAmount: submitAmount.value,
@@ -104,6 +104,11 @@ export default function AddReimbursement({
       );
     } else return currentDate;
   };
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 189 || event.keyCode === 109) {
+      event.preventDefault(); // Prevent typing negative sign
+    }
+  };
   return (
     <div
       className={
@@ -141,9 +146,10 @@ export default function AddReimbursement({
                 <select
                   name="type"
                   className="form-select rounded-3"
-                  defaultValue="Reimbursement type"
+                  defaultValue=""
+                  required
                 >
-                  <option value="Reimbursement type" disabled>
+                  <option value="" disabled>
                     Select reimbursement type
                   </option>
                   <option value="Travel">Travel</option>
@@ -166,19 +172,21 @@ export default function AddReimbursement({
                 <label className="mb-1">Amount</label>
                 <input
                   type="number"
-                  autocomplete="off"
+                  autoComplete="off"
                   name="submitAmount"
+                  min={0}
                   required
                   className="form-control rounded-3"
                   id="floatingInput"
                   placeholder="Amount"
+                  onKeyDown={handleKeyDown}
                 />
               </div>
               <div className="col-md-6">
                 <label className="mb-1">Amount unit</label>
                 <input
                   type="text"
-                  autocomplete="off"
+                  autoComplete="off"
                   name="unit"
                   defaultValue={"INR"}
                   className="form-control rounded-3"
@@ -213,7 +221,7 @@ export default function AddReimbursement({
               <div className="col-md-12">
                 <label className="mb-1">Reimbursement description</label>
                 <textarea
-                  multiline="true"
+                  multiline
                   name="description"
                   required
                   className="form-control rounded-3"

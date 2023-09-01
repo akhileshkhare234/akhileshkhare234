@@ -43,40 +43,78 @@ export default function ViewTimeSheet({
             </div>
 
             <div className="modal-body px-5 pt-0">
-              <div className="container-fulid">
+              <div className="container-fulid view-timesheet">
                 <div className="row">
                   <div className="col mt-3">
-                    <table className="table tabletext">
-                      <thead>
+                    <table className="table tabletext2 ">
+                      <thead className="sticky-header">
                         <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">Date</th>
-                          <th scope="col">Day </th>
-                          <th scope="col">Hours</th>
+                          <th
+                            scope="col"
+                            style={{ width: "35px", textAlign: "center" }}
+                          >
+                            #
+                          </th>
+                          <th
+                            scope="col"
+                            style={{ width: "100px", textAlign: "center" }}
+                          >
+                            Date
+                          </th>
+                          <th
+                            style={{ width: "60px", textAlign: "center" }}
+                            scope="col"
+                          >
+                            Day{" "}
+                          </th>
+                          <th
+                            style={{ width: "60px", textAlign: "center" }}
+                            scope="col"
+                          >
+                            Hours
+                          </th>
                           <th scope="col">Task</th>
                         </tr>
                       </thead>
                       <tbody>
                         {timeSheetData.data &&
-                          timeSheetData?.data[0]?.detail.map((user, index) => (
-                            <tr key={index}>
-                              <th scope="row">{index + 1}</th>
-                              <td>{`${
-                                user.day < 10 ? "0" + user.day : user.day
-                              }-${timeSheetData.month}-${
-                                timeSheetData.year
-                              }`}</td>
-                              <td>
-                                {getDayName(
-                                  `${getMonthValue(timeSheetData.month)}/${
-                                    user.day
-                                  }/${timeSheetData.year}`
-                                )}
-                              </td>
-                              <td>{user.hour}</td>
-                              <td>{user.task}</td>
-                            </tr>
-                          ))}
+                        timeSheetData?.data.length > 0 ? (
+                          timeSheetData?.data[0]?.detail
+                            .sort((a, b) => b.id - a.id)
+                            .filter(
+                              (item, index, self) =>
+                                index ===
+                                self.findIndex((t) => t.day === item.day)
+                            )
+                            .sort((a, b) => a.day - b.day)
+                            .map((user, index) => (
+                              <tr key={index}>
+                                <th className="text-center" scope="row">
+                                  {index + 1}
+                                </th>
+                                <td className="text-center">{`${
+                                  user.day < 10 ? "0" + user.day : user.day
+                                }-${timeSheetData.month}-${
+                                  timeSheetData.year
+                                }`}</td>
+                                <td className="text-center">
+                                  {getDayName(
+                                    `${getMonthValue(timeSheetData.month)}/${
+                                      user.day
+                                    }/${timeSheetData.year}`
+                                  )}
+                                </td>
+                                <td className="text-center">{user.hour}</td>
+                                <td>{user.task}</td>
+                              </tr>
+                            ))
+                        ) : (
+                          <tr>
+                            <th colSpan="5" className="text-center">
+                              Timesheet is not filled yet.
+                            </th>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>

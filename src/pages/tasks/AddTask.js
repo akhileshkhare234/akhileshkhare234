@@ -1,6 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { APIUrl } from "../../auth/constants";
 import { Multiselect } from "multiselect-react-dropdown";
+import { UserData } from "../../App";
 
 export default function AddTask({
   entryPopUp,
@@ -9,63 +16,60 @@ export default function AddTask({
   changeStatus,
 }) {
   const [selectedValue, setSelectedValue] = useState([]);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [errorStatus, setErrorStatus] = useState(false);
   const taskForm = useRef();
   const saveTask = (event) => {
     event.preventDefault();
     let { taskDetail, startDate, dueDate } = event.target;
-    let itemData = {
-      taskDetail: taskDetail.value,
-      dueDate: dueDate.value,
-      startDate: startDate.value,
-      assignedTo: selectedValue[0].email,
-    };
-    console.log("Assigned Users : ", selectedValue);
-    fetch(APIUrl + "api/task/add", {
-      method: "POST",
-      body: JSON.stringify(itemData),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        console.log("Save Task : ", res);
-        entryPopUpClose(true);
-        changeStatus(true);
-        taskForm.current.reset();
+    if (selectedValue?.length > 0) {
+      setErrorStatus(false);
+      let itemData = {
+        taskDetail: taskDetail.value,
+        dueDate: dueDate.value,
+        startDate: startDate.value,
+        assignedTo: selectedValue[0].email,
+      };
+      console.log("Assigned Users : ", selectedValue);
+      fetch(APIUrl + "api/task/add", {
+        method: "POST",
+        body: JSON.stringify(itemData),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
-      .catch((err) => {
-        console.log("Task Not Save : ", err);
-        entryPopUpClose(true);
-        changeStatus(false);
-      });
-    console.log("TaskData : ", itemData);
+        .then((res) => {
+          console.log("Save Task : ", res);
+          entryPopUpClose(true);
+          changeStatus(true);
+          taskForm.current.reset();
+        })
+        .catch((err) => {
+          console.log("Task Not Save : ", err);
+          entryPopUpClose(true);
+          changeStatus(false);
+        });
+      console.log("TaskData : ", itemData);
+    } else {
+      setErrorStatus(true);
+      setErrorMsg(
+        "Please select the employees to whom the work is to be assigned."
+      );
+    }
   };
   const [userArray, setuserArray] = useState([]);
+  const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        let users = res.map((user) => {
-          return { name: user.displayName, email: user.email, id: user.id };
-        });
-        setuserArray([...users]);
-        console.log("Users List : ", users);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+    let users = userInfo?.userList.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    setuserArray([...users]);
+  }, [userInfo?.userList]);
   useEffect(() => {
     getUsers();
-    console.log("entryPopUp", entryPopUp);
-  }, [entryPopUp, getUsers]);
+  }, [getUsers]);
+
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
     let month = months ? months : today.getMonth() + 1;
@@ -133,9 +137,11 @@ export default function AddTask({
           <div className="modal-body p-4">
             <form ref={taskForm} className="row g-3" onSubmit={saveTask}>
               <div className="col-md-12">
-                <label className="mb-1">Task Detail</label>
+                <label className="mb-1">
+                  Task Detail <span className="required">*</span>
+                </label>
                 <textarea
-                  multiline={true}
+                  multiline
                   name="taskDetail"
                   required
                   className="form-control rounded-3"
@@ -144,7 +150,9 @@ export default function AddTask({
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Assign to</label>
+                <label className="mb-1">
+                  Assign to <span className="required">*</span>
+                </label>
                 <Multiselect
                   options={userArray} // Options to display in the dropdown
                   selectedValues={selectedValue} // Preselected value to persist in dropdown
@@ -157,7 +165,7 @@ export default function AddTask({
                 <label className="mb-1">Start Date</label>
                 <input
                   type="date"
-                  max={setMaxMinDate(10)}
+                  max={setMaxMinDate(0)}
                   defaultValue={setMaxMinDate(0)}
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="startDate"
@@ -171,7 +179,7 @@ export default function AddTask({
                 <label className="mb-1">Due Date</label>
                 <input
                   type="date"
-                  min={setMaxMinDate(1)}
+                  min={setMaxMinDate(0)}
                   defaultValue={setMaxMinDate(0)}
                   name="dueDate"
                   className="form-control rounded-3"
@@ -188,6 +196,13 @@ export default function AddTask({
                 </button>
               </div>
             </form>
+            {errorStatus ? (
+              <div className="col-md-12">
+                <p className="errormsg">{errorMsg}</p>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

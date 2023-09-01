@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { APIUrl } from "../../auth/constants.js";
 import { dateFormate } from "../util.js";
+import { useNavigate } from "react-router-dom";
 
 export default function ReimbursementDetails({
   detailsPopUp,
@@ -8,22 +9,33 @@ export default function ReimbursementDetails({
   itemData,
 }) {
   const [reimbursementHistory, setreimbursementHistory] = useState([]);
+  const navigate = useNavigate();
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/reimbursement/history/" + itemData.id, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        setreimbursementHistory([...res]);
-        console.log("Reimbursement History List : ", res);
+
+    if (Object.keys(itemData).length > 0) {
+      fetch(APIUrl + "api/reimbursement/history/" + itemData.id, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + tokenValue,
+        },
       })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
+        .then((res) => {
+          if (res.status === 401) {
+            window.localStorage.removeItem("am_token");
+            navigate("/");
+          } else return res.json();
+        })
+        .then((res) => {
+          setreimbursementHistory([...res]);
+          console.log("Reimbursement History List : ", res);
+        })
+        .catch((err) => {
+          console.log("User Not Get : ", err);
+        });
+    } else {
+      setreimbursementHistory([]);
+    }
   }, [itemData]);
   useEffect(() => {
     getUsers();
