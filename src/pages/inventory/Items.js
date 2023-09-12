@@ -29,7 +29,7 @@ function Items() {
   const [itemStatus, setItemStatus] = useState(false);
   const [userArray, setuserArray] = useState([]);
   const getUsers = useCallback(() => {
-    if (userInfo?.role === 2) {
+    if (userInfo && userInfo?.role === 2) {
       // let tokenValue = window.localStorage.getItem("am_token");
       // fetch(APIUrl + "api/users", {
       //   headers: {
@@ -51,10 +51,16 @@ function Items() {
       //   .catch((err) => {
       //     console.log("User Not Get : ", err);
       //   });
-      let users = userInfo?.userList.map(
-        (user) => user.displayName + "/" + user.email
-      );
-      setuserArray(users);
+      let users = userInfo?.userList.map((user) => {
+        return {
+          name: user.displayName,
+          email: user.email,
+          userDetails: user.displayName + "/" + user.email,
+        };
+      });
+
+      console.log("User Details : ", users);
+      setuserArray([...users]);
     } else setuserArray([]);
   }, [userInfo]);
   useEffect(() => {
@@ -82,11 +88,11 @@ function Items() {
   //       },
   //     })
   //      .then((res) => {
-      //   if (res.status === 401) {
-      //     window.localStorage.removeItem("am_token");
-      //     navigate("/");
-      //   } else return res.json();
-      // })
+  //   if (res.status === 401) {
+  //     window.localStorage.removeItem("am_token");
+  //     navigate("/");
+  //   } else return res.json();
+  // })
   //       .then((res) => console.log("User Info "));
   // }, [token]);
   const checkUser = useCallback(() => {

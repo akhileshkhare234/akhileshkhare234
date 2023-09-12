@@ -30,7 +30,6 @@ export default function UserDetails({
               aria-label="Close"
             ></button>
           </div>
-
           <div className="modal-body px-5 pt-0">
             <hr className="mb-3" />
             <div className="row">
@@ -46,18 +45,7 @@ export default function UserDetails({
                       ? process.env.PUBLIC_URL + "/images/female.png"
                       : process.env.PUBLIC_URL + "/images/male.png"
                   }
-                />
-                {/* <img
-                  className="profileimage3 userimage2"
-                  src={
-                    itemData.imageUrl
-                      ? itemData.imageUrl
-                      : itemData.gender === "Female"
-                      ? process.env.PUBLIC_URL + "/images/female.png"
-                      : process.env.PUBLIC_URL + "/images/male.png"
-                  }
-                  alt=""
-                /> */}
+                />              
               </div>
               <div className="col-10">
                 {" "}
@@ -182,7 +170,7 @@ export default function UserDetails({
             </dl>
             <dl className="row mb-1">
               <dt className="col-sm-2">Assigned Projects </dt>
-              {itemData.projects?.length === 0 ? (
+              {itemData.userProjectWithAssignedDate?.length === 0 ? (
                 <dd className="col-sm">
                   <span
                     style={{
@@ -196,7 +184,7 @@ export default function UserDetails({
                 </dd>
               ) : (
                 <div className="row mt-3">
-                  {itemData.projects?.map((row) => (
+                  {itemData.userProjectWithAssignedDate?.map((row) => (
                     <dd className="col-sm mb-3" key={row.projectId}>
                       <span
                         className="no-wrap"

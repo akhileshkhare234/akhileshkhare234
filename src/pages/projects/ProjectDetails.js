@@ -8,24 +8,39 @@ export default function ProjectDetails({
   itemData,
 }) {
   const [userArray, setuserArray] = useState([]);
+  const [userLoading, setuserLoading] = useState(false);
 
   const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let users = userInfo?.userList.map((user) => {
+    let users = userInfo?.userList?.map((user) => {
       return { name: user.displayName, email: user.email, id: user.id };
     });
-    if (Object.keys(itemData).length > 0) {
+    if (users && Object.keys(itemData).length > 0) {
       let defaultUser =
         itemData &&
         users
-          ?.filter((row) => itemData?.emails.split(",").includes(row.email))
+          ?.filter((row) =>
+            itemData?.emails
+              ?.split(",")
+              .map((name) => name.trim())
+              .includes(row.email)
+          )
           .map((row) => row.name);
+      setuserLoading(true);
       setuserArray([...defaultUser]);
+      console.log(
+        "defaultUser List : ",
+        defaultUser,
+        itemData?.emails.split(",").map((name) => name.trim())
+      );
+    } else {
+      setuserArray([]);
     }
   }, [itemData, userInfo?.userList]);
   useEffect(() => {
+    setuserLoading(false);
     getUsers();
-  }, [getUsers]);
+  }, [getUsers, userLoading]);
   return (
     <div
       className={
@@ -65,7 +80,9 @@ export default function ProjectDetails({
               <dd className="col-sm-3">{dateFormate(itemData.startDate)}</dd>
               <dt className="col-sm-3">Completion Date</dt>
               <dd className="col-sm-3">
-                {dateFormate(itemData.completionDate) === "01-JAN-1970"
+                {(itemData.completionDate &&
+                  dateFormate(itemData.completionDate) === "01-JAN-1970") ||
+                itemData.completionDate === undefined
                   ? "-"
                   : dateFormate(itemData.completionDate)}
               </dd>
@@ -79,6 +96,10 @@ export default function ProjectDetails({
             <dl className="row">
               <dt className="col-sm-3">Project Detail</dt>
               <dd className="col-sm-9">{itemData.projectDetail}</dd>
+            </dl>
+            <dl className="row">
+              <dt className="col-sm-3">Project Comment</dt>
+              <dd className="col-sm-9">{itemData.comments}</dd>
             </dl>
             <dl className="row">
               <dt className="col-sm-3">Assigned Users</dt>
@@ -100,8 +121,10 @@ export default function ProjectDetails({
                   </dd>
                 ))
               ) : (
-                <dd className="col-sm-3 text-center" style={{ color: "green" }}>
-                  Users data loading...
+                <dd className="col-sm-9 text-center" style={{ color: "green" }}>
+                  {userLoading
+                    ? "No employees have been assigned to this project yet."
+                    : "Users data loading..."}
                 </dd>
               )}
             </dl>

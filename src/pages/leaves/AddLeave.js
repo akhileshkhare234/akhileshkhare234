@@ -245,7 +245,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="Submitted"
                 >
-                  Submitted
+                  Submit
                 </button>
               </div>
             </form>

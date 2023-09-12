@@ -14,89 +14,81 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
   const [items, setItems] = useState([]);
   const [timeSheetData, setTimeSheetData] = useState([]);
   const [pages, setPages] = useState([]);
+  const [pageSize, setPageSize] = useState(10);
   const [start, setStart] = useState(0);
   const [payload, setPayload] = useState({});
   const [userArray, setuserArray] = useState([]);
   const [projects, setProject] = useState([]);
   const navigate = useNavigate();
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/users", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          window.localStorage.removeItem("am_token");
-          navigate("/");
-        } else return res.json();
-      })
-      .then((res) => {
-        let users = res.map((user) => user.displayName + "/" + user.email);
-        setuserArray([...users]);
-        // console.log("Users List : ", users);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+    let users = userInfo?.userList?.map((user) => {
+      return { name: user.displayName, email: user.email, id: user.id };
+    });
+    if (users) setuserArray([...users]);
+    else setuserArray([]);
+  }, [userInfo?.userList]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-  const getTimeSheet = (e) => {
-    e?.preventDefault();
-    let userForm = document.forms["timesheetform"];
-    let { users, projects, years, months } = userForm;
-    let payload = {
-      users: users.value,
-      projects: projects.value,
-      years: years.value,
-      months: months.value,
-    };
-    console.log(payload);
-    setPayload(payload);
-    // http://localhost:8080/api/timesheet?year=2023&email=shailendra.bardiya@lirisoft.com,abc.xyz@lirisoft.com&month=JAN&projectId=2&status=ReSubmitted
-    let urldata =
-      payload.users === "All"
-        ? payload.projects === "All"
-          ? `api/timesheet?year=${payload.years}&month=${payload.months}`
-          : `api/timesheet?year=${payload.years}&month=${payload.months}&projectId=${payload.projects}`
-        : payload.projects === "All"
-        ? `api/timesheet?year=${payload.years}&email=${payload.users}&month=${payload.months}`
-        : `api/timesheet?year=${payload.years}&email=${payload.users}&month=${payload.months}&projectId=${payload.projects}`;
-    fetch(APIUrl + urldata, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          window.localStorage.removeItem("am_token");
-          navigate("/");
-        } else return res.json();
-      })
-      .then((res) => {
-        if (res?.length > 0) {
-          let timeSheet = res.filter((row, index) => index < 10);
-          console.log("timeSheet Info ", timeSheet);
-          setItems([...timeSheet]);
-          setTimeSheetData([...res]);
-          let pageSize = 10;
-          let pages = [];
-          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
-            pages.push(I);
-          }
-          setPages(pages);
-        } else {
-          setItems([]);
-          setTimeSheetData([]);
-          setPages([]);
-        }
-      });
-  };
+  const getTimeSheet = useCallback(
+    (e) => {
+      setPageSize(10);
+      e?.preventDefault();
+      let userForm = document.forms["timesheetform"];
+      if (userForm) {
+        let { users, projects, years, months } = userForm;
+        let payload = {
+          users: users.value,
+          projects: projects.value,
+          years: years.value,
+          months: months.value,
+        };
+        console.log(payload);
+        setPayload(payload);
+        // http://localhost:8080/api/timesheet?year=2023&email=shailendra.bardiya@lirisoft.com,abc.xyz@lirisoft.com&month=JAN&projectId=2&status=ReSubmitted
+        let urldata =
+          payload.users === "All"
+            ? payload.projects === "All"
+              ? `api/timesheet?year=${payload.years}&month=${payload.months}`
+              : `api/timesheet?year=${payload.years}&month=${payload.months}&projectId=${payload.projects}`
+            : payload.projects === "All"
+            ? `api/timesheet?year=${payload.years}&email=${payload.users}&month=${payload.months}`
+            : `api/timesheet?year=${payload.years}&email=${payload.users}&month=${payload.months}&projectId=${payload.projects}`;
+        token &&
+          fetch(APIUrl + urldata, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          })
+            .then((res) => {
+              if (res.status === 401) {
+                window.localStorage.removeItem("am_token");
+                navigate("/");
+              } else return res.json();
+            })
+            .then((res) => {
+              if (res?.length > 0) {
+                let timeSheet = res.filter((row, index) => index < 10);
+                console.log("timeSheet Info ", timeSheet);
+                setItems([...timeSheet]);
+                setTimeSheetData([...res]);
+                let pageSize = 10;
+                let pages = [];
+                for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+                  pages.push(I);
+                }
+                setPages(pages);
+              } else {
+                setItems([]);
+                setTimeSheetData([]);
+                setPages([]);
+              }
+            });
+      }
+    },
+    [navigate, token]
+  );
   const setProjectData = useCallback(() => {
     setStart(0);
     token &&
@@ -116,7 +108,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
           if (res?.length > 0) {
             let project = res.filter((row, index) => index < 10);
             console.log("projects List ", project);
-            setProject([...project]);
+            setProject([...res]);
             getTimeSheet();
 
             let pageSize = 10;
@@ -130,22 +122,22 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
             setPages([]);
           }
         });
-  }, [token]);
+  }, [navigate, token]);
   useEffect(() => {
     setProjectData();
   }, [setProjectData, itemStatus]);
-  const showNextInventory = (pos) => {
+  const showNextTimesheet = (pos) => {
     let start = pos === 1 ? 0 : pos * 10 - 10;
-    let inventory = timeSheetData.filter(
+    let timeSheet = timeSheetData.filter(
       (row, index) => index >= start && index < pos * 10
     );
-    console.log("start, pos,inventory ", start, pos, inventory);
-    setItems([...inventory]);
+    console.log("start, pos,timeSheet ", start, pos, timeSheet);
+    setItems([...timeSheet]);
     setStart(start);
   };
-  const getUserInfo = (user, index) => {
-    return user?.split("/")[index];
-  };
+  // const getUserInfo = (user, index) => {
+  //   return user?.split("/")[index];
+  // };
 
   const exportFile = () => {
     let timesheetform = document.forms["timesheetform"];
@@ -208,9 +200,9 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     </label>
                     <select className="form-select rounded-3" name="users">
                       <option value="All">All</option>
-                      {userArray.map((user, index) => (
-                        <option value={getUserInfo(user, 1)} key={index}>
-                          {getUserInfo(user, 0)}
+                      {userArray?.map((user, index) => (
+                        <option value={user.email} key={index}>
+                          {user.name}
                         </option>
                       ))}
                     </select>
@@ -280,101 +272,115 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
               </form>
             ) : null}
             <hr className="mb-3" />
-            <table className="table tabletext2">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">User Name</th>
-                  <th scope="col" className="text-center">
-                    TimeSheet Details
-                  </th>
-                  {payload.projects === "All" ? null : (
+            {items?.length > 0 ? (
+              <table className="table tabletext2">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">User Name</th>
                     <th scope="col" className="text-center">
-                      Status
+                      TimeSheet Details
                     </th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index}>
-                    <th scope="row">{start + index + 1}</th>
-                    <td>
-                      {getUserInfo(
-                        userArray.filter(
-                          (user, index) => getUserInfo(user, 1) === item.email
-                        )[0],
-                        0
-                      )}
-                    </td>
-                    <td className="text-center">
-                      {payload?.projects === "All" ? (
-                        item.projectIds.split("|").map((id) => {
-                          let data = projects.filter(
-                            (project) => project.projectId === parseInt(id)
-                          );
-                          return data.length > 0 ? (
-                            <span
-                              onClick={() =>
-                                historyPopUpOpen(false, {
-                                  data: item.data.filter(
-                                    (row) => row.projectId === parseInt(id)
-                                  ),
-                                  projectName: data[0].name,
-                                  month: item.month,
-                                  year: item.year,
-                                })
-                              }
-                              title={"View " + data[0].name + " TimeSheet"}
-                              key={data[0].projectId + data[0].name}
-                              className="timesheetlink"
-                            >
-                              {data[0].name} {item.month} {item.year}
-                            </span>
-                          ) : null;
-                        })
-                      ) : (
-                        <span
-                          className="timesheetlink"
-                          onClick={() =>
-                            historyPopUpOpen(false, {
-                              data: item.data.filter(
-                                (row) =>
-                                  row.projectId === parseInt(payload.projects)
-                              ),
-                              projectName: projects?.filter(
+                    {payload.projects === "All" ? null : (
+                      <th scope="col" className="text-center">
+                        Status
+                      </th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, index) => (
+                    <tr key={index}>
+                      <th scope="row">{start + index + 1}</th>
+                      <td>
+                        {
+                          userArray.filter(
+                            (user, index) => user.email === item.email
+                          )[0]?.name
+                        }
+                      </td>
+                      <td className="text-center">
+                        {payload?.projects === "All" ? (
+                          item.projectIds.split("|").map((id) => {
+                            let data = projects.filter(
+                              (project) => project.projectId === parseInt(id)
+                            );
+                            return data.length > 0 ? (
+                              <span
+                                onClick={() =>
+                                  historyPopUpOpen(false, {
+                                    data: item.data.filter(
+                                      (row) => row.projectId === parseInt(id)
+                                    ),
+                                    projectName: data[0].name,
+                                    month: item.month,
+                                    year: item.year,
+                                  })
+                                }
+                                title={"View " + data[0].name + " TimeSheet"}
+                                key={data[0].projectId + data[0].name}
+                                className="timesheetlink"
+                              >
+                                {data[0].name} {item.month} {item.year}
+                              </span>
+                            ) : null;
+                          })
+                        ) : (
+                          <span
+                            className="timesheetlink"
+                            onClick={() =>
+                              historyPopUpOpen(false, {
+                                data: item.data.filter(
+                                  (row) =>
+                                    row.projectId === parseInt(payload.projects)
+                                ),
+                                projectName: projects?.filter(
+                                  (project) =>
+                                    project.projectId ===
+                                    parseInt(payload.projects)
+                                )[0]?.name,
+                                month: item.month,
+                                year: item.year,
+                              })
+                            }
+                            title={
+                              "View " + projects?.length > 0 &&
+                              projects?.filter(
                                 (project) =>
                                   project.projectId ===
                                   parseInt(payload.projects)
-                              )[0]?.name,
-                              month: item.month,
-                              year: item.year,
-                            })
-                          }
-                          title={
-                            "View " + projects?.length > 0 &&
-                            projects?.filter(
+                              )[0]?.name + " TimeSheet"
+                            }
+                          >
+                            {projects?.filter(
                               (project) =>
                                 project.projectId === parseInt(payload.projects)
-                            )[0]?.name + " TimeSheet"
-                          }
-                        >
-                          {projects?.filter(
-                            (project) =>
-                              project.projectId === parseInt(payload.projects)
-                          )[0].name + " "}
-                          {item.month} {item.year}
-                        </span>
-                      )}
-                    </td>
-                    {payload.projects === "All" ? null : (
-                      <td className="text-center">
-                        {userInfo && userInfo?.role === 2 ? (
-                          item?.data.length > 0 ? (
-                            <span
-                              className="status_btn"
-                              onClick={() => setapprovePopUp(false)}
-                            >
+                            )[0].name + " "}
+                            {item.month} {item.year}
+                          </span>
+                        )}
+                      </td>
+                      {payload.projects === "All" ? null : (
+                        <td className="text-center">
+                          {userInfo && userInfo?.role === 2 ? (
+                            item?.data.length > 0 ? (
+                              <span
+                                className="status_btn"
+                                onClick={() => setapprovePopUp(false)}
+                              >
+                                {
+                                  item?.data.filter(
+                                    (row) =>
+                                      row.projectId ===
+                                      parseInt(payload.projects)
+                                  )[0]?.status
+                                }
+                              </span>
+                            ) : (
+                              <span className="status_btn">Not Filled</span>
+                            )
+                          ) : (
+                            <span className="status_btn">
                               {
                                 item?.data.filter(
                                   (row) =>
@@ -382,23 +388,11 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                                 )[0]?.status
                               }
                             </span>
-                          ) : (
-                            <span className="status_btn">Not Filled</span>
-                          )
-                        ) : (
-                          <span className="status_btn">
-                            {
-                              item?.data.filter(
-                                (row) =>
-                                  row.projectId === parseInt(payload.projects)
-                              )[0]?.status
-                            }
-                          </span>
-                        )}
-                      </td>
-                    )}
+                          )}
+                        </td>
+                      )}
 
-                    {/* <td className="text-center">
+                      {/* <td className="text-center">
                       <button
                         onClick={() => historyPopUpOpen(false, item.data)}
                         type="button"
@@ -407,44 +401,72 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                         <i className="bi bi-clock-history"></i>
                       </button>
                     </td> */}
-                  </tr>
-                ))}
-              </tbody>
-              {timeSheetData.length > 10 && pages.length > 0 ? (
-                <tfoot>
-                  <tr>
-                    <td colSpan="14">
-                      <nav aria-label="Page navigation example">
-                        <ul className="pagination justify-content-end m-0">
-                          <li className="page-item disabled">
-                            <span className="page-link">Previous</span>
-                          </li>
-                          {pages.map((page, index) => (
-                            <li
-                              className="page-item"
-                              key={index}
-                              onClick={() => showNextInventory(page)}
-                            >
-                              <span className="page-link" href="#">
-                                {page}
-                              </span>
-                            </li>
-                          ))}
+                    </tr>
+                  ))}
+                </tbody>
+                {timeSheetData.length > pageSize && pages.length > 0 ? (
+                  <tfoot>
+                    <tr>
+                      <td>
+                        <select
+                          style={{
+                            width: "75px",
+                            paddingLeft: "8px",
+                            height: "35px",
+                          }}
+                          className="form-select rounded-3"
+                          name="type"
+                          onChange={(e) => {
+                            setPageSize(e.target.value);
+                          }}
+                        >
+                          <option value="10">10</option>
+                          <option value="25">25</option>
+                          <option value="50">50</option>
+                        </select>
+                      </td>
+                      <td colSpan="3">
+                        <nav aria-label="Page navigation example">
+                          <ul className="pagination justify-content-end m-0">
+                            {/* <li className="page-item disabled">
+                              <span className="page-link">Previous</span>
+                            </li> */}
+                            {pages.map((page, index) => (
+                              <li
+                                className="page-item"
+                                key={index}
+                                onClick={() => showNextTimesheet(page)}
+                              >
+                                <span className="page-link" href="#">
+                                  {page}
+                                </span>
+                              </li>
+                            ))}
 
-                          <li className="page-item">
-                            <span className="page-link" href="#">
-                              Next
-                            </span>
-                          </li>
-                        </ul>
-                      </nav>
-                    </td>
-                  </tr>
-                </tfoot>
-              ) : (
-                ""
-              )}
-            </table>
+                            {/* <li className="page-item">
+                              <span className="page-link" href="#">
+                                Next
+                              </span>
+                            </li> */}
+                          </ul>
+                        </nav>
+                      </td>
+                    </tr>
+                  </tfoot>
+                ) : (
+                  ""
+                )}
+              </table>
+            ) : (
+              <div className="row datanotfound">
+                <div className="col-12 text-center">
+                  <h4 className="datanotfound">
+                    <i className="bi bi-search datanotfoundIcon"></i>Timesheet
+                    data not found
+                  </h4>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <ApproveTimeSheet

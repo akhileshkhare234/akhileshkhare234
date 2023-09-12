@@ -57,17 +57,22 @@ export default function EditTask({
   const [userArray, setuserArray] = useState([]);
   const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let users = userInfo?.userList.map((user) => {
-      return { name: user.displayName, email: user.email, id: user.id };
-    });
-    if (Object.keys(itemDetails).length > 0) {
-      let defaultUser = users.filter((row) =>
-        itemDetails.assignedTo.split(",").includes(row.email)
-      );
-      setSelectedValue([...defaultUser]);
-      setuserArray([...users]);
+    if (userInfo && userInfo?.role === 2) {
+      let users = userInfo?.userList.map((user) => {
+        return { name: user.displayName, email: user.email, id: user.id };
+      });
+      if (Object.keys(itemDetails).length > 0) {
+        let defaultUser = users.filter((row) =>
+          itemDetails.assignedTo?.split(",").includes(row.email)
+        );
+        setSelectedValue([...defaultUser]);
+        setuserArray([...users]);
+      }
+    } else {
+      setSelectedValue([]);
+      setuserArray([]);
     }
-  }, [itemDetails, userInfo?.userList]);
+  }, [itemDetails, userInfo]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);

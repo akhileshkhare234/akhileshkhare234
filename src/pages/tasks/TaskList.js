@@ -66,7 +66,7 @@ export default function TaskList({
             setLoadingStatus(false);
           }
         });
-  }, [token]);
+  }, [navigate, token]);
   useEffect(() => {
     setTaskData();
   }, [setTaskData, itemStatus]);
@@ -175,7 +175,7 @@ export default function TaskList({
                               ? dateFormate(item[field])
                               : field === "teamSize"
                               ? item[field] === null
-                                ? item["emails"].split(",").length
+                                ? item["emails"]?.split(",").length
                                 : item[field]
                               : item[field]}
                           </td>

@@ -23,6 +23,7 @@ export default function ItemsList({
   const [pageSize, setPageSize] = useState(10);
   const [pages, setPages] = useState([]);
   const [searchStatus, setSerachStatus] = useState(false);
+  const [loadingStatus, setloadingStatus] = useState(false);
   const navigate = useNavigate();
   const setItemsData = useCallback(() => {
     setStart(0);
@@ -55,8 +56,9 @@ export default function ItemsList({
             setInventories([]);
             setPages([]);
           }
+          setloadingStatus(true);
         });
-  }, [pageSize, token]);
+  }, [navigate, pageSize, token]);
   useEffect(() => {
     setItemsData();
   }, [setItemsData, itemStatus]);
@@ -267,7 +269,8 @@ export default function ItemsList({
                   )}
                 </table>
               </>
-            ) : searchStatus && serachText?.length > 0 ? (
+            ) : (searchStatus && serachText?.length > 0) ||
+              loadingStatus === true ? (
               <div className="row datanotfound">
                 <div className="col-12 text-center">
                   <h4 className="datanotfound">

@@ -61,11 +61,14 @@ export default function AddTask({
   const [userArray, setuserArray] = useState([]);
   const userInfo = useContext(UserData);
   const getUsers = useCallback(() => {
-    let users = userInfo?.userList.map((user) => {
-      return { name: user.displayName, email: user.email, id: user.id };
-    });
+    let users =
+      userInfo.role === 2
+        ? userInfo?.userList.map((user) => {
+            return { name: user.displayName, email: user.email, id: user.id };
+          })
+        : [];
     setuserArray([...users]);
-  }, [userInfo?.userList]);
+  }, [userInfo.role, userInfo?.userList]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -121,7 +124,7 @@ export default function AddTask({
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Task Entry Form</h1>
+            <h1 className="fw-bold mb-0 fs-2">Task Entry</h1>
             <button
               onClick={() => {
                 entryPopUpClose(true);

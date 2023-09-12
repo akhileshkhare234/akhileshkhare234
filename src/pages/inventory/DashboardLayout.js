@@ -31,7 +31,7 @@ function DashboardLayout() {
   return (
     <div className="container-fulid">
       <div className="row pagesize pageMargin">
-        <div className="col-2 rowSpace bgColor">
+        <div className="col-2 rowSpace">
           <ul
             className="navbar-nav navbar-nav-side bgColor"
             id="accordionSidebar"

@@ -132,7 +132,7 @@ export default function EditUser({
       doj: doj.value,
       uan: uan.value,
       role: role.value,
-      projects: itemDetails.projects,
+      projects: itemDetails.userProjectWithAssignedDate,
       userStatus: userStatus.value,
     };
     let blankFields = checkFields(itemData);
@@ -202,6 +202,7 @@ export default function EditUser({
         : assignDateFormate(itemDetails.doj);
     itemForm.uan.value = itemDetails.uan;
     itemForm.role.value = itemDetails.role;
+    itemForm.userStatus.value = itemDetails.userStatus;
   };
   useEffect(() => {
     setFormdata(itemDetails);
@@ -220,7 +221,7 @@ export default function EditUser({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit Engineer Details</h1>
+            <h1 className="fw-bold mb-0 fs-2">Update Engineer Details</h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"
@@ -293,20 +294,33 @@ export default function EditUser({
                 className="d-grid gap-2 d-md-flex "
                 style={{ justifyContent: "space-between" }}
               >
-                <select
-                  className="form-select rounded-3"
-                  style={{ width: "200px", float: "left" }}
-                  name="userStatus"
-                  defaultValue="active"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
+                <div className="btn btn-outline-primary pt-1">
+                  <label
+                    htmlFor="floatingInput"
+                    className="mb-1 pt-1"
+                    style={{ marginTop: "5px" }}
+                  >
+                    User Status
+                  </label>
+                  <select
+                    className="form-select rounded-3"
+                    style={{
+                      width: "200px",
+                      float: "right",
+                      marginLeft: "15px",
+                    }}
+                    name="userStatus"
+                    defaultValue="ACTIVE"
+                  >
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
+                </div>
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 "
                   type="submit"
                 >
-                  Edit
+                  Update
                 </button>
               </div>
             </form>

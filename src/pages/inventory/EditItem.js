@@ -84,7 +84,12 @@ export default function EditItem({
     console.log("itemData : ", itemData);
   };
   const setFormdata = (itemDetails) => {
-    console.log("itemDetails : ", itemDetails);
+    console.log(
+      "itemDetails : ",
+      itemDetails,
+      assignDateFormate(new Date()),
+      assignDateFormate(itemDetails.validityTo)
+    );
     let itemForm = document.forms["itemForm"];
     itemForm.model.value = itemDetails.model;
     itemForm.brand.value = itemDetails.brand;
@@ -94,10 +99,16 @@ export default function EditItem({
     itemForm.owner.value = itemDetails.owner;
     itemForm.purchaseDate.value = assignDateFormate(itemDetails.purchaseDate);
     itemForm.validityFrom.value = assignDateFormate(itemDetails.validityFrom);
-    itemForm.validityTo.value = assignDateFormate(itemDetails.validityTo);
+    itemForm.validityTo.value =
+      assignDateFormate(itemDetails.validityTo) === "1970-01-01"
+        ? assignDateFormate(new Date().toISOString())
+        : assignDateFormate(itemDetails.validityTo);
     itemForm.assign.value = itemDetails.assign;
     itemForm.assignDate.value = assignDateFormate(itemDetails.assignDate);
-    itemForm.releaseDate.value = assignDateFormate(itemDetails.releaseDate);
+    itemForm.releaseDate.value =
+      assignDateFormate(itemDetails.releaseDate) === "1970-01-01"
+        ? assignDateFormate(new Date().toISOString())
+        : assignDateFormate(itemDetails.releaseDate);
     itemForm.identity.value = itemDetails.identity;
     if (["Laptop", "CPU"].indexOf(itemDetails.type) >= 0) {
       itemForm.ram.value = itemDetails.config.ram;
@@ -109,7 +120,7 @@ export default function EditItem({
   };
   // const [userArray, setuserArray] = useState([]);
   // const getUsers = useCallback(() => {
-  //   if (userInfo?.role === 2) {
+  //   if (userInfo.role === 2) {
   //     let tokenValue = window.localStorage.getItem("am_token");
   //     fetch(APIUrl + "api/users", {
   //       headers: {
@@ -117,12 +128,7 @@ export default function EditItem({
   //         Authorization: "Bearer " + tokenValue,
   //       },
   //     })
-  //      .then((res) => {
-      //   if (res.status === 401) {
-      //     window.localStorage.removeItem("am_token");
-      //     navigate("/");
-      //   } else return res.json();
-      // })
+  //       .then((res) => res.json())
   //       .then((res) => {
   //         let users = res.map((user) => user.displayName);
   //         setuserArray([...users]);
@@ -132,13 +138,13 @@ export default function EditItem({
   //         console.log("User Not Get : ", err);
   //       });
   //   } else setuserArray([]);
-  // }, [userInfo?.role]);
+  // }, [userInfo.role]);
   useEffect(() => {
     // getUsers();
     setFormdata(itemDetails);
   }, [itemDetails]);
-  const getUserInfo = (user, index) => {
-    return user?.split("/")[index];
+  const getUserInfo = (userinfo, index) => {
+    return userinfo.split("/")[index];
   };
   return (
     <div
@@ -153,7 +159,7 @@ export default function EditItem({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit Inventory</h1>
+            <h1 className="fw-bold mb-0 fs-2">Update Inventory</h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"
@@ -172,8 +178,8 @@ export default function EditItem({
                 <select className="form-select rounded-3" name="assign">
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
-                    <option value={getUserInfo(user, 0)} key={index}>
-                      {getUserInfo(user, 0)}
+                    <option value={user.name} key={index}>
+                      {user.name}
                     </option>
                   ))}
                 </select>
@@ -350,8 +356,8 @@ export default function EditItem({
                 </label>
                 <select className="form-select rounded-3" name="owner">
                   {userArray.map((user, index) => (
-                    <option value={user} key={index}>
-                      {user}
+                    <option value={user.name} key={index}>
+                      {user.name}
                     </option>
                   ))}
                 </select>

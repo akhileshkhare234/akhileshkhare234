@@ -16,7 +16,7 @@ export default function EditLeave({
     let itemData = {
       leaveTo: leaveTo.value,
       leaveFrom: leaveFrom.value,
-      unit: unit.value.split(" ")[0],
+      unit: unit.value?.split(" ")[0],
       reason: reason.value,
       leaveType: leaveType.value,
     };
@@ -117,7 +117,7 @@ export default function EditLeave({
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Leave Update Form</h1>
+            <h1 className="fw-bold mb-0 fs-2">Leave Update</h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"

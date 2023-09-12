@@ -62,6 +62,28 @@ export const assignDateFormate = (dateval) => {
   var y = date.getFullYear();
   return "" + y + "-" + (m <= 9 ? "0" + m : m) + "-" + (d <= 9 ? "0" + d : d);
 };
+export const getDateBySelection = (selectedMonth, selectedYear) => {
+  let dateVal =
+    selectedMonth === getShortMonthByDate(new Date().toLocaleDateString())
+      ? new Date().getDate()
+      : "30";
+  let monthVal = selectedMonth ? selectedMonth : getMonthName();
+  let yearVal = selectedYear ? selectedYear : getYears();
+  return parseDate(
+    dateVal + "/" + (monthNames.indexOf(monthVal) + 1) + "/" + yearVal
+  );
+};
+// Function to parse a date string in DD/MM/YYYY format and return a Date object
+export const parseDate = (dateString) => {
+  const parts = dateString.split("/");
+  if (parts.length !== 3) {
+    throw new Error("Invalid date format. Please use DD/MM/YYYY.");
+  }
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1] - 1, 10); // Months in JavaScript are 0-based (0 = January)
+  const year = parseInt(parts[2], 10);
+  return new Date(year, month, day);
+};
 export const localDateFormate = (dateval) => {
   let date = new Date(dateval);
   var d = date.getDate();
@@ -95,6 +117,9 @@ export const getDayName = (date_val) => {
 };
 export const getMonthByDate = (date_val) => {
   return monthFullName[new Date(date_val).getMonth()];
+};
+export const getShortMonthByDate = (date_val) => {
+  return monthNames[new Date(date_val).getMonth()];
 };
 export const getMonthName = () => {
   let dates = new Date().getMonth();

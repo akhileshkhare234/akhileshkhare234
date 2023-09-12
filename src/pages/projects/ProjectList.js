@@ -176,9 +176,9 @@ export default function ProjectList({
                                 ? "-"
                                 : dateFormate(item[field])
                               : field === "teamSize"
-                              ? item[field] === null
-                                ? item["emails"].split(",").length
-                                : item[field]
+                              ? item["emails"] === ""
+                                ? "0"
+                                : item["emails"]?.split(",").length
                               : item[field]}
                           </td>
                         ))}

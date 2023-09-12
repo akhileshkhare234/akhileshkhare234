@@ -51,7 +51,7 @@ export default function DeleteTask({
             <div className="modal-body">
               <h1 className="modal-title fs-6">
                 <i className="bi bi-trash iconBg"></i> Are you sure you want to
-                delete this Task <i className="bi bi-question-circle"></i>
+                delete this task <i className="bi bi-question-circle"></i>
               </h1>
             </div>
             <div className="modal-footer">

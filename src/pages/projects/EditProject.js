@@ -23,6 +23,7 @@ export default function EditProject({
       completionDate,
       clientContactName,
       clientContactNumber,
+      comments,
     } = event.target;
     let itemData = {
       projectId: itemDetails.projectId,
@@ -33,6 +34,7 @@ export default function EditProject({
       clientContactNumber: clientContactNumber.value,
       startDate: startDate.value,
       completionDate: completionDate.value,
+      comments: comments.value,
     };
     itemData["emails"] = selectedValue.map((row) => row.email).join();
     itemData["teamSize"] = selectedValue.length;
@@ -56,19 +58,30 @@ export default function EditProject({
       });
     console.log("itemData : ", itemData);
   };
-  const setFormdata = (itemDetails) => {
-    console.log("itemDetails : ", itemDetails);
-    let projectForm = document.forms["projectForm"];
-    projectForm.name.value = itemDetails.name;
-    projectForm.manager.value = itemDetails.manager;
-    projectForm.projectDetail.value = itemDetails.projectDetail;
-    projectForm.startDate.value = assignDateFormate(itemDetails.startDate);
-    projectForm.completionDate.value = assignDateFormate(
-      itemDetails.completionDate
-    );
-    projectForm.clientContactName.value = itemDetails.clientContactName;
-    projectForm.clientContactNumber.value = itemDetails.clientContactNumber;
-  };
+  const setFormdata = useCallback(
+    (itemDetails) => {
+      console.log("itemDetails : ", changeStatus);
+      let projectForm = document.forms["projectForm"];
+      projectForm.name.value = itemDetails.name;
+      projectForm.manager.value = itemDetails.manager;
+      projectForm.projectDetail.value = itemDetails.projectDetail;
+      projectForm.startDate.value = assignDateFormate(itemDetails.startDate);
+      projectForm.completionDate.value = assignDateFormate(
+        itemDetails.completionDate
+      );
+      projectForm.clientContactName.value = itemDetails.clientContactName;
+      projectForm.clientContactNumber.value = itemDetails.clientContactNumber;
+      let users = userInfo?.userList?.map((user) => {
+        return { name: user.displayName, email: user.email, id: user.id };
+      });
+      let defaultUser = users.filter((row) =>
+        itemDetails.emails?.split(",")?.includes(row.email)
+      );
+      setSelectedValue([...defaultUser]);
+      setuserArray([...users]);
+    },
+    [changeStatus, userInfo?.userList]
+  );
   const [userArray, setuserArray] = useState([]);
   // const getUsers = useCallback(() => {
   //   let tokenValue = window.localStorage.getItem("am_token");
@@ -108,13 +121,19 @@ export default function EditProject({
     let users = userInfo?.userList?.map((user) => {
       return { name: user.displayName, email: user.email, id: user.id };
     });
-    let defaultUser = users.filter((row) =>
-      itemDetails.emails?.split(",")?.includes(row.email)
-    );
-    setSelectedValue([...defaultUser]);
-    setuserArray([...users]);
-    setFormdata(itemDetails);
-  }, [itemDetails, userInfo?.userList]);
+    if (users) {
+      let defaultUser = users.filter((row) =>
+        itemDetails.emails?.split(",")?.includes(row.email)
+      );
+
+      setSelectedValue([...defaultUser]);
+      setuserArray([...users]);
+      setFormdata(itemDetails);
+    } else {
+      setSelectedValue([]);
+      setuserArray([]);
+    }
+  }, [itemDetails, setFormdata, userInfo?.userList]);
   const onSelect = (selectedList, selectedItem) => {
     console.log("selectedList ", selectedList);
     setSelectedValue([...selectedList]);
@@ -166,11 +185,13 @@ export default function EditProject({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Edit Project</h1>
+            <h1 className="fw-bold mb-0 fs-2">Update Project</h1>
             <button
               onClick={() => {
                 editPopUpClose(true);
                 setSelectedValue([]);
+                let projectForm = document.forms["projectForm"];
+                projectForm.reset();
               }}
               type="button"
               className="btn-close"
@@ -235,12 +256,15 @@ export default function EditProject({
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Completion Date</label>
+                <label className="mb-1">
+                  Completion Date <span className="required">*</span>
+                </label>
                 <input
                   type="date"
                   name="completionDate"
                   className="form-control rounded-3"
                   id="floatingInput"
+                  required
                   placeholder="Enter Completion Date"
                 />
               </div>
@@ -264,7 +288,16 @@ export default function EditProject({
                   displayValue="name" // Property name to display in the dropdown options
                 />
               </div>
-
+              <div className="col-md-12">
+                <label className="mb-1">Project comments</label>
+                <textarea
+                  multiline
+                  name="comments"
+                  className="form-control rounded-3"
+                  id="floatingInput"
+                  placeholder="Enter Project comments"
+                />
+              </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"

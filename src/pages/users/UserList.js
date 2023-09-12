@@ -24,6 +24,7 @@ export default function UserList({
   const [serachText, setSerachText] = useState("");
   const [searchStatus, setSerachStatus] = useState(false);
   const [activeStatus, setActiveStatus] = useState(true);
+  const [updateUserStatus, setupdateUserStatus] = useState(false);
   const [sortStatus, setSortStatus] = useState(false);
   const showImage = (status, data) => {
     setImagePreviewPopUp(status);
@@ -54,6 +55,7 @@ export default function UserList({
             pages.push(I);
           }
           setPages(pages);
+          setupdateUserStatus(false);
           // console.log("Users : ", res);
         })
         .catch((err) => {
@@ -62,6 +64,7 @@ export default function UserList({
         });
   }, [navigate, pageSize, token]);
   const updateUserRole = (user) => {
+    setupdateUserStatus(false);
     let itemData = {
       id: parseInt(user.id),
       role: user.role === 1 ? 2 : 1,
@@ -75,6 +78,7 @@ export default function UserList({
       },
     }).then((res) => {
       console.log("Edit user : ", res);
+      setupdateUserStatus(true);
       getUsers();
     });
   };
@@ -153,17 +157,40 @@ export default function UserList({
     setuserArray([...newArray]);
   };
   const getActiveUsers = (userType) => {
-    let userData = userArray.filter((row) => row.userStatus === userType);
-
-    setActiveStatus(userData.length !== 0);
-
-    setUserPageArray([...userData]);
-    setSerachStatus(false);
-    let pages = [];
-    for (let I = 1; I <= Math.ceil(userData.length / pageSize); I++) {
-      pages.push(I);
+    if (userType === "INACTIVE") {
+      token &&
+        fetch(APIUrl + "api/inactive-users", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+        })
+          .then((res) => {
+            if (res.status === 401) {
+              window.localStorage.removeItem("am_token");
+              navigate("/");
+            } else return res.json();
+          })
+          .then((res) => {
+            let users = res.filter((row, index) => index < pageSize);
+            setUserPageArray([...users]);
+            setuserArray([...res]);
+            let pages = [];
+            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+              pages.push(I);
+            }
+            setPages(pages);
+            setActiveStatus(false);
+            // console.log("Users : ", res);
+          })
+          .catch((err) => {
+            setuserArray([]);
+            console.log("User Not Get : ", err);
+          });
+    } else {
+      setActiveStatus(true);
+      getUsers();
     }
-    setPages(pages);
   };
   return (
     <>
@@ -189,8 +216,8 @@ export default function UserList({
               style={{ width: "200px", float: "right" }}
               onChange={(e) => getActiveUsers(e.target.value)}
             >
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
             </select>
           </div>
         </div>
@@ -228,17 +255,21 @@ export default function UserList({
                       <td>{user.displayName}</td>
                       <td className="text-center">
                         <div
-                          onClick={() => projectDetails(false, user)}
+                          onClick={() =>
+                            user.userStatus.toUpperCase() === "ACTIVE"
+                              ? projectDetails(false, user)
+                              : ""
+                          }
                           className="prj-count"
                           style={{
                             backgroundColor:
-                              user.projects?.length === 0
+                              user.userProjectWithAssignedDate?.length === 0
                                 ? "#ff8d8d"
                                 : "#51c6f6",
                           }}
                           title={
-                            user.projects?.length > 0
-                              ? user.projects
+                            user.userProjectWithAssignedDate?.length > 0
+                              ? user.userProjectWithAssignedDate
                                   ?.map(
                                     (prj, index) =>
                                       index + 1 + ". " + prj.name + "\n"
@@ -247,7 +278,9 @@ export default function UserList({
                               : "No projects assigned yet."
                           }
                         >
-                          {user.projects?.length}
+                          {user.userProjectWithAssignedDate
+                            ? user.userProjectWithAssignedDate?.length
+                            : 0}
                         </div>
                       </td>
                       <td>{user.email}</td>
@@ -283,7 +316,11 @@ export default function UserList({
                       </td>
                       <td className="text-center">
                         <span
-                          onClick={() => updateUserRole(user)}
+                          onClick={() =>
+                            user.userStatus.toUpperCase() === "ACTIVE"
+                              ? updateUserRole(user)
+                              : ""
+                          }
                           title="Click for user change Role!"
                           style={{ cursor: "pointer", fontSize: 15 }}
                           className={
@@ -293,7 +330,11 @@ export default function UserList({
                               : "px-2 bg-danger")
                           }
                         >
-                          {user.role === 1 ? "User" : "Admin"}
+                          {updateUserStatus
+                            ? "Wait.."
+                            : user.role === 1
+                            ? "User"
+                            : "Admin"}
                         </span>
                       </td>
                       {/* <td className="text-center">

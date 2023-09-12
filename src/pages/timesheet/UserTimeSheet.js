@@ -1,48 +1,48 @@
-import React, { Fragment, memo, useCallback, useEffect, useState } from "react";
+import React, {
+  Fragment,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { APIUrl } from "../../auth/constants";
-import { getMonthDates, getMonthName, getYears, monthNames } from "../util";
+import {
+  getMonthDates,
+  getMonthName,
+  getYears,
+  monthNames,
+  getDateBySelection,
+  parseDate,
+} from "../util";
 import TimeSheetDetails from "./TimeSheetDetails";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "../inventory/Header";
 import Loader from "../../util/Loader";
 import { useNavigate } from "react-router-dom";
+import { UserData } from "../../App";
 function UserTimeSheet() {
+  const userInfo = useContext(UserData);
   const [projects, setProjects] = useState([]);
   const [projectstatus, setProjectstatus] = useState(false);
   const [totalHour, setTotalHour] = useState({});
   const [totalHoursValue, setTotalHoursValue] = useState(0);
   const [timeSheetData, setTimeSheetData] = useState({});
-  const [userInfo, setUserInfo] = useState([]);
   const [timesheetForm, setTimeSheetForm] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
   const navigate = useNavigate();
   // Get Users List code
   const getUsers = useCallback(() => {
-    let tokenValue = window.localStorage.getItem("am_token");
-    fetch(APIUrl + "api/user/me", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + tokenValue,
-      },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          window.localStorage.removeItem("am_token");
-          navigate("/");
-        } else return res.json();
-      })
-      .then((res) => {
-        console.log("res.project : ", res.projects);
-        setUserInfo(res);
-        if (res.projects && res.projects.length > 0) setProjectstatus(false);
-        else setProjectstatus(true);
-      })
-      .catch((err) => {
-        console.log("User Not Get : ", err);
-      });
-  }, []);
+    if (
+      userInfo.userProjectWithAssignedDate &&
+      userInfo.userProjectWithAssignedDate.length > 0
+    )
+      setProjectstatus(false);
+    else setProjectstatus(true);
+    console.log("userInfo : ", userInfo);
+  }, [userInfo]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
@@ -63,7 +63,11 @@ function UserTimeSheet() {
       let taskDetails = getMonthDates(
         monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) + 1,
         selectedYear ? selectedYear : getYears(),
-        projects
+        projects,
+        selectedMonth !== null && selectedMonth !== getMonthName()
+          ? "Other"
+          : "Current",
+        "All"
       ).map((data) => {
         let rowdata = data.details.filter(
           (row) => row.projectId === project.projectId
@@ -194,7 +198,11 @@ function UserTimeSheet() {
       let taskDetails = getMonthDates(
         monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) + 1,
         selectedYear ? selectedYear : getYears(),
-        projects
+        projects,
+        selectedMonth !== null && selectedMonth !== getMonthName()
+          ? "Other"
+          : "Current",
+        "All"
       ).map((data) => {
         let rowData = data.details.filter(
           (row) => row.projectId === project.projectId
@@ -309,7 +317,11 @@ function UserTimeSheet() {
     let hourRow = getMonthDates(
       monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) + 1,
       selectedYear ? selectedYear : getYears(),
-      projects
+      projects,
+      selectedMonth !== null && selectedMonth !== getMonthName()
+        ? "Other"
+        : "Current",
+      "All"
     ).filter(
       // eslint-disable-next-line array-callback-return
       (data) => {
@@ -331,7 +343,11 @@ function UserTimeSheet() {
     getMonthDates(
       monthNames.indexOf(selectedMonth ? selectedMonth : getMonthName()) + 1,
       selectedYear ? selectedYear : getYears(),
-      projects
+      projects,
+      selectedMonth !== null && selectedMonth !== getMonthName()
+        ? "Other"
+        : "Current",
+      "All"
     ).forEach((data) => {
       hourCol[data.details[colIndex].hour] =
         timesheet[data.details[colIndex].hour].value;
@@ -349,7 +365,7 @@ function UserTimeSheet() {
       return row;
     });
     setTotalHoursValue(hoursValue);
-    console.log("Project List Data : ", projects, tempProjects);
+    console.log("User Project List Data : ", projects, tempProjects);
     setProjects([...tempProjects]);
     if (hourRow.length > 0) {
       let sum = 0;
@@ -362,12 +378,13 @@ function UserTimeSheet() {
       setTotalHour(totalHour);
     }
   };
-  useEffect(() => {
-    console.log("totalHour Change ", totalHour);
-  }, [totalHour]);
+
+  //get Timesheet Data from Selected Month and Year Values
   const getTimeSheet = useCallback(
     (monthname, yearvalue) => {
       let tokenValue = window.localStorage.getItem("am_token");
+      let timesheet = document.forms["timesheet"];
+      console.log("timesheet Form : ", timesheet);
       userInfo &&
         tokenValue &&
         fetch(APIUrl + `api/timesheet/${yearvalue}/${monthname}`, {
@@ -383,103 +400,108 @@ function UserTimeSheet() {
             } else return res.json();
           })
           .then((res) => {
-            let timesheet = document.forms["timesheet"];
             timesheet?.reset();
             setTimeSheetForm(timesheet);
             console.log(
               "timesheet Projects",
               res,
-              userInfo?.projects,
+              userInfo?.userProjectWithAssignedDate,
               timesheetForm
             );
-            if (userInfo?.projects && userInfo?.projects.length > 0) {
-              let projectData = userInfo?.projects.map((row) => {
-                row["totalHour"] = 0;
-                return row;
-              });
-              let hours = {};
-              getMonthDates(
-                monthNames.indexOf(
-                  selectedMonth ? selectedMonth : getMonthName()
-                ) + 1,
-                selectedYear ? selectedYear : getYears(),
-                projectData
-              ).forEach((data) => {
-                hours["day_" + data.day] = 0;
-              });
-              setTotalHour(hours);
+            if (
+              userInfo?.userProjectWithAssignedDate &&
+              userInfo?.userProjectWithAssignedDate.length > 0
+            ) {
+              //Checking the Selected Month/Year is valid for Assigned ProjectDate
+              let currentDate = getDateBySelection(selectedMonth, selectedYear);
 
-              let projectIds = projectData.map((row) => row.projectId);
+              let currentMonthProject =
+                userInfo?.userProjectWithAssignedDate?.filter((project) => {
+                  let projectDate = parseDate(
+                    new Date(project.projectAssignedDate).toLocaleDateString()
+                  );
+                  return projectDate <= currentDate;
+                });
               console.log(
-                "projectIds and projectData : ",
-                projectIds,
-                projectData,
-                timesheet,
-                userInfo?.projects
+                userInfo?.userProjectWithAssignedDate,
+                currentMonthProject
               );
-              if (res.month !== null) {
-                res?.data?.forEach((row) => {
-                  console.log("row.projectId Value ", row.projectId);
-                  row.detail.forEach((data) => {
-                    // console.log("Project Details : ", data, row.projectId);
-                    if (`hour_${data.day}_${row.projectId}` in timesheet) {
-                      timesheet[`hour_${data.day}_${row.projectId}`].value =
-                        data.hour;
-                      // console.log(
-                      //   "Hour Details :",
-                      //   hourfiled,
-                      //   timesheet[`hour_${data.day}_${row.projectId}`].value
-                      // );
-                      let sum = 0;
-                      let myarrays = projectIds?.map((ids) =>
-                        ids && timesheet[`hour_${data.day}_${ids}`]?.value > 0
-                          ? parseFloat(
-                              timesheet[`hour_${data.day}_${ids}`]?.value
-                            )
-                          : 0
-                      );
-                      if (myarrays.length > 0) myarrays.reduce((p, n) => p + n);
-                      hours["day_" + data.day] = sum;
-                    }
-                    if (timesheet[`task_${data.day}_${row.projectId}`])
-                      timesheet[`task_${data.day}_${row.projectId}`].value =
-                        data.task;
-                  });
-                });
-                let tempProjects = projectData?.map((row, index) => {
-                  row.totalHour = res.data.filter(
-                    (proj) => proj.projectId === row.projectId
-                  )[0]?.totalHour;
-                  return row;
-                });
-                let curProjects = [...tempProjects];
-                //Project Filter Code
-                // .filter((row) => {
-                //   if (res.data === null) return true;
-                //   else
-                //     return (
-                //       res.data?.filter(
-                //         (proj) => proj.projectId === row.projectId
-                //       ).length > 0
-                //     );
-                // }),
-                console.log(
-                  "tempProjects : ",
-                  tempProjects,
-                  projectData,
-                  res.data,
-                  curProjects
+              if (currentMonthProject.length > 0) {
+                let projectData = userInfo?.userProjectWithAssignedDate.map(
+                  (row) => {
+                    row["totalHour"] = 0;
+                    return row;
+                  }
                 );
-                setProjects([...curProjects]);
+                let hours = {};
+                getMonthDates(
+                  monthNames.indexOf(
+                    selectedMonth ? selectedMonth : getMonthName()
+                  ) + 1,
+                  selectedYear ? selectedYear : getYears(),
+                  projectData,
+                  selectedMonth !== null && selectedMonth !== getMonthName()
+                    ? "Other"
+                    : "Current",
+                  "All"
+                ).forEach((data) => {
+                  hours["day_" + data.day] = 0;
+                });
+                setTotalHour(hours);
+
+                let projectIds = projectData.map((row) => row.projectId);
+                if (res.month !== null) {
+                  res?.data?.forEach((row) => {
+                    console.log("row.projectId Value ", row.projectId);
+                    row.detail.forEach((data) => {
+                      // console.log("Project Details : ", data, row.projectId);
+                      if (`hour_${data.day}_${row?.projectId}` in timesheet) {
+                        timesheet[`hour_${data.day}_${row.projectId}`].value =
+                          data.hour;
+                        let sum = 0;
+                        let myarrays = projectIds?.map((ids) =>
+                          ids && timesheet[`hour_${data.day}_${ids}`]?.value > 0
+                            ? parseFloat(
+                                timesheet[`hour_${data.day}_${ids}`]?.value
+                              )
+                            : 0
+                        );
+                        if (myarrays.length > 0)
+                          myarrays.reduce((p, n) => p + n);
+                        hours["day_" + data.day] = sum;
+                      }
+                      if (timesheet[`task_${data.day}_${row.projectId}`])
+                        timesheet[`task_${data.day}_${row.projectId}`].value =
+                          data.task;
+                    });
+                  });
+                  let tempProjects = projectData?.map((row, index) => {
+                    row.totalHour = res.data.filter(
+                      (proj) => proj.projectId === row.projectId
+                    )[0]?.totalHour;
+                    return row;
+                  });
+                  let curProjects = [...tempProjects];
+                  console.log(
+                    "tempProjects : ",
+                    tempProjects,
+                    projectData,
+                    res.data,
+                    curProjects
+                  );
+                  setProjects([...curProjects]);
+                } else {
+                  setProjects([...projectData]);
+                }
               } else {
-                setProjects([...projectData]);
+                setProjects([]);
               }
             }
             setTimeSheetData(res);
           })
           .catch((err) => console.log("TimeSheet Data Not Get : ", err));
     },
-    [userInfo, timesheetForm, selectedMonth, selectedYear]
+    [userInfo, navigate, timesheetForm, selectedMonth, selectedYear]
   );
   useEffect(() => {
     let monthname = getMonthName();
@@ -492,7 +514,10 @@ function UserTimeSheet() {
       selectedMonth ? selectedMonth : getMonthName(),
       selectedYear ? selectedYear : getYears()
     );
-  }, [getTimeSheet, selectedMonth, selectedYear, userInfo]);
+  }, [getTimeSheet, selectedMonth, selectedYear, userInfo, timesheetForm]);
+  useEffect(() => {
+    console.log("totalHour Change ", totalHour);
+  }, [totalHour]);
   const getMonthValue = (monthname) => {
     setSelectedMonth(monthname ? monthname : getMonthName());
     getTimeSheet(monthname, selectedYear ? selectedYear : getYears());
@@ -501,22 +526,10 @@ function UserTimeSheet() {
     setSelectedYear(yearvalue ? yearvalue : getYears());
     getTimeSheet(selectedMonth ? selectedMonth : getMonthName(), yearvalue);
   };
-  return userInfo?.projects?.length > 0 ? (
+  return userInfo?.userProjectWithAssignedDate?.length > 0 ? (
     <>
       <TimeSheetDetails
         projects={projects}
-        //Project Filter Code
-        // .filter((row) => {
-        //   if (timeSheetData.data === null) return true;
-        //   else {
-        //     console.log("timeSheetData : ", timeSheetData);
-        //     return (
-        //       timeSheetData.data?.filter(
-        //         (proj) => proj.projectId === row.projectId
-        //       ).length > 0
-        //     );
-        //   }
-        // })
         getMonthValue={(value) => getMonthValue(value)}
         getYearValue={(value) => getYearValue(value)}
       />
@@ -528,130 +541,130 @@ function UserTimeSheet() {
             timeSheetData.month === null ? saveTimeSheet : updateTimeSheet
           }
         >
-          <div className="timesheet">
-            Time Sheet : {selectedMonth ? selectedMonth : getMonthName()} /
-            {selectedYear ? selectedYear : getYears()}
-          </div>
-          <button type="submit" className="btn saveBtn">
-            {timeSheetData.month === null ? "Save" : "Update"}
-          </button>
-          <div
-            style={{
-              overflow: "scroll",
-              height: "430px",
-              clear: "both",
-              margin: "0px 15px 10px 15px",
-            }}
-          >
-            <table
-              className={
-                projects.length > 3
-                  ? "table tabletext timesheettable tablelarge"
-                  : "table tabletext timesheettable tablesmall"
-              }
-              style={{
-                margin: projects?.length,
-              }}
-            >
-              <thead className="sticky-header">
-                <tr>
-                  <th scope="col" colSpan={1}>
-                    Projects
-                  </th>
-                  {
-                    //Project Filter Code
-                    // .filter((row) => {
-                    //   if (timeSheetData.data === null) return true;
-                    //   else
-                    //     return (
-                    //       timeSheetData.data?.filter(
-                    //         (proj) => proj.projectId === row.projectId
-                    //       ).length > 0
-                    //     );
-                    // })
-                    projects.map((project, index) => (
-                      <th
-                        scope="col"
-                        key={project.name + index}
-                        colSpan="2"
-                        className="text-center"
-                      >
-                        {project.name}
-                      </th>
-                    ))
+          {projects.length > 0 ? (
+            <>
+              <div className="timesheet">
+                Time Sheet : {selectedMonth ? selectedMonth : getMonthName()} /
+                {selectedYear ? selectedYear : getYears()}
+              </div>
+              <button type="submit" className="btn btn-primary saveBtn">
+                {timeSheetData.month === null ? "Save" : "Update"}
+              </button>
+              <div
+                style={{
+                  overflow: "scroll",
+                  height: "364px",
+                  clear: "both",
+                  margin: "0px 15px 10px 15px",
+                }}
+              >
+                <table
+                  className={
+                    projects.length > 3
+                      ? "table tabletext timesheettable tablelarge"
+                      : "table tabletext timesheettable tablesmall"
                   }
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  //Project Filter Code
-                  // .filter((row) => {
-                  //   if (timeSheetData.data === null) return true;
-                  //   else
-                  //     return (
-                  //       timeSheetData.data?.filter(
-                  //         (proj) => proj.projectId === row.projectId
-                  //       ).length > 0
-                  //     );
-                  // })
-                  getMonthDates(
-                    monthNames.indexOf(
-                      selectedMonth ? selectedMonth : getMonthName()
-                    ) + 1,
-                    selectedYear ? selectedYear : getYears(),
-                    projects
-                  ).map((data, index) => (
-                    <tr key={index + data.day}>
-                      <th
-                        style={{ width: "70px" }}
-                        className="text-center verticalAlign fixed-col"
-                      >
-                        <div className="bgColor textColor dateStyle">
-                          <div>{data.day}</div>
-                          <div>{data.dayName}</div>
-                        </div>
+                  style={{
+                    margin: projects?.length,
+                  }}
+                >
+                  <thead className="sticky-header">
+                    <tr>
+                      <th scope="col" colSpan={1}>
+                        Projects
                       </th>
-                      {data.details.map((row) => (
-                        <Fragment key={row.hour}>
-                          <td className="inputSize inputSize-1">
-                            <input
-                              type="number"
-                              name={row.hour}
-                              onChange={(event) =>
-                                setHoursValue(event.target.name)
-                              }
-                              className="form-control rounded-3 hoursinput"
-                              placeholder="Hrs"
-                              min="0"
-                              max="24"
-                              step="1"
-                              autoComplete="off"
-                              onInput={(event) => {
-                                event.target.value =
-                                  Math.abs(Math.floor(event.target.value)) > 24
-                                    ? "0"
-                                    : Math.abs(Math.floor(event.target.value));
-                              }}
-                            />
-                          </td>
-                          <td className="inputSize textareaSize-1">
-                            <textarea
-                              multiline
-                              type="text"
-                              autoComplete="off"
-                              name={row.task}
-                              className="form-control rounded-3"
-                              placeholder="Task Details"
-                            />
-                          </td>
-                        </Fragment>
+                      {projects.map((project, index) => (
+                        <th
+                          scope="col"
+                          key={project.name + index}
+                          colSpan="2"
+                          className="text-center"
+                        >
+                          {project.name}
+                        </th>
                       ))}
                     </tr>
-                  ))
-                }
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody>
+                    {console.log(
+                      selectedMonth,
+                      getMonthName(),
+                      selectedMonth !== null && selectedMonth !== getMonthName()
+                    )}
+                    {getMonthDates(
+                      monthNames.indexOf(
+                        selectedMonth ? selectedMonth : getMonthName()
+                      ) + 1,
+                      selectedYear ? selectedYear : getYears(),
+                      projects,
+                      selectedMonth !== null && selectedMonth !== getMonthName()
+                        ? "Other"
+                        : "Current",
+                      "All"
+                    ).map((data, index) => (
+                      <tr key={index + data.day}>
+                        <th
+                          style={{ width: "70px" }}
+                          className="text-center verticalAlign fixed-col"
+                        >
+                          <div className="bgColor textColor dateStyle">
+                            <div>{data.day}</div>
+                            <div>{data.dayName}</div>
+                          </div>
+                        </th>
+                        {data.details.map((row) => (
+                          <Fragment key={row.hour}>
+                            <td className="inputSize inputSize-1">
+                              <input
+                                type="number"
+                                name={row.hour}
+                                onChange={(event) =>
+                                  setHoursValue(event.target.name)
+                                }
+                                className="form-control rounded-3 hoursinput"
+                                placeholder="Hrs"
+                                min="0"
+                                max="24"
+                                step="1"
+                                autoComplete="off"
+                                onInput={(event) => {
+                                  event.target.value =
+                                    Math.abs(Math.floor(event.target.value)) >
+                                    24
+                                      ? "0"
+                                      : Math.abs(
+                                          Math.floor(event.target.value)
+                                        );
+                                }}
+                              />
+                            </td>
+                            <td className="inputSize textareaSize-1">
+                              <textarea
+                                multiline
+                                type="text"
+                                autoComplete="off"
+                                name={row.task}
+                                className="form-control rounded-3"
+                                placeholder="Task Details"
+                              />
+                            </td>
+                          </Fragment>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <div className="row">
+              <div className="col-12 text-center" style={{ color: "#0eb593" }}>
+                No projects have been assigned in the{" "}
+                {selectedMonth ? selectedMonth : getMonthName()}/
+                {selectedYear ? selectedYear : getYears()}.
+              </div>
+            </div>
+          )}
         </form>
       </div>
     </>

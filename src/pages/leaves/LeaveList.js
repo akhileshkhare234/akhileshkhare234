@@ -13,6 +13,7 @@ const tableData = {
   email: "Name",
   leaveFrom: "Leave From",
   leaveTo: "Leave To",
+  leaveAppliedDate: "Apply Date",
   unit: "No. of Days",
   reason: "Reason",
   status: "Status",
@@ -31,16 +32,19 @@ export default function LeaveList({
   const [items, setItems] = useState([]);
   const [start, setStart] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [pageSizeStatus, setPageSizeStatus] = useState(false);
   const [pages, setPages] = useState([]);
   const [userArray, setuserArray] = useState([]);
   const [leaveStatus, setleaveStatus] = useState(false);
   const navigate = useNavigate();
   const getUsers = useCallback(() => {
     if (userInfo && userInfo?.role === 2) {
-      let users = userInfo?.userList.map(
-        (user) => user.displayName + "/" + user.email + "/" + user.imageUrl
-      );
+      let users = userInfo?.userList.map((user) => {
+        return {
+          name: user.displayName,
+          email: user.email,
+          imageUrl: user.imageUrl,
+        };
+      });
       setuserArray([...users]);
     } else {
       setuserArray([]);
@@ -49,9 +53,6 @@ export default function LeaveList({
   useEffect(() => {
     getUsers();
   }, [getUsers]);
-  const getUserInfo = (user, index) => {
-    return user?.split("/")[index];
-  };
   const getLeaves = useCallback(() => {
     setStart(0);
     console.log("itemStatus ", itemStatus);
@@ -60,8 +61,6 @@ export default function LeaveList({
       //pageSizeStatus
       if (userInfo && userInfo?.role === 2) {
         let leavesList = document.forms["leavesList"];
-        console.log("payload Data: ", leavesList);
-        console.log("payload Data: ", leavesList.users.value);
         let payload = {
           users: leavesList.users.value,
           years: leavesList.years.value,
@@ -113,7 +112,7 @@ export default function LeaveList({
       setLeaves([]);
       setleaveStatus(false);
     }
-  }, [itemStatus, userInfo, token, pageSize]);
+  }, [itemStatus, userInfo, token, navigate, pageSize]);
   useEffect(() => {
     getLeaves();
   }, [getLeaves]);
@@ -159,16 +158,6 @@ export default function LeaveList({
             return date1 - date2;
           });
           let leavesData = res.filter((row, index) => index < pageSize);
-          console.log("leavesData Info ", leavesData);
-
-          console.log(
-            "Sort data : ",
-            res.sort((p, n) => {
-              let date1 = new Date(n.leaveFrom);
-              let date2 = new Date(p.leaveFrom);
-              return date1 - date2;
-            })
-          );
           setItems([...leavesData]);
           setLeaves([...res]);
           let pages = [];
@@ -183,21 +172,6 @@ export default function LeaveList({
         }
       });
   };
-  const checkDate = (fromdate) => {
-    let curDate = new Date();
-    let frmDate = new Date(fromdate);
-    // console.log(
-    //   curDate.getTime() <= frmDate.getTime(),
-    //   curDate.toLocaleDateString(),
-    //   frmDate.toLocaleDateString(),
-    //   new Date(curDate.toLocaleDateString() + " 00:00").getTime(),
-    //   new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
-    // );
-    return (
-      new Date(curDate.toLocaleDateString() + " 00:00").getTime() <=
-      new Date(frmDate.toLocaleDateString() + " 00:00").getTime()
-    );
-  };
   const showNextInventory = (pos) => {
     let start = pos === 1 ? 0 : pos * pageSize - pageSize;
     let leavesData = leaves.filter(
@@ -210,6 +184,7 @@ export default function LeaveList({
   return (
     <>
       <Header title="Leave List" />
+      <ToastContainer />
       <div className="container">
         <div className="row">
           <div className="col">
@@ -231,7 +206,7 @@ export default function LeaveList({
                 <form name="leavesList" onSubmit={getLeaveFilterData}>
                   <div
                     className="row mx-1 py-3 leavetab"
-                    style={{ backgroundColor: "#2980b9" }}
+                    style={{ backgroundColor: "#0eb593" }}
                   >
                     <div className="col-md-3">
                       <label htmlFor="floatingInput" className="mb-1">
@@ -240,8 +215,8 @@ export default function LeaveList({
                       <select className="form-select rounded-3" name="users">
                         <option value="All">All</option>
                         {userArray.map((user, index) => (
-                          <option value={getUserInfo(user, 1)} key={index}>
-                            {getUserInfo(user, 0)}
+                          <option value={user.email} key={index}>
+                            {user.name}
                           </option>
                         ))}
                       </select>
@@ -313,17 +288,20 @@ export default function LeaveList({
                     <th scope="col" style={{ width: "210px" }}>
                       Name
                     </th>
-                    <th scope="col" style={{ width: "120px" }}>
+                    <th scope="col" style={{ width: "105px" }}>
                       Leave From
                     </th>
-                    <th scope="col" style={{ width: "120px" }}>
+                    <th scope="col" style={{ width: "105px" }}>
                       Leave To
                     </th>
-                    <th scope="col" style={{ width: "120px" }}>
-                      No. of Days
+                    <th scope="col" style={{ width: "105px" }}>
+                      Apply Date
+                    </th>
+                    <th scope="col" style={{ width: "70px" }}>
+                      Days
                     </th>
                     <th scope="col">Reason</th>
-                    <th scope="col" style={{ width: "90px" }}>
+                    <th scope="col" style={{ width: "120px" }}>
                       Status
                     </th>
                     <th scope="col" className="text-center">
@@ -338,43 +316,49 @@ export default function LeaveList({
                       {Object.keys(tableData).map((field, index) => (
                         <td key={field}>
                           {field.includes("leaveFrom") ||
-                          field.includes("leaveTo") ? (
-                            dateFormate(item[field])
+                          field.includes("leaveTo") ||
+                          field.includes("leaveAppliedDate") ? (
+                            item[field] ? (
+                              dateFormate(item[field])
+                            ) : (
+                              "-"
+                            )
                           ) : field.includes("status") ? (
                             userInfo && userInfo?.role === 2 ? (
                               <span
                                 className={
-                                  item[field] === "Reject"
-                                    ? "status_btn_reject"
-                                    : "status_btn"
+                                  item[field] === "Rejected"
+                                    ? "status-error"
+                                    : item[field] === "Approved"
+                                    ? "status-success"
+                                    : "status-primary"
                                 }
-                                onClick={() => setApproveData(false, item)}
                               >
                                 {item[field]}
                               </span>
                             ) : (
                               <>
                                 <span
-                                  className={
-                                    item[field] === "Reject"
-                                      ? "status_reject"
-                                      : "status_normal"
-                                  }
+                                  style={{
+                                    color:
+                                      item[field] === "Rejected"
+                                        ? "red"
+                                        : item[field] === "Approved"
+                                        ? "green"
+                                        : "blue",
+                                  }}
                                 >
-                                  {item[field]}
+                                  {item[field] === "Submitted"
+                                    ? "Pending"
+                                    : item[field]}
                                 </span>
-                                <ToastContainer />
                               </>
                             )
                           ) : field.includes("email") && item.email ? (
                             userInfo?.role === 2 ? (
-                              getUserInfo(
-                                userArray.filter(
-                                  (user, index) =>
-                                    getUserInfo(user, 1) === item.email
-                                )[0],
-                                0
-                              )
+                              userArray.filter(
+                                (user, index) => user.email === item.email
+                              )[0]?.name
                             ) : (
                               userInfo?.displayName
                             )
@@ -383,33 +367,73 @@ export default function LeaveList({
                           )}
                         </td>
                       ))}
-                      <td className="text-start" style={{ width: "100px" }}>
-                        {["Submit", "submitted"].includes(item.status) ? (
-                          <>
+                      {userInfo?.role === 2 ? (
+                        <td className="text-center" style={{ width: "120px" }}>
+                          {userArray.filter(
+                            (user, index) => user.email === item.email
+                          )[0]?.name === userInfo.displayName ? (
                             <button
-                              onClick={() => deletePopUpOpen(false, item.id)}
+                              disabled
+                              title="Click here for Approved/Rejected leave."
+                              onClick={() => setApproveData(false, item)}
                               type="button"
-                              className="btn btn-outline-primary me-1"
+                              style={{ width: "140px" }}
+                              className="btn btn-primary me-1 py-1"
                             >
-                              <i className="bi bi-trash3"></i>
+                              {item.status === "Submitted"
+                                ? "Approve/Reject"
+                                : item.status === "Approved"
+                                ? "Reject"
+                                : "Approve"}
                             </button>
+                          ) : (
                             <button
-                              onClick={() => editPopUpOpen(false, item)}
+                              title="Click here for Approved/Rejected leave."
+                              onClick={() => setApproveData(false, item)}
                               type="button"
-                              className="btn btn-outline-primary me-1"
+                              style={{ width: "140px" }}
+                              className="btn btn-primary me-1 py-1"
                             >
-                              <i className="bi bi-pencil"></i>
+                              {item.status === "Submitted"
+                                ? "Approve/Reject"
+                                : item.status === "Approved"
+                                ? "Reject"
+                                : "Approve"}
                             </button>
-                          </>
-                        ) : null}
-                        <button
-                          onClick={() => detailsPopUpOpen(false, item)}
-                          type="button"
-                          className="btn btn-outline-primary me-1"
-                        >
-                          <i className="bi bi-eye"></i>
-                        </button>
-                      </td>
+                          )}
+                        </td>
+                      ) : (
+                        <td className="text-center" style={{ width: "100px" }}>
+                          {item.status.toUpperCase() === "SUBMITTED" ? (
+                            <>
+                              <button
+                                onClick={() => deletePopUpOpen(false, item.id)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-trash3"></i>
+                              </button>
+                              <button
+                                onClick={() => editPopUpOpen(false, item)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                            </>
+                          ) : (
+                            <></>
+                          )}
+
+                          <button
+                            onClick={() => detailsPopUpOpen(false, item)}
+                            type="button"
+                            className="btn btn-outline-primary me-1"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -427,7 +451,6 @@ export default function LeaveList({
                           name="type"
                           onChange={(e) => {
                             setPageSize(e.target.value);
-                            setPageSizeStatus(true);
                           }}
                         >
                           <option value="10">10</option>

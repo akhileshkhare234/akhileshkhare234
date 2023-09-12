@@ -81,7 +81,7 @@ export default function ReimbursementList({
           setPages([]);
           setLoadingStatus(false);
         });
-  }, [token]);
+  }, [navigate, token]);
   useEffect(() => {
     setReimbursementData();
   }, [setReimbursementData, itemStatus]);

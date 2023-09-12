@@ -36,8 +36,12 @@ function LeaveDetails({ detailsPopUp, detailsPopUpClose, itemData }) {
             <dl className="row">
               <dt className="col-sm-3">Days</dt>
               <dd className="col-sm-3">{itemData.unit}</dd>
-              <dt className="col-sm-3">Reason</dt>
-              <dd className="col-sm-3">{itemData.reason}</dd>
+              <dt className="col-sm-3">Applied Date</dt>
+              <dd className="col-sm-3">
+                {itemData.leaveAppliedDate
+                  ? dateFormate(itemData.leaveAppliedDate)
+                  : "-"}
+              </dd>
             </dl>
             <dl className="row">
               <dt className="col-sm-3">Year</dt>
@@ -50,6 +54,10 @@ function LeaveDetails({ detailsPopUp, detailsPopUpClose, itemData }) {
               <dd className="col-sm-3">{itemData.status}</dd>
               <dt className="col-sm-3">Comment</dt>
               <dd className="col-sm-3">{itemData.comment}</dd>
+            </dl>
+            <dl className="row">
+              <dt className="col-sm-3">Reason</dt>
+              <dd className="col-sm-9">{itemData.reason}</dd>
             </dl>
 
             <hr className="mb-3" />

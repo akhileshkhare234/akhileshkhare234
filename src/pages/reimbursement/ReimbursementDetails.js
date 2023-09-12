@@ -36,7 +36,7 @@ export default function ReimbursementDetails({
     } else {
       setreimbursementHistory([]);
     }
-  }, [itemData]);
+  }, [itemData, navigate]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);

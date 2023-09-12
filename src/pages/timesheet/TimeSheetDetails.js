@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 
 function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
   const [userInfo, setUserInfo] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(getYears());
+  const [monthValues, setmonthValues] = useState([]);
   const navigate = useNavigate();
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
@@ -29,10 +31,20 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
       .catch((err) => {
         console.log("User Not Get : ", err);
       });
-  }, []);
+  }, [navigate]);
   useEffect(() => {
     getUsers();
   }, [getUsers]);
+  useEffect(() => {
+    let monthValue = getMonths().filter((month, index) => {
+      let courrentMonth = new Date().getMonth();
+      return selectedYear === getYears().toString()
+        ? index <= courrentMonth
+        : true;
+    });
+    console.log(monthValue, selectedYear, getYears().toString());
+    setmonthValues([...monthValue]);
+  }, [selectedYear]);
   return (
     <>
       <Header title="Time Sheet Details" />
@@ -58,7 +70,7 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
               defaultValue={getMonthName()}
               onChange={(event) => getMonthValue(event.target.value)}
             >
-              {getMonths().map((month, index) => (
+              {monthValues.map((month, index) => (
                 <option
                   value={month}
                   selected={month === getMonthName()}
@@ -75,7 +87,10 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
               className="form-select rounded-3"
               name="years"
               defaultValue={getYears()}
-              onChange={(e) => getYearValue(e.target.value)}
+              onChange={(e) => {
+                setSelectedYear(e.target.value);
+                getYearValue(e.target.value);
+              }}
             >
               <option value={getYears() - 1}>{getYears() - 1}</option>
               <option value={getYears()} selected>
@@ -85,7 +100,7 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
           </dd>
         </dl>
         <dl className="row mb-1">
-          <dt className="col-sm-2">Projetcs</dt>
+          <dt className="col-sm-2">Projects</dt>
           <dd className="col-sm-4"></dd>
           <dt className="col-sm-2">Status</dt>
           <dd className="col-sm-4">Open</dd>

@@ -32,12 +32,15 @@ export default function AssignProject({
           setSelectedProject("");
         });
     }
-  }, [shouldFetchData]);
+  }, [navigate, shouldFetchData]);
   useEffect(() => {
     setProjectData();
     console.log("itemData ", itemData);
-    if (Object.keys(itemData).length > 0)
-      setAssignedProject([...itemData?.projects]);
+    if (
+      Object.keys(itemData).length > 0 &&
+      Object.keys(itemData).includes("userProjectWithAssignedDate")
+    )
+      setAssignedProject([...itemData?.userProjectWithAssignedDate]);
     setSelectedProject("");
   }, [itemData, setProjectData, projectPopUp]);
   const deleteProject = (row) => {
@@ -51,7 +54,11 @@ export default function AssignProject({
     console.log("Update New Projects : ");
     fetch(APIUrl + "api/user", {
       method: "PUT",
-      body: JSON.stringify({ id: itemData.id, projects: assignedProjects }),
+      body: JSON.stringify({
+        id: itemData.id,
+        projectUpdate: true,
+        projects: assignedProjects,
+      }),
       headers: {
         "Content-Type": "application/json",
         Authorization: "Bearer " + tokenValue,
@@ -67,6 +74,7 @@ export default function AssignProject({
         console.log("Update User : ", res);
         changeStatus(true);
         projectPopUpClose(true);
+        window.location.reload();
       })
       .catch((err) => {
         console.log("User Not Get : ", err);

@@ -12,10 +12,10 @@ function ApproveLeave({
   const [comments, setComments] = useState(null);
   const commentInput = useRef();
   useEffect(() => {
-    console.log("approvePopUp ", approvePopUp);
+    console.log("approvePopUp ", approvePopUp, itemData);
     if (itemData?.comment) setComments(itemData.comment);
     else setComments("");
-  }, [approvePopUp, itemData.comment]);
+  }, [approvePopUp, itemData]);
   const rejectLeave = () => {
     if (comments) {
       console.log("Leave Data", itemData);
@@ -26,7 +26,7 @@ function ApproveLeave({
         reason: itemData.reason,
         leaveType: itemData.leaveType,
         id: itemData.id,
-        status: "rejected",
+        status: "Rejected",
         department: itemData.department,
         comment: comments,
         year: itemData.year,
@@ -45,6 +45,7 @@ function ApproveLeave({
         .then((res) => {
           commentInput.current.style.border = "2px solid #ccc";
           commentInput.current.className = "commentsclass2";
+          commentInput.current.value = "";
           console.log("Edit Leave : ", res);
           approvePopUpClose(true);
           changeStatus(true);
@@ -77,7 +78,7 @@ function ApproveLeave({
         reason: itemData.reason,
         leaveType: itemData.leaveType,
         id: itemData.id,
-        status: "approved ",
+        status: "Approved",
         department: itemData.department,
         comment: comments,
         year: itemData.year,
@@ -96,6 +97,7 @@ function ApproveLeave({
         .then((res) => {
           commentInput.current.style.border = "2px solid #ccc";
           commentInput.current.className = "commentsclass2";
+          commentInput.current.value = "";
           console.log("Edit Leave : ", res);
           approvePopUpClose(true);
           changeStatus(true);
@@ -135,7 +137,10 @@ function ApproveLeave({
                 Approve/Reject leave
               </h1>
               <button
-                onClick={() => approvePopUpClose(true)}
+                onClick={() => {
+                  approvePopUpClose(true);
+                  commentInput.current.value = "";
+                }}
                 type="button"
                 className="btn-close"
                 data-bs-dismiss="modal"
@@ -171,14 +176,24 @@ function ApproveLeave({
               <button
                 type="button"
                 onClick={approveLeaveChange}
-                className="btn btn-primary"
+                disabled={itemData.status === "Approved"}
+                className={
+                  itemData.status === "Approved"
+                    ? "btn btn-leave-status"
+                    : "btn btn-primary"
+                }
               >
                 Approve
               </button>
               <button
                 onClick={rejectLeave}
                 type="button"
-                className="btn btn-primary"
+                disabled={itemData.status === "Rejected"}
+                className={
+                  itemData.status === "Rejected"
+                    ? "btn btn-leave-status"
+                    : "btn btn-primary"
+                }
               >
                 Reject
               </button>

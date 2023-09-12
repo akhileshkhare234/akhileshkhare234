@@ -83,7 +83,7 @@ export default function UserProfiles() {
       <Header title="User Profile" />
       {userInfo ? (
         <div className="container">
-          <div className="row mx-5">
+          <div className="row mx-5 page-body">
             <div className="col mt-4">
               <div className="profiles">
                 <div className="upload-btn-wrapper">
@@ -257,7 +257,7 @@ export default function UserProfiles() {
               </dl>
               <dl className="row mb-1">
                 <dt className="col-sm-2">Assigned Projects </dt>
-                {userInfo?.projects?.map((row) => (
+                {userInfo?.userProjectWithAssignedDate?.map((row) => (
                   <dd className="col-sm" key={row.projectId}>
                     <span
                       style={{

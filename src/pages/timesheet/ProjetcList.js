@@ -16,29 +16,39 @@ export default function ProjetcList({ projects }) {
   return (
     <>
       <ul className="list">
-        {projects.map((pro, index) => (
-          <li
-            key={index}
-            className="list-item"
-            title={`${pro.name + ", " + pro.totalHour} hrs Working`}
-          >
-            <span className="badge-pill">{index + 1}</span>
-            {projects?.length > 10 ? pro.name.substr(0, 8) : pro.name}
-            <span className="badge-pill-right">
-              {pro.totalHour ? pro.totalHour : "0"}
-            </span>
+        {projects.length > 0 ? (
+          <>
+            {projects.map((pro, index) => (
+              <li
+                key={index}
+                className="list-item"
+                title={`${pro.name + ", " + pro.totalHour} hrs Working`}
+              >
+                <span className="badge-pill">{index + 1}</span>
+                {projects?.length > 10 ? pro.name.substr(0, 8) : pro.name}
+                <span className="badge-pill-right">
+                  {pro.totalHour ? pro.totalHour : "0"}
+                </span>
+              </li>
+            ))}
+            <li
+              className="list-item "
+              title={
+                projects
+                  .map(
+                    (pro) => `${pro.name + ", " + pro.totalHour} hrs Working\n`
+                  )
+                  .join("") + `<b>Total</b> ${totalHours + " hrs Working"}`
+              }
+            >
+              <span className="item-right">Total - {totalHours + " hrs"}</span>
+            </li>
+          </>
+        ) : (
+          <li className="list-item" style={{ width: "100%", color: "#0eb593" }}>
+            {/* No projects have been assigned in the selected month. */}
           </li>
-        ))}
-        <li
-          className="list-item "
-          title={
-            projects
-              .map((pro) => `${pro.name + ", " + pro.totalHour} hrs Working\n`)
-              .join("") + `<b>Total</b> ${totalHours + " hrs Working"}`
-          }
-        >
-          <span className="item-right">Total - {totalHours + " hrs"}</span>
-        </li>
+        )}
       </ul>
     </>
   );

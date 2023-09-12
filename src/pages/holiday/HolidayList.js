@@ -37,7 +37,7 @@ export default function HolidayList({ token, itemStatus }) {
             setHolidays([...res]);
           }
         });
-  }, [token]);
+  }, [navigate, token]);
   useEffect(() => {
     setHolidaysData();
   }, [setHolidaysData, itemStatus]);
@@ -70,6 +70,12 @@ export default function HolidayList({ token, itemStatus }) {
                             ? "#ccc"
                             : "#000",
                       }}
+                      className={
+                        new Date(item.holidayDate).getMonth() ===
+                        new Date().getMonth()
+                          ? "selected-holiday"
+                          : ""
+                      }
                     >
                       <th scope="row">{start + index + 1}</th>
                       {Object.keys(tableData).map((field, index) => (

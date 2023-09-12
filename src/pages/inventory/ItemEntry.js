@@ -103,11 +103,11 @@ export default function ItemEntry({
   //       },
   //     })
   //      .then((res) => {
-      //   if (res.status === 401) {
-      //     window.localStorage.removeItem("am_token");
-      //     navigate("/");
-      //   } else return res.json();
-      // })
+  //   if (res.status === 401) {
+  //     window.localStorage.removeItem("am_token");
+  //     navigate("/");
+  //   } else return res.json();
+  // })
   //       .then((res) => {
   //         let users = res.map((user) => user.displayName + "/" + user.email);
   //         setuserArray([...users]);
@@ -167,7 +167,7 @@ export default function ItemEntry({
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Inventory Entry Form</h1>
+            <h1 className="fw-bold mb-0 fs-2">Inventory Entry</h1>
             <button
               onClick={() => entryPopUpClose(true)}
               type="button"
@@ -369,8 +369,8 @@ export default function ItemEntry({
                     Select inventory owner{" "}
                   </option>
                   {userArray.map((user, index) => (
-                    <option value={getUserInfo(user, 0)} key={index}>
-                      {getUserInfo(user, 0)}
+                    <option value={user.name} key={index}>
+                      {user.name}
                     </option>
                   ))}
                 </select>
@@ -392,7 +392,7 @@ export default function ItemEntry({
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
                     <option value={user} key={index}>
-                      {getUserInfo(user, 0)}
+                      {user.name}
                     </option>
                   ))}
                 </select>

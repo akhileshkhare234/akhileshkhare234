@@ -29,7 +29,7 @@ export default function TimeSheets() {
           } else return res.json();
         })
         .then((res) => console.log("User Info ", res));
-  }, [token]);
+  }, [navigate, token]);
   const checkUser = useCallback(() => {
     // console.log("user checking...");
     let tokenValue = window.localStorage.getItem("am_token");
