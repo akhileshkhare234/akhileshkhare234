@@ -339,14 +339,13 @@ export default function LeaveList({
                             ) : (
                               <>
                                 <span
-                                  style={{
-                                    color:
-                                      item[field] === "Rejected"
-                                        ? "red"
-                                        : item[field] === "Approved"
-                                        ? "green"
-                                        : "blue",
-                                  }}
+                                  className={
+                                    item[field] === "Rejected"
+                                      ? "status-error"
+                                      : item[field] === "Approved"
+                                      ? "status-success"
+                                      : "status-primary"
+                                  }
                                 >
                                   {item[field] === "Submitted"
                                     ? "Pending"
@@ -357,7 +356,7 @@ export default function LeaveList({
                           ) : field.includes("email") && item.email ? (
                             userInfo?.role === 2 ? (
                               userArray.filter(
-                                (user, index) => user.email === item.email
+                                (user) => user.email === item.email
                               )[0]?.name
                             ) : (
                               userInfo?.displayName
@@ -370,7 +369,7 @@ export default function LeaveList({
                       {userInfo?.role === 2 ? (
                         <td className="text-center" style={{ width: "120px" }}>
                           {userArray.filter(
-                            (user, index) => user.email === item.email
+                            (user) => user.email === item.email
                           )[0]?.name === userInfo.displayName ? (
                             <button
                               disabled

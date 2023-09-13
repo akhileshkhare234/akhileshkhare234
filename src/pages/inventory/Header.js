@@ -1,10 +1,17 @@
-import React from "react";
-export default function Header({ title }) {
+import React, { memo } from "react";
+import { envmode } from "../../auth/constants";
+function Header({ title }) {
   return (
-    <div className="bgColor top-header" style={{ height: 81, width: "100%" }}>
+    <div className={`bgColor top-header`}>
       <div className="navbarbrand">
         <span>{title}</span>
       </div>
+      {envmode.env === "testing" ? (
+        <div className="testingmode">{envmode.title}</div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
+export default memo(Header);
