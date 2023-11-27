@@ -134,9 +134,9 @@ export default function EditProfile({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaluserprofile"
     >
-      <ToastContainer />
+      <ToastContainer id="toastmsgUpdateProfile" />
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -154,7 +154,7 @@ export default function EditProfile({
             <form name="itemForm" className="row g-3" onSubmit={saveItem}>
               {profileFileds.map((field, index) => (
                 <div key={index} className="col-md-4">
-                  <label htmlFor="floatingInput" className="mb-1">
+                  <label htmlFor="" className="mb-1">
                     {field.title}
                   </label>
                   {field.type === "text" || field.type === "date" ? (

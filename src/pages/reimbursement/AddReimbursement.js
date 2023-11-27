@@ -71,6 +71,7 @@ export default function AddReimbursement({
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId1"
         }
       );
     }
@@ -117,9 +118,9 @@ export default function AddReimbursement({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaladdReimbursement"
     >
-      <ToastContainer />
+      <ToastContainer id="toastmsgAddReimbursement" />
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -139,17 +140,20 @@ export default function AddReimbursement({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="addReimbursement">
             <form ref={formRef1} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label className="mb-1">Reimbursement type</label>
+                <label className="mb-1" id="typelabel">
+                  Reimbursement type
+                </label>
                 <select
                   name="type"
+                  id="typefield"
                   className="form-select rounded-3"
                   defaultValue=""
                   required
                 >
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select reimbursement type
                   </option>
                   <option value="Travel">Travel</option>
@@ -160,16 +164,21 @@ export default function AddReimbursement({
                 </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Reimbursement file</label>
+                <label id="filelabel" className="mb-1">
+                  Reimbursement file
+                </label>
                 <input
                   type="file"
+                  id="filefield"
                   name="data"
                   className="form-control rounded-3"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Amount</label>
+                <label id="submitAmountlabel" className="mb-1">
+                  Amount
+                </label>
                 <input
                   type="number"
                   autoComplete="off"
@@ -177,24 +186,29 @@ export default function AddReimbursement({
                   min={0}
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="submitAmountfield"
                   placeholder="Amount"
                   onKeyDown={handleKeyDown}
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Amount unit</label>
+                <label id="unitlabel" className="mb-1">
+                  Amount unit
+                </label>
                 <input
                   type="text"
                   autoComplete="off"
                   name="unit"
+                  id="unitfield"
                   defaultValue={"INR"}
                   className="form-control rounded-3"
                   placeholder="Amount unit"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Spent Date</label>
+                <label className="mb-1" id="spentDatelabel">
+                  Spent Date
+                </label>
                 <input
                   type="date"
                   max={setMaxMinDate(10)}
@@ -202,30 +216,34 @@ export default function AddReimbursement({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="spentDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="spentDatefield"
                   placeholder="Enter Assign Date"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Submit Date</label>
+                <label className="mb-1" id="submitDatelabel">
+                  Submit Date
+                </label>
                 <input
                   type="date"
                   defaultValue={setMaxMinDate(0)}
                   name="submitDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="submitDatefield"
                   placeholder="Enter submit Date"
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Reimbursement description</label>
+                <label className="mb-1" id="descriptionlabel">
+                  Reimbursement description
+                </label>
                 <textarea
-                  multiline
+                  multiline="true"
                   name="description"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="descriptionfield"
                   placeholder="Enter Reimbursement description"
                 />
               </div>
@@ -234,6 +252,7 @@ export default function AddReimbursement({
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
                   disabled={saveStatus}
+                  id="savebutton"
                 >
                   {saveStatus ? "wait..." : "Save"}
                 </button>

@@ -5,6 +5,7 @@ import Loader from "../../util/Loader";
 import Header from "../inventory/Header";
 import { dateFormate } from "../util.js";
 import { useNavigate } from "react-router-dom";
+import { sortBy } from "../../util/UtilMethods";
 const tableData = {
   name: "Project Name",
   manager: "Manager",
@@ -49,12 +50,17 @@ export default function ProjectList({
         })
         .then((res) => {
           if (res?.length > 0) {
-            let project = res.filter((row, index) => index < pageSize);
+            let projectlist = sortBy("name", res);
+            let project = projectlist.filter((row, index) => index < pageSize);
             console.log("projects List ", project);
             setProject([...project]);
-            setIProjects([...res]);
+            setIProjects([...projectlist]);
             let pages = [];
-            for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+            for (
+              let I = 1;
+              I <= Math.ceil(projectlist.length / pageSize);
+              I++
+            ) {
               pages.push(I);
             }
             setPages(pages);
@@ -64,7 +70,7 @@ export default function ProjectList({
             setPages([]);
           }
         });
-  }, [pageSize, token]);
+  }, [navigate, pageSize, token]);
   useEffect(() => {
     setProjectData();
     console.log("setProjectData");
@@ -119,7 +125,7 @@ export default function ProjectList({
   return (
     <>
       <Header title="Projects List" />
-      <div className="container">
+      <div className="container" id="projectlist">
         <div className="row">
           <div className="col">
             <div className="row px-4 py-2">
@@ -130,7 +136,7 @@ export default function ProjectList({
                     type="search"
                     placeholder="Search project here..."
                     onChange={(event) => setSerachText(event.target.value)}
-                    id="example-search-input"
+                    id="searchinput"
                     onKeyUp={(event) => setSerachText(event.target.value)}
                   />
                 </div>
@@ -143,7 +149,9 @@ export default function ProjectList({
                     className="btn btn-outline-primary"
                   >
                     <i className="bi bi-plus-circle me-2"></i>
-                    <span className="ml-2">Add</span>
+                    <span className="ml-2" id="addbtn">
+                      Add
+                    </span>
                   </button>
                 </div>
               ) : null}

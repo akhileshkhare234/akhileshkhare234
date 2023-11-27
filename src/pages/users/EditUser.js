@@ -215,9 +215,9 @@ export default function EditUser({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaledituser"
     >
-      <ToastContainer />
+      <ToastContainer id="toastmsgeditUser" />
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -235,7 +235,7 @@ export default function EditUser({
             <form name="itemForm" className="row g-3" onSubmit={saveItem}>
               {userFields.map((field, index) => (
                 <div key={index} className="col-md-3">
-                  <label htmlFor="floatingInput" className="mb-1">
+                  <label htmlFor="" className="mb-1">
                     {field.title}
                   </label>
                   {field.name === "displayName" ? (
@@ -265,7 +265,7 @@ export default function EditUser({
                         );
                       }}
                     >
-                      <option value="" disabled>
+                      <option value="" disabled={true}>
                         Select manager
                       </option>
                       {userArray?.map((val, index) => (
@@ -296,7 +296,7 @@ export default function EditUser({
               >
                 <div className="btn btn-outline-primary pt-1">
                   <label
-                    htmlFor="floatingInput"
+                    htmlFor=""
                     className="mb-1 pt-1"
                     style={{ marginTop: "5px" }}
                   >

@@ -41,9 +41,9 @@ export default function Leaves() {
   }, [navigate]);
   useEffect(() => {
     checkUser();
-    console.log("Item Page itemStatus : ", itemStatus);
-    setItemStatus(false);
-  }, [checkUser, itemStatus]);
+    console.log("Item Page itemStatus : ");
+    // setItemStatus(false);
+  }, [checkUser]);
   return (
     <>
       <AddLeave

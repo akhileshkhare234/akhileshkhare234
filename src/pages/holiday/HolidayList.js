@@ -67,7 +67,7 @@ export default function HolidayList({ token, itemStatus }) {
                       style={{
                         color:
                           item.holidayDate < new Date().toISOString()
-                            ? "#ccc"
+                            ? "#b1a8a8"
                             : "#000",
                       }}
                       className={

@@ -47,7 +47,7 @@ export default function ItemsHistory({
         }
         tabIndex="-1"
         role="dialog"
-        id="modalSignin"
+        id="InventoryHistory"
       >
         <div
           className="modal-dialog modal-xl"

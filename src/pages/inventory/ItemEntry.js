@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { UserData } from "../../App";
+import React, { useEffect, useRef, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import {
   inventorytypes,
@@ -17,7 +16,6 @@ export default function ItemEntry({
   const [inventoryIdentity, setinventoryIdentity] = useState(
     inventoryTypesKeys[0]
   );
-  const userInfo = useContext(UserData);
   const formRef = useRef();
   const saveItem = (event) => {
     event.preventDefault();
@@ -54,11 +52,11 @@ export default function ItemEntry({
       type: type.value,
       status: status.value,
       location: location.value,
-      owner: owner.value,
+      owner: owner.options[owner.selectedIndex].text,
       identityType: inventoryIdentityType[inventoryIdentity],
       identity: identity.value,
       assetPassword: assetPassword.value,
-      userEmail: getUserInfo(assign.value, 1),
+      userEmail,
       config:
         ["Laptop", "CPU"].indexOf(inventoryIdentity) >= 0
           ? {
@@ -91,35 +89,8 @@ export default function ItemEntry({
       });
     console.log("itemData : ", itemData);
   };
-  // const [userArray, setuserArray] = useState([]);
   const [userEmail, setuserEmail] = useState(null);
-  // const getUsers = useCallback(() => {
-  //   if (userInfo?.role === 2) {
-  //     let tokenValue = window.localStorage.getItem("am_token");
-  //     fetch(APIUrl + "api/users", {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: "Bearer " + tokenValue,
-  //       },
-  //     })
-  //      .then((res) => {
-  //   if (res.status === 401) {
-  //     window.localStorage.removeItem("am_token");
-  //     navigate("/");
-  //   } else return res.json();
-  // })
-  //       .then((res) => {
-  //         let users = res.map((user) => user.displayName + "/" + user.email);
-  //         setuserArray([...users]);
-  //         // console.log("Users List : ", users);
-  //       })
-  //       .catch((err) => {
-  //         console.log("User Not Get : ", err);
-  //       });
-  //   } else setuserArray([]);
-  // }, [userInfo?.role]);
   useEffect(() => {
-    // getUsers();
     console.log("entryPopUp", entryPopUp);
   }, [entryPopUp]);
   const getUserInfo = (user, index) => {
@@ -162,7 +133,7 @@ export default function ItemEntry({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modalItemEntry"
     >
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -177,10 +148,10 @@ export default function ItemEntry({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="ItemEntrybody">
             <form ref={formRef} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Model <span className="required">*</span>
                 </label>
                 <input
@@ -189,12 +160,12 @@ export default function ItemEntry({
                   name="model"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="model"
                   placeholder="Enter Model"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Brand <span className="required">*</span>
                 </label>
                 <input
@@ -203,12 +174,12 @@ export default function ItemEntry({
                   name="brand"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="brand"
                   placeholder="Enter Brand"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory type <span className="required">*</span>
                 </label>
                 <select
@@ -217,13 +188,14 @@ export default function ItemEntry({
                   required
                   onChange={(e) => {
                     setinventoryIdentity(
-                      inventoryTypesKeys[e.target.selectedIndex]
+                      inventoryTypesKeys[e.target.selectedIndex - 1]
                     );
+                    console.log(inventoryTypesKeys[e.target.selectedIndex - 1]);
                     return false;
                   }}
                   defaultValue=""
                 >
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select inventory type{" "}
                   </option>
                   {inventoryTypesKeys.map((inventory) => (
@@ -240,7 +212,7 @@ export default function ItemEntry({
                     style={{ border: "1px solid #ccc" }}
                   >
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         RAM
                       </label>
                       <input
@@ -248,12 +220,12 @@ export default function ItemEntry({
                         autoComplete="off"
                         name="ram"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="ram"
                         placeholder="RAM Size"
                       />
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Processor
                       </label>
                       <input
@@ -261,12 +233,12 @@ export default function ItemEntry({
                         autoComplete="off"
                         name="processor"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="processor"
                         placeholder="Processor Name"
                       />
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Hard Disk Size
                       </label>
                       <input
@@ -274,12 +246,12 @@ export default function ItemEntry({
                         autoComplete="off"
                         name="harddisk"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="harddisk"
                         placeholder="HDD Size"
                       />
                     </div>
                     <div className="col-md-3">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Hard Disk Type
                       </label>
                       <input
@@ -287,12 +259,12 @@ export default function ItemEntry({
                         autoComplete="off"
                         name="harddiskType"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="harddiskType"
                         placeholder="HDD Type"
                       />
                     </div>
                     <div className="col-md-3">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Operating System
                       </label>
                       <input
@@ -300,7 +272,7 @@ export default function ItemEntry({
                         autoComplete="off"
                         name="operatingSystem"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="operatingSystem"
                         placeholder="Operating System Name"
                       />
                     </div>
@@ -309,7 +281,7 @@ export default function ItemEntry({
               ) : null}
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory {inventoryIdentityType[inventoryIdentity]}
                 </label>
                 <input
@@ -317,32 +289,34 @@ export default function ItemEntry({
                   autoComplete="off"
                   name="identity"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="identity"
                   placeholder={
                     "Enter " + inventoryIdentityType[inventoryIdentity]
                   }
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory location <span className="required">*</span>
                 </label>
                 <select
                   name="location"
+                  id="location"
                   required
                   className="form-select rounded-3"
                   defaultValue=""
                 >
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select inventory location{" "}
                   </option>
                   <option value="Bangalore">Bangalore</option>
                   <option value="Indore">Indore</option>
+                  <option value="US">US</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory status
                 </label>
                 <input
@@ -350,55 +324,57 @@ export default function ItemEntry({
                   autoComplete="off"
                   name="status"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="status"
                   placeholder="Enter inventory status"
                 />
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory owner <span className="required">*</span>
                 </label>
                 <select
                   className="form-select rounded-3"
                   required
                   name="owner"
+                  id="owner"
                   defaultValue=""
                 >
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select inventory owner{" "}
                   </option>
                   {userArray.map((user, index) => (
-                    <option value={user.name} key={index}>
+                    <option value={user.email} key={index}>
                       {user.name}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign To <span className="required">*</span>
                 </label>
                 <select
                   required
                   className="form-select rounded-3"
-                  onChange={(e) => setuserEmail(getUserInfo(e.target.value, 1))}
+                  onChange={(e) => setuserEmail(e.target.value)}
                   name="assign"
+                  id="assign"
                   defaultValue=""
                 >
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select assign to
                   </option>
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
-                    <option value={user} key={index}>
+                    <option value={user.email} key={index}>
                       {user.name}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign Date <span className="required">*</span>
                 </label>
                 <input
@@ -410,12 +386,12 @@ export default function ItemEntry({
                   name="assignDate"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="assignDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   {inventoryIdentity} Password
                 </label>
                 <input
@@ -423,12 +399,12 @@ export default function ItemEntry({
                   autoComplete="off"
                   name="assetPassword"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="assetPassword"
                   placeholder={"Enter " + inventoryIdentity + " Password"}
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Employee Email
                 </label>
                 <input
@@ -436,13 +412,13 @@ export default function ItemEntry({
                   autoComplete="off"
                   name="userEmail"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="userEmail"
                   defaultValue={userEmail}
                   placeholder="Enter user email"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Release Date
                 </label>
                 <input
@@ -453,12 +429,12 @@ export default function ItemEntry({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="releaseDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="releaseDate"
                   placeholder="Enter Release Date"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity From
                 </label>
                 <input
@@ -469,12 +445,12 @@ export default function ItemEntry({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="validityFrom"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="validityFrom"
                   placeholder="Enter Validity From"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity To
                 </label>
                 <input
@@ -485,12 +461,12 @@ export default function ItemEntry({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="validityTo"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="validityTo"
                   placeholder="Enter Validity To"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Purchase Date
                 </label>
                 <input
@@ -501,7 +477,7 @@ export default function ItemEntry({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="purchaseDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="purchaseDate"
                   placeholder="Enter Purchase Date"
                 />
               </div>

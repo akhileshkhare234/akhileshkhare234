@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { APIUrl } from "../../auth/constants";
 import { useNavigate } from "react-router-dom";
+import { sortBy } from "../../util/UtilMethods";
 export default function AssignProject({
   projectPopUp,
   projectPopUpClose,
@@ -28,7 +29,8 @@ export default function AssignProject({
           } else return res.json();
         })
         .then((res) => {
-          setProject([...res]);
+          let proData = sortBy("name", res);
+          setProject([...proData]);
           setSelectedProject("");
         });
     }
@@ -74,7 +76,7 @@ export default function AssignProject({
         console.log("Update User : ", res);
         changeStatus(true);
         projectPopUpClose(true);
-        window.location.reload();
+        // window.location.reload();
       })
       .catch((err) => {
         console.log("User Not Get : ", err);
@@ -89,7 +91,7 @@ export default function AssignProject({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modalassignproject"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">

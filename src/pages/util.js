@@ -185,3 +185,53 @@ export const getMonthDates = (
   // console.log("Time Sheet Data : ", dates, projects);
   return dates;
 };
+
+const weekformatDate = (date, project) => {
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Months are zero-indexed
+  const year = date.getFullYear();
+  const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayOfWeek = daysOfWeek[date.getDay()]; // Get the day of the week
+
+  return {
+    day,
+    month,
+    year,
+    dayOfWeek,
+    task: "task_" + day,
+    hour: "hour_" + day,
+    projectId: project.projectId,
+  };
+};
+
+const dateRange = function (startDate, endDate, project) {
+  const dates = [];
+  const currentDate = new Date(startDate);
+  console.log(startDate, endDate);
+  while (currentDate <= endDate) {
+    dates.push(weekformatDate(currentDate, project));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dates;
+};
+
+export const getWeekData = function (selectedWeek, project) {
+  // console.log(
+  //   "getWeekData data : ",
+  //   selectedWeek,
+  //   parseDate(selectedWeek.startWeek + ""),
+  //   parseDate(selectedWeek.endWeek + ""),
+  //   project,
+  //   Object.keys(selectedWeek).length > 0 && project?.length > 0
+  // );
+  if (Object.keys(selectedWeek).length > 0 && project?.length > 0) {
+    const startDate = parseDate(selectedWeek?.startWeek);
+    const endDate = parseDate(selectedWeek?.endWeek);
+
+    console.log("dateRange ", dateRange(startDate, endDate, project));
+    return dateRange(startDate, endDate, project);
+  } else {
+    return [];
+  }
+};

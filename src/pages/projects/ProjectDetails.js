@@ -49,7 +49,7 @@ export default function ProjectDetails({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="ProjectDetails"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">

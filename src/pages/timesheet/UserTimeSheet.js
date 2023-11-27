@@ -142,6 +142,7 @@ function UserTimeSheet() {
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId5",
       });
     } else {
       toast.warn(
@@ -152,6 +153,7 @@ function UserTimeSheet() {
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId6",
         }
       );
     }
@@ -295,6 +297,7 @@ function UserTimeSheet() {
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId8",
       });
     } else {
       toast.warn(
@@ -305,6 +308,7 @@ function UserTimeSheet() {
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId7",
         }
       );
     }
@@ -414,13 +418,28 @@ function UserTimeSheet() {
             ) {
               //Checking the Selected Month/Year is valid for Assigned ProjectDate
               let currentDate = getDateBySelection(selectedMonth, selectedYear);
-
               let currentMonthProject =
                 userInfo?.userProjectWithAssignedDate?.filter((project) => {
-                  let projectDate = parseDate(
-                    new Date(project.projectAssignedDate).toLocaleDateString()
+                  // let projectDate = parseDate(
+                  //   new Date(project?.projectAssignedDate).toLocaleDateString()
+                  // );
+                  // console.log(
+                  //   "Project Date : ",
+                  //   projectDate,
+                  //   "Current date : ",
+                  //   currentDate,
+                  //   projectDate <= currentDate
+                  // );
+                  let project_Date = new Date(project?.projectAssignedDate);
+                  let current_Date = new Date(currentDate);
+                  console.log(
+                    "Project Date : ",
+                    project_Date.toLocaleDateString(),
+                    "Current date : ",
+                    current_Date.toLocaleDateString(),
+                    project_Date <= current_Date
                   );
-                  return projectDate <= currentDate;
+                  return project_Date <= current_Date;
                 });
               console.log(
                 userInfo?.userProjectWithAssignedDate,
@@ -533,21 +552,26 @@ function UserTimeSheet() {
         getMonthValue={(value) => getMonthValue(value)}
         getYearValue={(value) => getYearValue(value)}
       />
-      <ToastContainer />
+      <ToastContainer id="toastmsgtimesheets" />
       <div>
         <form
           name="timesheet"
+          id="filltimesheet"
           onSubmit={
             timeSheetData.month === null ? saveTimeSheet : updateTimeSheet
           }
         >
           {projects.length > 0 ? (
             <>
-              <div className="timesheet">
+              <div className="timesheetold">
                 Time Sheet : {selectedMonth ? selectedMonth : getMonthName()} /
                 {selectedYear ? selectedYear : getYears()}
               </div>
-              <button type="submit" className="btn btn-primary saveBtn">
+              <button
+                type="submit"
+                id="submitbtn"
+                className="btn btn-primary saveBtn"
+              >
                 {timeSheetData.month === null ? "Save" : "Update"}
               </button>
               <div
@@ -607,7 +631,10 @@ function UserTimeSheet() {
                           style={{ width: "70px" }}
                           className="text-center verticalAlign fixed-col"
                         >
-                          <div className="bgColor textColor dateStyle">
+                          <div
+                            className="bgColor textColor dateStyle"
+                            id={data.dayName + data.day}
+                          >
                             <div>{data.day}</div>
                             <div>{data.dayName}</div>
                           </div>
@@ -618,6 +645,7 @@ function UserTimeSheet() {
                               <input
                                 type="number"
                                 name={row.hour}
+                                id={row.hour}
                                 onChange={(event) =>
                                   setHoursValue(event.target.name)
                                 }
@@ -640,10 +668,11 @@ function UserTimeSheet() {
                             </td>
                             <td className="inputSize textareaSize-1">
                               <textarea
-                                multiline
+                                multiline="true"
                                 type="text"
                                 autoComplete="off"
                                 name={row.task}
+                                id={row.task}
                                 className="form-control rounded-3"
                                 placeholder="Task Details"
                               />

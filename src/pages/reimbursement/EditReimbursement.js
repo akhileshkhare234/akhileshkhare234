@@ -65,6 +65,7 @@ export default function EditReimbursement({
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId2",
         }
       );
     }
@@ -116,7 +117,7 @@ export default function EditReimbursement({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaleditReimbursement"
     >
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -130,16 +131,22 @@ export default function EditReimbursement({
               aria-label="Close"
             ></button>
           </div>
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="editReimbursement">
             <form
               name="ReimbursementForm"
               className="row g-3"
               onSubmit={editDetails}
             >
               <div className="col-md-6">
-                <label className="mb-1">Reimbursement type</label>
-                <select name="type" className="form-select rounded-3">
-                  <option value="Reimbursement type" disabled>
+                <label className="mb-1" id="typelabel">
+                  Reimbursement type
+                </label>
+                <select
+                  name="type"
+                  id="typefield"
+                  className="form-select rounded-3"
+                >
+                  <option value="Reimbursement type" disabled={true}>
                     Select reimbursement type
                   </option>
                   <option value="Travel">Travel</option>
@@ -150,7 +157,9 @@ export default function EditReimbursement({
                 </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Submit Amount</label>
+                <label id="submitAmountlabel" className="mb-1">
+                  Submit Amount
+                </label>
                 <input
                   type="text"
                   name="submitAmount"
@@ -161,29 +170,35 @@ export default function EditReimbursement({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Spent Date</label>
+                <label className="mb-1" id="spentDatelabel">
+                  Spent Date
+                </label>
                 <input
                   type="text"
                   readOnly
                   name="spentDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="spentDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Submit Date</label>
+                <label className="mb-1" id="submitDatelabel">
+                  Submit Date
+                </label>
                 <input
                   type="text"
                   readOnly
                   name="submitDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="submitDate"
                   placeholder="Enter submit Date"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Approve Amount</label>
+                <label className="mb-1" id="approveAmountlabel">
+                  Approve Amount
+                </label>
                 <input
                   type="number"
                   name="approveAmount"
@@ -194,7 +209,9 @@ export default function EditReimbursement({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Difference Amount</label>
+                <label className="mb-1" id="differenceAmountlabel">
+                  Difference Amount
+                </label>
                 <input
                   type="text"
                   readOnly
@@ -205,9 +222,15 @@ export default function EditReimbursement({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Status</label>
-                <select name="status" className="form-select rounded-3">
-                  <option value="" disabled>
+                <label className="mb-1" id="statuslabel">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  id="statusfield"
+                  className="form-select rounded-3"
+                >
+                  <option value="" disabled={true}>
                     Select status
                   </option>
                   <option value="APPROVED">APPROVED</option>
@@ -216,12 +239,14 @@ export default function EditReimbursement({
                 </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Reimbursement comment</label>
+                <label className="mb-1" id="commentlabel">
+                  Reimbursement comment
+                </label>
                 <input
                   type="text"
                   name="comment"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="commentfield"
                   placeholder="Enter Reimbursement comment"
                 />
               </div>
@@ -229,6 +254,7 @@ export default function EditReimbursement({
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
+                  id="editbtn"
                 >
                   Update
                 </button>
@@ -237,7 +263,7 @@ export default function EditReimbursement({
           </div>
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer id="toastmsgEditReimbursement" />
     </div>
   );
 }

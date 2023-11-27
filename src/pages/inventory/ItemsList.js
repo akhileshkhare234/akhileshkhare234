@@ -5,6 +5,7 @@ import Header from "./Header";
 import { dateFormate } from "../util.js";
 import Loader from "../../util/Loader";
 import { useNavigate } from "react-router-dom";
+import { sortBy } from "../../util/UtilMethods";
 
 export default function ItemsList({
   entryPopUpOpen,
@@ -72,8 +73,15 @@ export default function ItemsList({
             return text.toUpperCase().includes(serachText.toUpperCase());
           }).length > 0
       );
-      console.log("serachText,inventory ", serachText, inventory);
-      setItems([...inventory]);
+      setItems([
+        ...inventory.filter((item) =>
+          item.assign.toUpperCase().includes(serachText.toUpperCase())
+        ),
+        ...inventory.filter(
+          (item) =>
+            !item.assign.toUpperCase().includes(serachText.toUpperCase())
+        ),
+      ]);
       setSerachStatus(true);
       let pages = [];
       for (let I = 1; I <= Math.ceil(inventory.length / pageSize); I++) {
@@ -108,7 +116,7 @@ export default function ItemsList({
   return (
     <>
       <Header title="Inventory List" />
-      <div className="container">
+      <div className="container" id="itemList">
         <div className="row">
           <div className="col">
             <div className="row px-4 py-2">
@@ -121,7 +129,7 @@ export default function ItemsList({
                     defaultValue={serachText}
                     autoComplete="off"
                     onChange={(event) => setSerachText(event.target.value)}
-                    id="example-search-input"
+                    id="searchinput"
                     onKeyUp={(event) => setSerachText(event.target.value)}
                   />
                 </div>
@@ -131,6 +139,7 @@ export default function ItemsList({
                   <button
                     onClick={() => entryPopUpOpen(false)}
                     type="button"
+                    id="addbtn"
                     className="btn btn-outline-primary"
                   >
                     <i className="bi bi-plus-circle me-2"></i>
@@ -143,7 +152,7 @@ export default function ItemsList({
               <>
                 <table className="table tabletext2">
                   <thead>
-                    <tr>
+                    <tr id="itemsheader">
                       <th scope="col">#</th>
                       <th scope="col">Inventory</th>
                       <th scope="col">Assign To</th>
@@ -166,7 +175,7 @@ export default function ItemsList({
                   </thead>
                   <tbody>
                     {items.map((item, index) => (
-                      <tr key={index}>
+                      <tr key={index} id={"row" + index}>
                         <th scope="row">{start + index + 1}</th>
                         <td>{item.type}</td>
                         <td>{item.assign}</td>
@@ -186,6 +195,7 @@ export default function ItemsList({
                               <button
                                 onClick={() => deletePopUpOpen(false, item.id)}
                                 type="button"
+                                id={"deletebtnrow" + index}
                                 className="btn btn-outline-primary me-1"
                               >
                                 <i className="bi bi-trash3"></i>
@@ -193,6 +203,7 @@ export default function ItemsList({
                               <button
                                 onClick={() => editPopUpOpen(false, item)}
                                 type="button"
+                                id={"editbtnrow" + index}
                                 className="btn btn-outline-primary me-1"
                               >
                                 <i className="bi bi-pencil"></i>
@@ -202,6 +213,7 @@ export default function ItemsList({
                           <button
                             onClick={() => detailsPopUpOpen(false, item)}
                             type="button"
+                            id={"detailsbtnrow" + index}
                             className="btn btn-outline-primary me-1"
                           >
                             <i className="bi bi-eye"></i>
@@ -209,6 +221,7 @@ export default function ItemsList({
                           <button
                             onClick={() => historyPopUpOpen(false, item.id)}
                             type="button"
+                            id={"historybtnrow" + index}
                             className="btn btn-outline-primary"
                           >
                             <i className="bi bi-clock-history"></i>

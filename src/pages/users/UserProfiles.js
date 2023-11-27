@@ -71,6 +71,7 @@ export default function UserProfiles() {
             hideProgressBar: false,
             closeOnClick: true,
             theme: "colored",
+            toastId: "customId9",
           });
         })
         .catch((err) => {
@@ -79,10 +80,10 @@ export default function UserProfiles() {
   };
   return (
     <>
-      <ToastContainer />
+      <ToastContainer id="toastmsguser" />
       <Header title="User Profile" />
       {userInfo ? (
-        <div className="container">
+        <div className="container" id="viewprofile">
           <div className="row mx-5 page-body">
             <div className="col mt-4">
               <div className="profiles">

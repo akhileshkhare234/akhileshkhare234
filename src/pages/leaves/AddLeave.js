@@ -20,6 +20,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId1",
       });
     } else if (reason.value) {
       let itemData = {
@@ -50,6 +51,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
             hideProgressBar: false,
             closeOnClick: true,
             theme: "colored",
+            toastId: "customId2",
           });
           window.setTimeout(() => {
             console.log("Save Leave : ", res);
@@ -67,6 +69,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
             hideProgressBar: false,
             closeOnClick: true,
             theme: "colored",
+            toastId: "customId3",
           });
           changeStatus(false);
         });
@@ -81,13 +84,14 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId4",
       });
     }
   };
 
   useEffect(() => {
-    console.log("entryPopUp", entryPopUp);
-  }, [entryPopUp]);
+    console.log("entryPopUp call");
+  }, []);
   const setMaxMinDate = (years, months = null, days = null) => {
     let today = new Date();
     let month =
@@ -132,13 +136,15 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modalAddLeave"
     >
-      <ToastContainer />
+      <ToastContainer id="toastmsgAddLeave" />
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Leave Entry Form</h1>
+            <h1 className="fw-bold mb-0 fs-2" id="leavetitle">
+              Leave Entry Form
+            </h1>
             <button
               onClick={() => {
                 entryPopUpClose(true);
@@ -149,47 +155,56 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
               className="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
+              id="closebtn"
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="AddLeavebody">
             <form
               ref={formRef}
               name="leaveForm"
+              id="leaveFormid"
               className="row g-3"
               onSubmit={saveItem}
             >
               <div className="col-md-4">
-                <label className="mb-1">Leave From</label>
+                <label className="mb-1" id="LeaveFromlabel">
+                  Leave From
+                </label>
                 <input
                   type="date"
                   min={setMaxMinDate(0, 0)}
                   max={setMaxMinDate(1)}
                   defaultValue={setMaxMinDate(0)}
                   name="leaveFrom"
+                  id="leaveFromField"
                   className="form-control rounded-3"
                   onChange={getFromDate}
                   placeholder="Enter Release Date"
                 />
               </div>
               <div className="col-md-4">
-                <label className="mb-1">Leave To</label>
+                <label className="mb-1" id="Leavetolabel">
+                  Leave To
+                </label>
                 <input
                   type="date"
                   min={setMaxMinDate(0, 0)}
                   max={setMaxMinDate(1)}
                   defaultValue={setMaxMinDate(0)}
                   name="leaveTo"
+                  id="leaveToField"
                   onChange={getToDate}
                   className="form-control rounded-3"
                 />
               </div>
-              <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+              <div className="col-md-4" id="Leaveforlabel">
+                <label htmlFor="" className="mb-1">
                   Leave for
                 </label>
                 <select
                   name="leavefor"
+                  id="leaveforField"
                   className="form-select rounded-3"
                   onChange={getToDate}
                 >
@@ -198,30 +213,43 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 </select>
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Reason</label>
+                <label className="mb-1" id="reasonlabel">
+                  Reason
+                </label>
                 <input
                   type="text"
                   name="reason"
+                  id="reasonField"
                   autoComplete="off"
                   className="form-control rounded-3"
                   placeholder="Leave reason"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Days</label>
+                <label className="mb-1" id="dayslabel">
+                  Days
+                </label>
                 <input
                   type="text"
                   name="unit"
+                  id="unitField"
                   defaultValue={days >= 2 ? days + " days" : days + " day"}
                   className="form-control rounded-3"
                   placeholder="Enter Days"
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1" id="Leavetypelabel">
                   Leave Type
                 </label>
-                <select name="leaveType" className="form-select rounded-3">
+                <select
+                  name="leaveType"
+                  id="leaveTypeField"
+                  className="form-select rounded-3"
+                >
+                  <option value="" disabled>
+                    Select leave
+                  </option>
                   <option value="Sick leave">Sick leave</option>
                   <option value="Urgent leave">Urgent leave</option>
                   <option value="Maternity and paternity leave">
@@ -244,6 +272,7 @@ function AddLeave({ entryPopUp, entryPopUpClose, token, changeStatus }) {
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="Submitted"
+                  id="submitbtn"
                 >
                   Submit
                 </button>

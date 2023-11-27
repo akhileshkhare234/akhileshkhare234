@@ -1,5 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
-import { UserData } from "../../App";
+import React, { useEffect } from "react";
 import { APIUrl } from "../../auth/constants";
 import { assignDateFormate } from "../util.js";
 
@@ -11,8 +10,7 @@ export default function EditItem({
   changeStatus,
   userArray,
 }) {
-  const userInfo = useContext(UserData);
-  const saveItem = (event) => {
+  const updateItem = (event) => {
     event.preventDefault();
     let {
       model,
@@ -41,7 +39,7 @@ export default function EditItem({
       purchaseDate: purchaseDate.value,
       validityFrom: validityFrom.value,
       validityTo: validityTo.value,
-      assign: assign.value,
+      assign: assign.options[assign.selectedIndex].text,
       assignDate: assignDate.value,
       releaseDate: releaseDate.value,
       type: type.value,
@@ -50,15 +48,28 @@ export default function EditItem({
       owner: owner.value,
       identityType: itemDetails.identityType,
       identity: identity.value,
+      userEmail: assign.value,
       config:
         ["Laptop", "CPU"].indexOf(type.value) >= 0
           ? {
-              ram: ram.value,
-              processor: processor.value,
-              harddisk: harddisk.value,
-              harddiskType: harddiskType.value,
-              operatingSystem: operatingSystem.value,
-              id: itemDetails.config?.id,
+              ram: ram?.value.toString() === "undefined" ? "" : ram.value,
+              processor:
+                processor?.value.toString() === "undefined"
+                  ? ""
+                  : processor.value,
+              harddisk:
+                harddisk?.value.toString() === "undefined"
+                  ? ""
+                  : harddisk.value,
+              harddiskType:
+                harddiskType?.value.toString() === "undefined"
+                  ? ""
+                  : harddiskType.value,
+              operatingSystem:
+                operatingSystem?.value.toString() === "undefined"
+                  ? ""
+                  : operatingSystem.value,
+              id: itemDetails?.config?.id,
             }
           : null,
     };
@@ -72,12 +83,10 @@ export default function EditItem({
       },
     })
       .then((res) => {
-        console.log("Edit Item : ", res);
         editPopUpClose(true);
         changeStatus(true);
       })
       .catch((err) => {
-        console.log("Item Not Edit : ", err);
         editPopUpClose(true);
         changeStatus(false);
       });
@@ -103,7 +112,7 @@ export default function EditItem({
       assignDateFormate(itemDetails.validityTo) === "1970-01-01"
         ? assignDateFormate(new Date().toISOString())
         : assignDateFormate(itemDetails.validityTo);
-    itemForm.assign.value = itemDetails.assign;
+    itemForm.assign.value = itemDetails.userEmail;
     itemForm.assignDate.value = assignDateFormate(itemDetails.assignDate);
     itemForm.releaseDate.value =
       assignDateFormate(itemDetails.releaseDate) === "1970-01-01"
@@ -111,41 +120,18 @@ export default function EditItem({
         : assignDateFormate(itemDetails.releaseDate);
     itemForm.identity.value = itemDetails.identity;
     if (["Laptop", "CPU"].indexOf(itemDetails.type) >= 0) {
-      itemForm.ram.value = itemDetails.config.ram;
-      itemForm.processor.value = itemDetails.config.processor;
-      itemForm.harddisk.value = itemDetails.config.harddisk;
-      itemForm.harddiskType.value = itemDetails.config.harddiskType;
-      itemForm.operatingSystem.value = itemDetails.config.operatingSystem;
+      itemForm.ram.value = itemDetails?.config?.ram;
+      itemForm.processor.value = itemDetails?.config?.processor;
+      itemForm.harddisk.value = itemDetails?.config?.harddisk;
+      itemForm.harddiskType.value = itemDetails?.config?.harddiskType;
+      itemForm.operatingSystem.value = itemDetails?.config?.operatingSystem;
     }
   };
-  // const [userArray, setuserArray] = useState([]);
-  // const getUsers = useCallback(() => {
-  //   if (userInfo.role === 2) {
-  //     let tokenValue = window.localStorage.getItem("am_token");
-  //     fetch(APIUrl + "api/users", {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: "Bearer " + tokenValue,
-  //       },
-  //     })
-  //       .then((res) => res.json())
-  //       .then((res) => {
-  //         let users = res.map((user) => user.displayName);
-  //         setuserArray([...users]);
-  //         // console.log("Users List : ", users);
-  //       })
-  //       .catch((err) => {
-  //         console.log("User Not Get : ", err);
-  //       });
-  //   } else setuserArray([]);
-  // }, [userInfo.role]);
+
   useEffect(() => {
-    // getUsers();
     setFormdata(itemDetails);
   }, [itemDetails]);
-  const getUserInfo = (userinfo, index) => {
-    return userinfo.split("/")[index];
-  };
+
   return (
     <div
       className={
@@ -154,7 +140,7 @@ export default function EditItem({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modalEditItem"
     >
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -169,79 +155,88 @@ export default function EditItem({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
-            <form name="itemForm" className="row g-3" onSubmit={saveItem}>
+          <div className="modal-body p-4" id="EditItembody">
+            <form
+              name="itemForm"
+              id="itemForm"
+              className="row g-3"
+              onSubmit={updateItem}
+            >
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign To
                 </label>
-                <select className="form-select rounded-3" name="assign">
+                <select
+                  className="form-select rounded-3"
+                  name="assign"
+                  id="assign"
+                >
                   <option value="unassigned">Unassigned</option>
                   {userArray.map((user, index) => (
-                    <option value={user.name} key={index}>
+                    <option value={user.email} key={index}>
                       {user.name}
                     </option>
                   ))}
                 </select>
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign Date
                 </label>
                 <input
                   type="date"
                   name="assignDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="assignDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Release Date
                 </label>
                 <input
                   type="date"
                   name="releaseDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="releaseDate"
                   placeholder="Enter Release Date"
                 />
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Model
                 </label>
                 <input
                   type="text"
                   name="model"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="model"
                   placeholder="Enter Model"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Brand
                 </label>
                 <input
                   type="text"
                   name="brand"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="brand"
                   placeholder="Enter Brand"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory type
                 </label>
                 <input
                   type="text"
                   name="type"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="type"
                   placeholder="Enter type"
                 />
               </div>
@@ -252,62 +247,62 @@ export default function EditItem({
                     style={{ border: "1px solid #ccc" }}
                   >
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         RAM
                       </label>
                       <input
                         type="text"
                         name="ram"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="ram"
                         placeholder="RAM Size"
                       />
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Processor
                       </label>
                       <input
                         type="text"
                         name="processor"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="processor"
                         placeholder="Processor Name"
                       />
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Hard Disk Size
                       </label>
                       <input
                         type="text"
                         name="harddisk"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="harddisk"
                         placeholder="HDD Size"
                       />
                     </div>
                     <div className="col-md-3">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Hard Disk Type
                       </label>
                       <input
                         type="text"
                         name="harddiskType"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="harddiskType"
                         placeholder="HDD Type"
                       />
                     </div>
                     <div className="col-md-3">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1">
                         Operating System
                       </label>
                       <input
                         type="text"
                         name="operatingSystem"
                         className="form-control rounded-3"
-                        id="floatingInput"
+                        id="operatingSystem"
                         placeholder="Operating System Name"
                       />
                     </div>
@@ -316,29 +311,34 @@ export default function EditItem({
               ) : null}
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory {itemDetails.identityType}
                 </label>
                 <input
                   type="text"
                   name="identity"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="identity"
                   placeholder={"Enter " + itemDetails.identityType}
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory location
                 </label>
-                <select name="location" className="form-select rounded-3">
+                <select
+                  name="location"
+                  id="location"
+                  className="form-select rounded-3"
+                >
                   <option value="Bangalore">Bangalore</option>
                   <option value="Indore">Indore</option>
+                  <option value="US">US</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory status
                 </label>
                 <input
@@ -351,10 +351,15 @@ export default function EditItem({
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory owner
                 </label>
-                <select className="form-select rounded-3" name="owner">
+                <select
+                  className="form-select rounded-3"
+                  name="owner"
+                  id="owner"
+                  owner
+                >
                   {userArray.map((user, index) => (
                     <option value={user.name} key={index}>
                       {user.name}
@@ -364,38 +369,38 @@ export default function EditItem({
               </div>
 
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Purchase Date
                 </label>
                 <input
                   type="date"
                   name="purchaseDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="purchaseDate"
                   placeholder="Enter Purchase Date"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity From
                 </label>
                 <input
                   type="date"
                   name="validityFrom"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="validityFrom"
                   placeholder="Enter Validity From"
                 />
               </div>
               <div className="col-md-4">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity To
                 </label>
                 <input
                   type="date"
                   name="validityTo"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="validityTo"
                   placeholder="Enter Validity To"
                 />
               </div>

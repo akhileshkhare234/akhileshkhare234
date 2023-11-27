@@ -1,6 +1,7 @@
 const env = "testing";
-// const env='production';
-//const env='development';
+// const env = "production";
+// const env = "development";
+// const testURL = "http://testasset.lirisoft.com/";
 export const envmode = { env, title: "Test Environment" };
 const config = {
   testing: {

@@ -33,6 +33,7 @@ export default function UploadCSV() {
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId1",
         });
       })
       .catch((err) => {
@@ -43,12 +44,13 @@ export default function UploadCSV() {
           hideProgressBar: false,
           closeOnClick: true,
           theme: "colored",
+          toastId: "customId2",
         });
       });
   };
   return (
     <>
-      <ToastContainer />
+      <ToastContainer id="toastmsgUpload" />
       <Header title="Upload CSV File" />
       <div className="container">
         <div className="row mx-5">
@@ -92,7 +94,7 @@ export default function UploadCSV() {
                 </button>
               </div>
               <div className="col-md-12">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Select CSV File
                 </label>
                 <input

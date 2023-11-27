@@ -127,7 +127,7 @@ export default function EditTask({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaledittask"
     >
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -145,7 +145,7 @@ export default function EditTask({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="edittask">
             <form name="TaskForm" className="row g-3" onSubmit={saveItem}>
               <div className="col-md-12">
                 <label className="mb-1">Task Detail</label>
@@ -198,7 +198,7 @@ export default function EditTask({
               <div className="col-md-6">
                 <label className="mb-1">Status</label>
                 <select name="status" className="form-select rounded-3">
-                  <option value="" disabled>
+                  <option value="" disabled={true}>
                     Select status
                   </option>
                   <option value="Todo">Todo</option>

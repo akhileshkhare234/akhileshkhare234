@@ -184,8 +184,8 @@ export default function LeaveList({
   return (
     <>
       <Header title="Leave List" />
-      <ToastContainer />
-      <div className="container">
+      <ToastContainer id="toastmsgleavelist" />
+      <div className="container" id="leavelist">
         <div className="row">
           <div className="col">
             <div className="row px-4 pt-2 mb-2">
@@ -196,7 +196,9 @@ export default function LeaveList({
                   className="btn btn-outline-primary"
                 >
                   <i className="bi bi-plus-circle me-2"></i>
-                  <span className="ml-2">Apply for leave</span>
+                  <span className="ml-2" id="applyleave">
+                    Apply for leave
+                  </span>
                 </button>
               </div>
             </div>
@@ -209,10 +211,14 @@ export default function LeaveList({
                     style={{ backgroundColor: "#0eb593" }}
                   >
                     <div className="col-md-3">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1" id="userslable">
                         Users
                       </label>
-                      <select className="form-select rounded-3" name="users">
+                      <select
+                        className="form-select rounded-3"
+                        name="users"
+                        id="usersfield"
+                      >
                         <option value="All">All</option>
                         {userArray.map((user, index) => (
                           <option value={user.email} key={index}>
@@ -223,12 +229,13 @@ export default function LeaveList({
                     </div>
 
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1" id="yearslable">
                         Year
                       </label>
                       <select
                         className="form-select rounded-3"
                         name="years"
+                        id="yearsfield"
                         defaultValue={getYears()}
                       >
                         {[getYears() - 1, getYears()].map((year, index) => (
@@ -239,10 +246,14 @@ export default function LeaveList({
                       </select>
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1" id="monthslable">
                         Month
                       </label>
-                      <select className="form-select rounded-3" name="months">
+                      <select
+                        className="form-select rounded-3"
+                        name="months"
+                        id="monthsfield"
+                      >
                         <option value="All">All</option>
                         {getMonthsFullName().map((month, index) => (
                           <option value={month} key={index + month}>
@@ -252,10 +263,14 @@ export default function LeaveList({
                       </select>
                     </div>
                     <div className="col-md-2">
-                      <label htmlFor="floatingInput" className="mb-1">
+                      <label htmlFor="" className="mb-1" id="statuslabel">
                         Status
                       </label>
-                      <select className="form-select rounded-3" name="status">
+                      <select
+                        className="form-select rounded-3"
+                        name="status"
+                        id="statusfield"
+                      >
                         {["All", "Submitted", "Approved", "Rejected"].map(
                           (status, index) => (
                             <option value={status} key={index + status}>
@@ -269,6 +284,7 @@ export default function LeaveList({
                       <button
                         type="submit"
                         className="btn btn-outline-warning mt-2 px-4 py-1"
+                        id="viewbtn"
                       >
                         <span className="ml-2">View</span>
                       </button>
@@ -371,20 +387,55 @@ export default function LeaveList({
                           {userArray.filter(
                             (user) => user.email === item.email
                           )[0]?.name === userInfo.displayName ? (
-                            <button
-                              disabled
-                              title="Click here for Approved/Rejected leave."
-                              onClick={() => setApproveData(false, item)}
-                              type="button"
-                              style={{ width: "140px" }}
-                              className="btn btn-primary me-1 py-1"
-                            >
-                              {item.status === "Submitted"
-                                ? "Approve/Reject"
-                                : item.status === "Approved"
-                                ? "Reject"
-                                : "Approve"}
-                            </button>
+                            // <button
+                            //   disabled
+                            //   title="Click here for Approved/Rejected leave."
+                            //   onClick={() => setApproveData(false, item)}
+                            //   type="button"
+                            //   style={{ width: "140px" }}
+                            //   className="btn btn-primary me-1 py-1"
+                            // >
+                            //   {item.status === "Submitted"
+                            //     ? "Approve/Reject"
+                            //     : item.status === "Approved"
+                            //     ? "Reject"
+                            //     : "Approve"}
+                            // </button>
+                            <>
+                              {item.status.toUpperCase() === "SUBMITTED" ? (
+                                <>
+                                  <button
+                                    onClick={() =>
+                                      deletePopUpOpen(false, item.id)
+                                    }
+                                    type="button"
+                                    className="btn btn-outline-primary me-1"
+                                  >
+                                    <i
+                                      className="bi bi-trash3"
+                                      id="deletepopup"
+                                    ></i>
+                                  </button>
+                                  <button
+                                    onClick={() => editPopUpOpen(false, item)}
+                                    type="button"
+                                    className="btn btn-outline-primary me-1"
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </button>
+                                </>
+                              ) : (
+                                <></>
+                              )}
+
+                              <button
+                                onClick={() => detailsPopUpOpen(false, item)}
+                                type="button"
+                                className="btn btn-outline-primary me-1"
+                              >
+                                <i className="bi bi-eye" id="detailspopup"></i>
+                              </button>
+                            </>
                           ) : (
                             <button
                               title="Click here for Approved/Rejected leave."
@@ -392,6 +443,7 @@ export default function LeaveList({
                               type="button"
                               style={{ width: "140px" }}
                               className="btn btn-primary me-1 py-1"
+                              id="actionpopup"
                             >
                               {item.status === "Submitted"
                                 ? "Approve/Reject"
@@ -417,7 +469,7 @@ export default function LeaveList({
                                 type="button"
                                 className="btn btn-outline-primary me-1"
                               >
-                                <i className="bi bi-pencil"></i>
+                                <i className="bi bi-pencil" id="editpopup"></i>
                               </button>
                             </>
                           ) : (
@@ -429,7 +481,7 @@ export default function LeaveList({
                             type="button"
                             className="btn btn-outline-primary me-1"
                           >
-                            <i className="bi bi-eye"></i>
+                            <i className="bi bi-eye" id="detailpopup"></i>
                           </button>
                         </td>
                       )}

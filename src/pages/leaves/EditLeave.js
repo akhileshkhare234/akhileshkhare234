@@ -112,12 +112,14 @@ export default function EditLeave({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modalEditLeave"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
-            <h1 className="fw-bold mb-0 fs-2">Leave Update</h1>
+            <h1 className="fw-bold mb-0 fs-2" id="leavetitle">
+              Leave Update
+            </h1>
             <button
               onClick={() => editPopUpClose(true)}
               type="button"
@@ -127,54 +129,75 @@ export default function EditLeave({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
-            <form name="leaveform" className="row g-3" onSubmit={updateLeave}>
+          <div className="modal-body p-4" id="EditLeavebody">
+            <form
+              name="leaveform"
+              id="leaveform"
+              className="row g-3"
+              onSubmit={updateLeave}
+            >
               <div className="col-md-6">
-                <label className="mb-1">Leave From</label>
+                <label className="mb-1" id="Leavefromlabel">
+                  Leave From
+                </label>
                 <input
                   type="date"
                   min={setMaxMinDate(-1)}
                   max={setMaxMinDate(1)}
                   name="leaveFrom"
+                  id="leaveFromfield"
                   className="form-control rounded-3"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Leave To</label>
+                <label className="mb-1" id="Leavetolabel">
+                  Leave To
+                </label>
                 <input
                   type="date"
                   min={setMaxMinDate(-1)}
                   max={setMaxMinDate(1)}
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="leaveTo"
+                  id="leaveTofield"
                   onChange={getToDate}
                   className="form-control rounded-3"
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Reason</label>
+                <label className="mb-1" id="Reasonlabel">
+                  Reason
+                </label>
                 <input
                   type="text"
                   name="reason"
+                  id="reasonfield"
                   className="form-control rounded-3"
                   placeholder="Leave reason"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Days</label>
+                <label className="mb-1" id="dayslabel">
+                  Days
+                </label>
                 <input
                   type="text"
                   name="unit"
+                  id="unitfield"
                   className="form-control rounded-3"
                   defaultValue={days >= 2 ? days + " days" : days + " day"}
                   placeholder="Enter Days"
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1" id="leavetype">
                   Leave Type
                 </label>
-                <select name="leaveType" className="form-select rounded-3">
+                <select
+                  name="leaveType"
+                  id="leaveTypefield"
+                  className="form-select rounded-3"
+                >
                   <option value="Sick leave">Sick leave</option>
                   <option value="Urgent leave">Urgent leave</option>
                   <option value="Maternity and paternity leave">
@@ -189,12 +212,15 @@ export default function EditLeave({
                   </option>
                   <option value="Sabbatical leave">Sabbatical leave</option>
                   <option value="Unpaid leave">Unpaid leave</option>
+                  <option value="Paid leave">Paid leave</option>
+                  <option value="Other leave">Other leave</option>
                 </select>
               </div>
               <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
+                  id="updatebtn"
                 >
                   Update
                 </button>

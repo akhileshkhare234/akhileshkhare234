@@ -23,10 +23,16 @@ export default function ProjetcList({ projects }) {
                 key={index}
                 className="list-item"
                 title={`${pro.name + ", " + pro.totalHour} hrs Working`}
+                id={"project" + index}
               >
-                <span className="badge-pill">{index + 1}</span>
-                {projects?.length > 10 ? pro.name.substr(0, 8) : pro.name}
-                <span className="badge-pill-right">
+                <span className="badge-pill" id={"count" + index}>
+                  {index + 1}
+                </span>
+                <span id={"projectname" + index}>
+                  {" "}
+                  {projects?.length > 6 ? pro.name.substr(0, 9) : pro.name}
+                </span>
+                <span className="badge-pill-right" id={"hoursvalue" + index}>
                   {pro.totalHour ? pro.totalHour : "0"}
                 </span>
               </li>
@@ -41,7 +47,9 @@ export default function ProjetcList({ projects }) {
                   .join("") + `<b>Total</b> ${totalHours + " hrs Working"}`
               }
             >
-              <span className="item-right">Total - {totalHours + " hrs"}</span>
+              <span className="item-right">
+                Total - <span id="totalHours">{totalHours}</span> {" hrs"}
+              </span>
             </li>
           </>
         ) : (

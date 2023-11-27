@@ -180,7 +180,7 @@ export default function EditProject({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaleditproject"
     >
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -200,49 +200,61 @@ export default function EditProject({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="editproject">
             <form name="projectForm" className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label className="mb-1">Project Name</label>
+                <label className="mb-1" id="namelabel">
+                  Project Name
+                </label>
                 <input
                   type="text"
                   name="name"
+                  id="namefiled"
                   className="form-control rounded-3"
                   placeholder="Enter Project Name"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Project Manager</label>
+                <label className="mb-1" id="managerlabel">
+                  Project Manager
+                </label>
                 <input
                   type="text"
                   name="manager"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="manager"
                   placeholder="Project Manager Name"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
+                <label className="mb-1" id="clientContactNamelabel">
+                  Client Contact
+                </label>
                 <input
                   type="text"
                   name="clientContactName"
+                  id="clientContactName"
                   className="form-control rounded-3"
                   placeholder="Client Name"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
+                <label className="mb-1" id="clientContactNumberlabel">
+                  Client Contact
+                </label>
                 <input
                   type="text"
                   name="clientContactNumber"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="clientContactNumber"
                   placeholder="Client Contact Number"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Start Date</label>
+                <label className="mb-1" id="startDatelabel">
+                  Start Date
+                </label>
                 <input
                   type="date"
                   max={setMaxMinDate(10)}
@@ -250,31 +262,31 @@ export default function EditProject({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="startDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="startDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">
+                <label className="mb-1" id="completionDatelabel">
                   Completion Date <span className="required">*</span>
                 </label>
                 <input
                   type="date"
                   name="completionDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="completionDate"
                   required
                   placeholder="Enter Completion Date"
                 />
               </div>
-              <div className="col-md-12">
+              <div className="col-md-12" id="projectDetaillabel">
                 <label className="mb-1">Project Detail</label>
                 <textarea
                   multiline
                   name="projectDetail"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="projectDetail"
                   placeholder="Enter Project Detail"
                 />
               </div>
@@ -289,12 +301,14 @@ export default function EditProject({
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">Project comments</label>
+                <label className="mb-1" id="commentslabel">
+                  Project comments
+                </label>
                 <textarea
                   multiline
                   name="comments"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="comments"
                   placeholder="Enter Project comments"
                 />
               </div>
@@ -302,6 +316,7 @@ export default function EditProject({
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
+                  id="editbtn"
                 >
                   Update
                 </button>

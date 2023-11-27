@@ -67,6 +67,7 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
             <select
               className="form-select rounded-3"
               name="months"
+              id="months"
               defaultValue={getMonthName()}
               onChange={(event) => getMonthValue(event.target.value)}
             >
@@ -86,6 +87,7 @@ function TimeSheetDetails({ projects, getMonthValue, getYearValue }) {
             <select
               className="form-select rounded-3"
               name="years"
+              id="years"
               defaultValue={getYears()}
               onChange={(e) => {
                 setSelectedYear(e.target.value);

@@ -13,7 +13,7 @@ export default function ImagePreview({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="ImagePreview"
     >
       <div className="modal-dialog modal-md" role="document">
         <div className="modal-content rounded-4 shadow">

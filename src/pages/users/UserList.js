@@ -6,6 +6,7 @@ import ImagePreview from "./ImagePreview";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css"; // You can choose different loading effects
 import { useNavigate } from "react-router-dom";
+import { sortBy } from "../../util/UtilMethods";
 
 export default function UserList({
   userDetails,
@@ -25,7 +26,7 @@ export default function UserList({
   const [searchStatus, setSerachStatus] = useState(false);
   const [activeStatus, setActiveStatus] = useState(true);
   const [updateUserStatus, setupdateUserStatus] = useState(false);
-  const [sortStatus, setSortStatus] = useState(false);
+  const [sortStatus, setSortStatus] = useState(true);
   const showImage = (status, data) => {
     setImagePreviewPopUp(status);
     setItemdata(data);
@@ -47,11 +48,13 @@ export default function UserList({
           } else return res.json();
         })
         .then((res) => {
-          let users = res.filter((row, index) => index < pageSize);
+          let userData = sortBy("displayName", res);
+          console.log("userData : ", userData, res);
+          let users = userData?.filter((row, index) => index < pageSize);
           setUserPageArray([...users]);
-          setuserArray([...res]);
+          setuserArray([...userData]);
           let pages = [];
-          for (let I = 1; I <= Math.ceil(res.length / pageSize); I++) {
+          for (let I = 1; I <= Math.ceil(userData.length / pageSize); I++) {
             pages.push(I);
           }
           setPages(pages);
@@ -134,7 +137,7 @@ export default function UserList({
     }, 1000);
     return () => clearTimeout(getData);
   }, [searchUsers, serachText]);
-  const sortBy = (field) => {
+  const sortByName = (field) => {
     let newArray = sortStatus
       ? userArray.sort((p, n) =>
           p[field].toUpperCase() < n[field].toUpperCase()
@@ -195,7 +198,7 @@ export default function UserList({
   return (
     <>
       <Header title="Engineers List" />
-      <div className="container">
+      <div className="container" id="userlist">
         <div className="row px-4 py-2">
           <div className="col justify-content-center">
             <div className="input-group" style={{ width: "300px" }}>
@@ -228,7 +231,7 @@ export default function UserList({
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col" onClick={() => sortBy("displayName")}>
+                    <th scope="col" onClick={() => sortByName("displayName")}>
                       Name
                     </th>
                     <th scope="col" className="text-center">

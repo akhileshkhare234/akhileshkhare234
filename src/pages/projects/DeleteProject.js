@@ -33,6 +33,7 @@ export default function DeleteProject({
           (deletePopUp ? "closePopUp" : "displayPopUp")
         }
         role="dialog"
+        id="deleteproject"
       >
         <div className="modal-dialog">
           <div className="modal-content">
@@ -59,6 +60,7 @@ export default function DeleteProject({
                 type="button"
                 onClick={removeItem}
                 className="btn btn-primary"
+                id="yesbtn"
               >
                 YES
               </button>
@@ -66,6 +68,7 @@ export default function DeleteProject({
                 onClick={() => deletePopUpClose(true)}
                 type="button"
                 className="btn btn-primary"
+                id="nobtn"
               >
                 NO
               </button>

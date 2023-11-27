@@ -33,6 +33,7 @@ export default function DeleteTask({
           (deletePopUp ? "closePopUp" : "displayPopUp")
         }
         role="dialog"
+        id="deletetask"
       >
         <div className="modal-dialog">
           <div className="modal-content">

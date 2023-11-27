@@ -142,7 +142,7 @@ export default function ReimbursementList({
   return (
     <>
       <Header title="Reimbursements List" />
-      <div className="container">
+      <div className="container" id="Reimbursementlist">
         <div className="row">
           <div className="col">
             <div className="row px-4 py-2">
@@ -154,7 +154,7 @@ export default function ReimbursementList({
                     autoComplete="off"
                     placeholder="Search Reimbursement here..."
                     onChange={(event) => setSerachText(event.target.value)}
-                    id="example-search-input"
+                    id="searchfield"
                     onKeyUp={(event) => setSerachText(event.target.value)}
                   />
                 </div>
@@ -166,7 +166,9 @@ export default function ReimbursementList({
                   className="btn btn-outline-primary"
                 >
                   <i className="bi bi-plus-circle me-2"></i>
-                  <span className="ml-2">Add</span>
+                  <span className="ml-2" id="addbutton">
+                    Add
+                  </span>
                 </button>
               </div>
             </div>

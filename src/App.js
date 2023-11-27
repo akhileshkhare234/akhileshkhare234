@@ -8,17 +8,22 @@ import UserProfiles from "./pages/users/UserProfiles";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { APIUrl } from "./auth/constants";
 import UploadCSV from "./pages/inventory/UploadCSV";
-import UserTimeSheet from "./pages/timesheet/UserTimeSheet";
+// import TimeSheetEntry from "./pages/timesheet/TimeSheetEntry";
 import Projects from "./pages/projects/Projects";
 import TimeSheets from "./pages/timesheet/TimeSheets";
 import Holidays from "./pages/holiday/Holidays";
 import Leaves from "./pages/leaves/Leaves";
 import Reimbursement from "./pages/reimbursement/Reimbursement";
 import Tasks from "./pages/tasks/Tasks";
+import { sortBy } from "./util/UtilMethods";
+import UserTimeSheet from "./pages/timesheet/UserTimeSheet";
 
 export const UserData = createContext(null);
 function App() {
   const [userInfo, setUserInfo] = useState([]);
+  const capitalize = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
   const getUsers = useCallback(() => {
     let tokenValue = window.localStorage.getItem("am_token");
     fetch(APIUrl + "api/user/me", {
@@ -38,7 +43,18 @@ function App() {
           })
             .then((res) => res.json())
             .then((userArray) => {
-              let userData = { ...res, userList: [...userArray] };
+              // Use the map function to capitalize names
+              const capitalizedArray = userArray.map((obj) => ({
+                ...obj,
+                displayName: capitalize(obj.displayName),
+              }));
+              userArray = sortBy("displayName", capitalizedArray);
+              let proData = sortBy("name", res["userProjectWithAssignedDate"]);
+              let userData = {
+                ...res,
+                userProjectWithAssignedDate: [...proData],
+                userList: [...userArray],
+              };
               setUserInfo(userData);
               console.log("User Profile : ", userData);
             });

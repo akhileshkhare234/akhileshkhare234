@@ -68,29 +68,6 @@ export default function AddProject({
       console.log("users : ", users, userInfo?.userList);
       setuserArray([...users]);
     } else setuserArray([]);
-    // let tokenValue = window.localStorage.getItem("am_token");
-    // fetch(APIUrl + "api/users", {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: "Bearer " + tokenValue,
-    //   },
-    // })
-    //  .then((res) => {
-    //   if (res.status === 401) {
-    //     window.localStorage.removeItem("am_token");
-    //     navigate("/");
-    //   } else return res.json();
-    // })
-    //   .then((res) => {
-    //     let users = res.map((user) => {
-    //       return { name: user.displayName, email: user.email, id: user.id };
-    //     });
-    //     setuserArray([...users]);
-    //     // console.log("Users List : ", users);
-    //   })
-    //   .catch((err) => {
-    //     console.log("User Not Get : ", err);
-    //   });
   }, [userInfo]);
   useEffect(() => {
     getUsers();
@@ -142,7 +119,7 @@ export default function AddProject({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaladdproject"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -160,29 +137,31 @@ export default function AddProject({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="addprojectbody">
             <form ref={formRef} className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label className="mb-1">
+                <label className="mb-1" id="namelabel">
                   Project Name <span className="required">*</span>
                 </label>
                 <input
                   type="text"
                   autoComplete="off"
                   name="name"
+                  id="namefield"
                   required
                   className="form-control rounded-3"
                   placeholder="Enter Project Name"
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">
+                <label className="mb-1" id="managerlabel">
                   Project Manager <span className="required">*</span>
                 </label>
 
                 <select
                   className="form-select rounded-3"
                   name="manager"
+                  id="managerfield"
                   required
                   defaultValue=""
                 >
@@ -195,11 +174,12 @@ export default function AddProject({
                 </select>
               </div>
               <div className="col-md-6">
-                <label className="mb-1">
+                <label className="mb-1" id="clientContactNamelabel">
                   Client Name <span className="required">*</span>
                 </label>
                 <input
                   type="text"
+                  id="clientContactName"
                   autoComplete="off"
                   name="clientContactName"
                   required
@@ -208,19 +188,21 @@ export default function AddProject({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Client Contact</label>
+                <label className="mb-1" id="clientContactNumberlabel">
+                  Client Contact
+                </label>
                 <input
                   type="text"
                   autoComplete="off"
                   name="clientContactNumber"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="clientContactNumber"
                   placeholder="Client Contact Number"
                 />
               </div>
 
               <div className="col-md-12">
-                <label className="mb-1">
+                <label className="mb-1" id="projectDetaillabel">
                   Project Detail <span className="required">*</span>
                 </label>
                 <textarea
@@ -228,7 +210,7 @@ export default function AddProject({
                   name="projectDetail"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="projectDetail"
                   placeholder="Enter Project Detail"
                 />
               </div>
@@ -243,7 +225,9 @@ export default function AddProject({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Project Start Date</label>
+                <label className="mb-1" id="startDatelabel">
+                  Project Start Date
+                </label>
                 <input
                   type="date"
                   max={setMaxMinDate(10)}
@@ -251,7 +235,7 @@ export default function AddProject({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="startDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="startDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
@@ -273,6 +257,7 @@ export default function AddProject({
                 <button
                   className="mb-2 btn btn-lg rounded-3 btn-primary center profilebtn2 py-2"
                   type="submit"
+                  id="savebtn"
                 >
                   Save
                 </button>

@@ -7,6 +7,7 @@ import Header from "../inventory/Header";
 import { getMonthName, getMonths, getYears } from "../util.js";
 import ApproveTimeSheet from "./ApproveTimeSheet";
 import { useNavigate } from "react-router-dom";
+import { sortBy } from "../../util/UtilMethods";
 
 export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
   const userInfo = useContext(UserData);
@@ -106,9 +107,10 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         })
         .then((res) => {
           if (res?.length > 0) {
-            let project = res.filter((row, index) => index < 10);
+            let proData = sortBy("name", res);
+            let project = proData.filter((row, index) => index < 10);
             console.log("projects List ", project);
-            setProject([...res]);
+            setProject([...proData]);
             getTimeSheet();
 
             let pageSize = 10;
@@ -181,21 +183,22 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId4",
       });
     }
   };
   return (
     <>
-      <ToastContainer />
+      <ToastContainer id="toastmsgtimesheetlist" />
       <Header title="TimeSheets List" />
-      <div className="container">
+      <div className="container" id="timesheetlist">
         <div className="row">
           <div className="col">
             {userInfo && userInfo?.role === 2 ? (
               <form name="timesheetform" onSubmit={getTimeSheet}>
                 <div className="row px-4 py-2">
                   <div className="col-md-3">
-                    <label htmlFor="floatingInput" className="mb-1">
+                    <label htmlFor="" className="mb-1">
                       Users
                     </label>
                     <select className="form-select rounded-3" name="users">
@@ -208,7 +211,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     </select>
                   </div>
                   <div className="col-md-3">
-                    <label htmlFor="floatingInput" className="mb-1">
+                    <label htmlFor="" className="mb-1">
                       Projects
                     </label>
                     <select className="form-select rounded-3" name="projects">
@@ -221,7 +224,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     </select>
                   </div>
                   <div className="col-md-2">
-                    <label htmlFor="floatingInput" className="mb-1">
+                    <label htmlFor="" className="mb-1">
                       Year
                     </label>
                     <select
@@ -237,7 +240,7 @@ export default function TimeSheetList({ historyPopUpOpen, token, itemStatus }) {
                     </select>
                   </div>
                   <div className="col-md-2">
-                    <label htmlFor="floatingInput" className="mb-1">
+                    <label htmlFor="" className="mb-1">
                       Month
                     </label>
                     <select

@@ -50,6 +50,7 @@ export default function AddHoliday({
       hideProgressBar: false,
       closeOnClick: true,
       theme: "colored",
+      toastId: "customId1",
     });
     event.target.reset();
     console.log("Holiday Data : ", itemData);
@@ -99,9 +100,9 @@ export default function AddHoliday({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="AddHoliday"
     >
-      <ToastContainer />
+      <ToastContainer id="toastmsgAddHoliday" />
       <div className="modal-dialog modal-xl" role="document">
         <div className="modal-content rounded-4 shadow">
           <div className="modal-header p-4 pb-4 border-bottom-0 headercolor bgColor">
@@ -118,7 +119,7 @@ export default function AddHoliday({
           <div className="modal-body p-4">
             <form className="row g-3" onSubmit={saveItem}>
               <div className="col-md-2">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Holiday Date
                 </label>
                 <input
@@ -132,7 +133,7 @@ export default function AddHoliday({
                 />
               </div>
               <div className="col-md-2">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Occasion
                 </label>
                 <input
@@ -143,7 +144,7 @@ export default function AddHoliday({
                 />
               </div>
               <div className="col-md-2">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Location
                 </label>
                 <select name="location" className="form-select rounded-3">
@@ -153,7 +154,7 @@ export default function AddHoliday({
                 </select>
               </div>
               <div className="col-md-2">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Description
                 </label>
                 <input
@@ -164,7 +165,7 @@ export default function AddHoliday({
                 />
               </div>
               <div className="col-md-2">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Holiday Type
                 </label>
                 <select name="type" className="form-select rounded-3">

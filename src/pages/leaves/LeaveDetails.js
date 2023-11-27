@@ -10,7 +10,7 @@ function LeaveDetails({ detailsPopUp, detailsPopUpClose, itemData }) {
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="LeaveDetails"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">

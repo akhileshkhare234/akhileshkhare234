@@ -65,6 +65,7 @@ function ApproveLeave({
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId5",
       });
     }
   };
@@ -117,6 +118,7 @@ function ApproveLeave({
         hideProgressBar: false,
         closeOnClick: true,
         theme: "colored",
+        toastId: "customId6",
       });
     }
   };
@@ -201,7 +203,7 @@ function ApproveLeave({
           </div>
         </div>
       </div>
-      <ToastContainer />
+      <ToastContainer id="toastmsgApproveLeave" />
     </>
   );
 }

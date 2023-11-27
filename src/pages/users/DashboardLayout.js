@@ -87,7 +87,7 @@ export default function EditItem({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="EditInventory"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -105,7 +105,7 @@ export default function EditItem({
           <div className="modal-body p-4">
             <form name="itemForm" className="row g-3" onSubmit={saveItem}>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Model
                 </label>
                 <input
@@ -117,7 +117,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Brand
                 </label>
                 <input
@@ -129,7 +129,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory type
                 </label>
                 <input
@@ -141,7 +141,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory status
                 </label>
                 <input
@@ -153,7 +153,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory location
                 </label>
                 <input
@@ -165,7 +165,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Inventory owner
                 </label>
                 <input
@@ -177,7 +177,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Purchase Date
                 </label>
                 <input
@@ -189,7 +189,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity From
                 </label>
                 <input
@@ -201,7 +201,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Validity To
                 </label>
                 <input
@@ -213,7 +213,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign
                 </label>
                 <select
@@ -229,7 +229,7 @@ export default function EditItem({
                 </select>
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Assign Date
                 </label>
                 <input
@@ -241,7 +241,7 @@ export default function EditItem({
                 />
               </div>
               <div className="col-md-6">
-                <label htmlFor="floatingInput" className="mb-1">
+                <label htmlFor="" className="mb-1">
                   Release Date
                 </label>
                 <input

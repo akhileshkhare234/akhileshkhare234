@@ -119,7 +119,7 @@ export default function AddTask({
       }
       tabIndex="-1"
       role="dialog"
-      id="modalSignin"
+      id="modaladdtask"
     >
       <div className="modal-dialog modal-lg" role="document">
         <div className="modal-content rounded-4 shadow">
@@ -137,10 +137,10 @@ export default function AddTask({
             ></button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-4" id="addtask">
             <form ref={taskForm} className="row g-3" onSubmit={saveTask}>
               <div className="col-md-12">
-                <label className="mb-1">
+                <label className="mb-1" id="taskDetaillabel">
                   Task Detail <span className="required">*</span>
                 </label>
                 <textarea
@@ -148,15 +148,16 @@ export default function AddTask({
                   name="taskDetail"
                   required
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="taskDetail"
                   placeholder="Enter Task Detail"
                 />
               </div>
               <div className="col-md-12">
-                <label className="mb-1">
+                <label className="mb-1" id="nameassignto">
                   Assign to <span className="required">*</span>
                 </label>
                 <Multiselect
+                id="nameassigntofiled"
                   options={userArray} // Options to display in the dropdown
                   selectedValues={selectedValue} // Preselected value to persist in dropdown
                   onSelect={onSelect} // Function will trigger on select event
@@ -165,7 +166,7 @@ export default function AddTask({
                 />
               </div>
               <div className="col-md-6">
-                <label className="mb-1">Start Date</label>
+                <label className="mb-1" id="startDatelabel">Start Date</label>
                 <input
                   type="date"
                   max={setMaxMinDate(0)}
@@ -173,20 +174,20 @@ export default function AddTask({
                   onKeyDown={(e) => customDateLimiter(e)}
                   name="startDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="startDate"
                   placeholder="Enter Assign Date"
                 />
               </div>
 
               <div className="col-md-6">
-                <label className="mb-1">Due Date</label>
+                <label className="mb-1" id="dueDatelabel">Due Date</label>
                 <input
                   type="date"
                   min={setMaxMinDate(0)}
                   defaultValue={setMaxMinDate(0)}
                   name="dueDate"
                   className="form-control rounded-3"
-                  id="floatingInput"
+                  id="dueDate"
                   placeholder="Enter Completion Date"
                 />
               </div>

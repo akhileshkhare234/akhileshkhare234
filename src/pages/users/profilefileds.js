@@ -7,6 +7,7 @@ export const profileFileds = [
     values: [
       { value: "Indore", name: "Indore" },
       { value: "Bangalore", name: "Bangalore" },
+      { value: "US", name: "US" },
     ],
   },
   { name: "tempAddress", title: "Temp Address", type: "text" },
